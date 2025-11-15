@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Swift (Linux)
         if: matrix.os == 'ubuntu-22.04'
-        uses: slashmo/install-swift@v0.4.0
+        uses: swift-actions/setup-swift@v1
         with:
           swift-version: ${{ matrix.swift }}
 
