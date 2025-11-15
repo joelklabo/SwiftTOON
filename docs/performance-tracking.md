@@ -28,17 +28,15 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 3. The workflow fails the build if any benchmark deviates beyond tolerance or if samples are missing, giving immediate regression feedback.
 
 ### Step 4 – History & Visualization Pipeline
-1. Add `perf-history.yml` (trigger: push to `main` + nightly) that:
-   - Re-runs the benchmark suite.
-   - Appends `{commit, timestamp, samples}` to `Benchmarks/history.json`.
-   - Publishes history and derived assets to `gh-pages/perf/` using `peaceiris/actions-gh-pages`.
-2. Generated artifacts:
-   - `perf-history.json` – raw historical data.
-   - `perf-history.png` – rendered chart via Matplotlib/QuickChart.
-   - `perf-badge.json` – Shields endpoint payload.
-3. Exposed URLs:  
-   Badge – `https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/<org>/<repo>/gh-pages/perf/perf-badge.json`  
-   Graph – `https://raw.githubusercontent.com/<org>/<repo>/gh-pages/perf/perf-history.png`
+1. `perf-history.yml` (trigger: push to `main` + manual dispatch) reruns the suite, compares against the baseline, and then uses `Scripts/update-perf-artifacts.swift` to append `{commit, timestamp, samples}` to a history file.
+2. Artifacts written to `perf-artifacts/`:
+   - `perf-history.json` – the entire history (metadata + entries).
+   - `perf-badge.json` – Shields endpoint payload (decode throughput MB/s).
+   - `perf-history.png` – QuickChart-generated line chart of decode throughput over time.
+   - `meta.json` – repo/branch metadata for debugging.
+3. `peaceiris/actions-gh-pages` publishes the artifacts to `gh-pages/perf/`, making them available via:
+   - Badge – `https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-badge.json`
+   - Graph – `https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png`
 
 ### Step 5 – Surface Data on GitHub
 1. Replace the temporary badge in `README.md` with the live Shields endpoint once Step 4 lands.

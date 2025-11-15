@@ -7,7 +7,7 @@
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%2013%2B%20%7C%20Linux%20(AArch64%2Fx86_64)-blue)](#platform-support)
 [![TOON Spec](https://img.shields.io/badge/TOON%20Spec-v2.0-informational)](https://github.com/toon-format/spec)
 [![Style](https://img.shields.io/badge/Lint-SwiftFormat%20%7C%20SwiftLint-4D7A97)](#contributing)
-[![Perf Trend](https://img.shields.io/badge/perf%20trend-setup%20in%20progress-lightgrey)](docs/performance-tracking.md)
+[![Perf Trend](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-badge.json)](https://joelklabo.github.io/SwiftTOON/perf/)
 
 Token-perfect TOON↔JSON conversion for Swift: zero dependencies, spec-aligned, battle-hardened with exhaustive tests and benchmarks from day one.
 
@@ -116,8 +116,12 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 - **Plan:** See [`docs/performance-tracking.md`](docs/performance-tracking.md) for the full benchmarking + visualization pipeline (baseline capture, history storage, badge/graph generation).
 - **Datasets:** Canonical TOON/JSON fixtures under `Benchmarks/Datasets/` (large parser stress test, users/orders datasets, CLI round-trips).
 - **Local command:** `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` followed by `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json` to ensure no regressions before you push.
-- **Automation:** The `Performance Benchmarks` workflow (`.github/workflows/perf.yml`) runs the suite on macOS runners for every push/PR, compares against `Benchmarks/baseline_reference.json`, and uploads the JSON output; a follow-up workflow will publish long-term history/graphs.
-- **Coming soon:** Once the workflow lands, this section will show the live graph (`docs/assets/perf-history.png`) sourced from the historical JSON so we can prove performance improves release over release.
+- **Automation:** The `Performance Benchmarks` workflow (`.github/workflows/perf.yml`) runs the suite on macOS runners for every push/PR, compares against `Benchmarks/baseline_reference.json`, and uploads the JSON output. A companion workflow (`perf-history.yml`) reruns the suite on main pushes, aggregates results into `gh-pages/perf/`, and publishes a Shields badge + line chart so visitors can track throughput.
+- **Live artifacts:** The graph below and the README badge are sourced from `https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/` and refresh after every main-branch run of `perf-history.yml`.
+
+![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png)
+
+<sub>The badge and graph update automatically after the `Publish Performance History` workflow runs on `main`.</sub>
 
 ---
 

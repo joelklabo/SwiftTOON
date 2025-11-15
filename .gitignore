@@ -2,6 +2,7 @@
 /.build
 /Packages
 /Benchmarks/results/
+/perf-artifacts/
 /reference/
 xcuserdata/
 DerivedData/

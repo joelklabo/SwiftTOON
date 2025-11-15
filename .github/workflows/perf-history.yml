@@ -1,0 +1,59 @@
+name: Publish Performance History
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  history:
+    runs-on: macos-14
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run benchmarks
+        env:
+          SWIFT_STRICT_CONCURRENCY: complete
+        run: |
+          mkdir -p Benchmarks/results
+          swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json
+
+      - name: Compare with baseline
+        run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05
+
+      - name: Checkout gh-pages (history)
+        id: ghpages
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Generate artifacts
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+          REPO_SLUG: ${{ github.repository }}
+        run: |
+          mkdir -p perf-artifacts
+          HISTORY_PATH=""
+          if [ -f gh-pages/perf/perf-history.json ]; then
+            HISTORY_PATH="gh-pages/perf/perf-history.json"
+          fi
+          swift Scripts/update-perf-artifacts.swift \
+            --latest Benchmarks/results/latest.json \
+            --output-dir perf-artifacts \
+            --commit "$COMMIT_SHA" \
+            --branch "$GITHUB_REF_NAME" \
+            --repo "$REPO_SLUG" \
+            ${HISTORY_PATH:+--history-input "$HISTORY_PATH"}
+
+      - name: Publish artifacts to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: perf-artifacts
+          destination_dir: perf
+          force_orphan: false
