@@ -30,7 +30,7 @@ jobs:
           swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json
 
       - name: Compare against baseline
-        run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05
+        run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.2
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4

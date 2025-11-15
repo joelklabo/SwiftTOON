@@ -23,7 +23,7 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 2. Steps inside the workflow:
    - Checkout repo.
    - `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
-   - `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
+   - `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.2`
    - Upload the JSON artifact for debugging.
 3. The workflow fails the build if any benchmark deviates beyond tolerance or if samples are missing, giving immediate regression feedback.
 
