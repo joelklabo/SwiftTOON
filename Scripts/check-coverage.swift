@@ -145,27 +145,18 @@ func locateLLVMCov() throws -> String {
 }
 
 func findTestBinaries(in root: URL) -> [URL] {
-    var binaries: [URL] = []
     let fm = FileManager.default
-    guard let enumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles]) else {
+    guard let enumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) else {
         return []
     }
+    var binaries: Set<URL> = []
     for case let url as URL in enumerator {
-        if url.pathExtension == "xctest" {
-            var isDirectory = ObjCBool(false)
-            if fm.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue {
-                let executableDir = url.appendingPathComponent("Contents/MacOS", isDirectory: true)
-                if let contents = try? fm.contentsOfDirectory(at: executableDir, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
-                    binaries.append(contentsOf: contents.filter { url in
-                        (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
-                    })
-                }
-            } else {
-                binaries.append(url)
-            }
+        guard url.path.contains(".xctest/Contents/MacOS/") else { continue }
+        if let values = try? url.resourceValues(forKeys: [.isRegularFileKey]), values.isRegularFile == true {
+            binaries.insert(url)
         }
     }
-    return binaries
+    return Array(binaries)
 }
 
 struct AggregatedMetric {
