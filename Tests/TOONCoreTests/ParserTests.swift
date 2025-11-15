@@ -51,4 +51,19 @@ final class ParserTests: XCTestCase {
             ]),
         ]))
     }
+
+    func testTrailingWhitespaceIgnored() throws {
+        let input = "name: Ada   \n"
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .object(["name": .string("Ada")]))
+    }
+
+    func testQuotedRootValue() throws {
+        let input = "\"hello world\""
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .string("hello world"))
+    }
+
 }
