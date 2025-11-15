@@ -107,7 +107,13 @@ final class ParserTabularTests: XCTestCase {
         tags[2]: a,b,c
         """
         var parser = try Parser(input: input)
-        XCTAssertThrowsError(try parser.parse())
+        XCTAssertThrowsError(try parser.parse()) { error in
+            guard case let ParserError.inlineArrayLengthMismatch(expected, actual, _, _) = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+            XCTAssertEqual(expected, 2)
+            XCTAssertEqual(actual, 3)
+        }
     }
 
     func testParsesTabDelimitedTabularArray() throws {
@@ -132,7 +138,13 @@ final class ParserTabularTests: XCTestCase {
           1,Ada
         """
         var parser = try Parser(input: input)
-        XCTAssertThrowsError(try parser.parse())
+        XCTAssertThrowsError(try parser.parse()) { error in
+            guard case let ParserError.tabularRowFieldMismatch(expected, actual, _, _) = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+            XCTAssertEqual(expected, 2)
+            XCTAssertEqual(actual, 0)
+        }
     }
 
     func testInlinePrimitiveArrayWithWhitespaceOnlyStrings() throws {

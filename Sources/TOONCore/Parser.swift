@@ -3,6 +3,8 @@ import Foundation
 public enum ParserError: Error, Equatable, LocalizedError {
     case unexpectedToken(line: Int, column: Int, expected: String)
     case invalidNumberLiteral(String, line: Int, column: Int)
+    case inlineArrayLengthMismatch(expected: Int, actual: Int, line: Int, column: Int)
+    case tabularRowFieldMismatch(expected: Int, actual: Int, line: Int, column: Int)
 
     public var errorDescription: String? {
         switch self {
@@ -10,6 +12,10 @@ public enum ParserError: Error, Equatable, LocalizedError {
             return "Unexpected token at \(line):\(column). Expected \(expected)."
         case let .invalidNumberLiteral(value, line, column):
             return "Invalid number literal '\(value)' at \(line):\(column)."
+        case let .inlineArrayLengthMismatch(expected, actual, line, column):
+            return "Inline array declared with \(expected) values but found \(actual) at \(line):\(column)."
+        case let .tabularRowFieldMismatch(expected, actual, line, column):
+            return "Tabular row expected \(expected) fields but found \(actual) at \(line):\(column)."
         }
     }
 }
@@ -177,7 +183,7 @@ public struct Parser {
             } else {
                 let values = try readRowValues(delimiter: delimiter)
                 guard values.count == length else {
-                    throw ParserError.unexpectedToken(line: keyToken.line, column: keyToken.column, expected: "array with \(length) values")
+                    throw ParserError.inlineArrayLengthMismatch(expected: length, actual: values.count, line: keyToken.line, column: keyToken.column)
                 }
                 return .array(values)
             }
@@ -249,7 +255,7 @@ public struct Parser {
         for _ in 0..<length {
             let values = try readRowValues(delimiter: delimiter)
             guard values.count == headers.count else {
-                throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "tabular row with \(headers.count) values")
+                throw ParserError.tabularRowFieldMismatch(expected: headers.count, actual: values.count, line: contextToken.line, column: contextToken.column)
             }
             var object: [String: JSONValue] = [:]
             for (index, header) in headers.enumerated() {
