@@ -35,6 +35,8 @@ struct TOONCLI {
                 try handleDecode(arguments: remainder, context: &context)
             case "stats":
                 try handleStats(arguments: remainder, context: &context)
+            case "validate":
+                try handleValidate(arguments: remainder, context: &context)
             case "--help", "-h", "help":
                 writeUsage(into: &context)
             default:
@@ -43,8 +45,8 @@ struct TOONCLI {
         }
 
         private func handleEncode(arguments: [String], context: inout CommandContext) throws {
-            let (input, output, options) = try parseIOArguments(arguments, allowOutput: true)
-            guard options.isEmpty else { throw CLError.unrecognizedOption(options[0]) }
+            let (input, output, optionTokens) = try parseIOArguments(arguments, allowOutput: true)
+            let encodeOptions = try parseEncodeFlags(optionTokens)
             let jsonData = try read(from: input, context: &context)
             guard !jsonData.isEmpty else { throw CLError.emptyInput }
             let jsonObject: Any
@@ -59,17 +61,20 @@ struct TOONCLI {
             } catch {
                 throw CLError.invalidJSON("Unsupported JSON literal encountered.")
             }
-            let serializer = ToonSerializer()
+            let serializer = ToonSerializer(options: ToonEncodingOptions(
+                delimiter: encodeOptions.delimiter,
+                indentWidth: encodeOptions.indentWidth
+            ))
             let outputText = serializer.serialize(jsonValue: jsonValue)
             try write(string: outputText, to: output, context: &context)
         }
 
         private func handleDecode(arguments: [String], context: inout CommandContext) throws {
-            let (input, output, options) = try parseIOArguments(arguments, allowOutput: true)
-            guard options.isEmpty else { throw CLError.unrecognizedOption(options[0]) }
+            let (input, output, optionTokens) = try parseIOArguments(arguments, allowOutput: true)
+            let decodeOptions = try parseDecodeFlags(optionTokens)
             let toonData = try read(from: input, context: &context)
             guard !toonData.isEmpty else { throw CLError.emptyInput }
-            let decoder = ToonDecoder()
+            let decoder = ToonDecoder(options: ToonDecoder.Options(lenient: decodeOptions.lenient))
             let jsonValue: JSONValue
             do {
                 jsonValue = try decoder.decodeJSONValue(from: toonData)
@@ -85,8 +90,8 @@ struct TOONCLI {
         }
 
         private func handleStats(arguments: [String], context: inout CommandContext) throws {
-            let (input, _, options) = try parseIOArguments(arguments, allowOutput: false)
-            guard options.isEmpty else { throw CLError.unrecognizedOption(options[0]) }
+            let (input, _, optionTokens) = try parseIOArguments(arguments, allowOutput: false)
+            let encodeOptions = try parseEncodeFlags(optionTokens)
             let jsonData = try read(from: input, context: &context)
             guard !jsonData.isEmpty else { throw CLError.emptyInput }
             let jsonObject: Any
@@ -101,7 +106,10 @@ struct TOONCLI {
             } catch {
                 throw CLError.invalidJSON("Unsupported JSON literal encountered.")
             }
-            let serializer = ToonSerializer()
+            let serializer = ToonSerializer(options: ToonEncodingOptions(
+                delimiter: encodeOptions.delimiter,
+                indentWidth: encodeOptions.indentWidth
+            ))
             let toonOutput = serializer.serialize(jsonValue: jsonValue)
             let toonBytes = toonOutput.data(using: .utf8)?.count ?? 0
             let jsonBytes = jsonData.count
@@ -118,13 +126,33 @@ struct TOONCLI {
             try write(string: summaryString, to: .stdout, context: &context)
         }
 
+        private func handleValidate(arguments: [String], context: inout CommandContext) throws {
+            let (input, _, optionTokens) = try parseIOArguments(arguments, allowOutput: false)
+            let decodeOptions = try parseDecodeFlags(optionTokens)
+            let toonData = try read(from: input, context: &context)
+            guard !toonData.isEmpty else { throw CLError.emptyInput }
+            let decoder = ToonDecoder(options: ToonDecoder.Options(lenient: decodeOptions.lenient))
+            do {
+                _ = try decoder.decodeJSONValue(from: toonData)
+            } catch {
+                throw CLError.invalidTOON(error.localizedDescription)
+            }
+            try write(string: "TOON is valid", to: .stdout, context: &context)
+        }
+
         private func parseIOArguments(_ arguments: [String], allowOutput: Bool) throws -> (InputSource, OutputDestination, [String]) {
             var inputPath: String?
             var outputPath: String?
             var unprocessed: [String] = []
             var index = 0
+            var capturingOptions = false
             while index < arguments.count {
                 let arg = arguments[index]
+                if capturingOptions {
+                    unprocessed.append(arg)
+                    index += 1
+                    continue
+                }
                 switch arg {
                 case "--input":
                     guard inputPath == nil else { throw CLError.usage("Input specified more than once.") }
@@ -139,6 +167,7 @@ struct TOONCLI {
                     outputPath = arguments[index]
                 default:
                     if arg.hasPrefix("-") {
+                        capturingOptions = true
                         unprocessed.append(arg)
                     } else if inputPath == nil {
                         inputPath = arg
@@ -151,6 +180,70 @@ struct TOONCLI {
             let input: InputSource = inputPath.map { .file(URL(fileURLWithPath: $0)) } ?? .stdin
             let output: OutputDestination = allowOutput ? (outputPath.map { .file(URL(fileURLWithPath: $0)) } ?? .stdout) : .stdout
             return (input, output, unprocessed)
+        }
+
+        private struct EncodeFlags {
+            var delimiter: ToonEncodingOptions.Delimiter = .comma
+            var indentWidth: Int = 2
+        }
+
+        private func parseEncodeFlags(_ tokens: [String]) throws -> EncodeFlags {
+            var config = EncodeFlags()
+            var index = 0
+            while index < tokens.count {
+                let flag = tokens[index]
+                switch flag {
+                case "--delimiter":
+                    index += 1
+                    guard index < tokens.count else { throw CLError.usage("Missing value for --delimiter.") }
+                    config.delimiter = try parseDelimiter(tokens[index])
+                case "--indent":
+                    index += 1
+                    guard index < tokens.count, let value = Int(tokens[index]), value >= 0 else {
+                        throw CLError.usage("Invalid value for --indent.")
+                    }
+                    config.indentWidth = value
+                default:
+                    throw CLError.unrecognizedOption(flag)
+                }
+                index += 1
+            }
+            return config
+        }
+
+        private func parseDelimiter(_ value: String) throws -> ToonEncodingOptions.Delimiter {
+            switch value.lowercased() {
+            case ",", "comma":
+                return .comma
+            case "\\t", "tab":
+                return .tab
+            case "|", "pipe":
+                return .pipe
+            default:
+                throw CLError.usage("Unsupported delimiter '\(value)'.")
+            }
+        }
+
+        private struct DecodeFlags {
+            var lenient: Bool = false
+        }
+
+        private func parseDecodeFlags(_ tokens: [String]) throws -> DecodeFlags {
+            var config = DecodeFlags()
+            var index = 0
+            while index < tokens.count {
+                let flag = tokens[index]
+                switch flag {
+                case "--lenient":
+                    config.lenient = true
+                case "--strict":
+                    config.lenient = false
+                default:
+                    throw CLError.unrecognizedOption(flag)
+                }
+                index += 1
+            }
+            return config
         }
 
         private func read(from source: InputSource, context: inout CommandContext) throws -> Data {
@@ -197,12 +290,12 @@ struct TOONCLI {
         private func writeUsage(into context: inout CommandContext) {
             let usage = """
 Usage:
-  toon-swift encode [<input.json>] [--output <file>]
-  toon-swift decode [<input.toon>] [--output <file>]
-  toon-swift stats [<input.json>]
+  toon-swift encode [<input.json>] [--output <file>] [--delimiter <comma|tab|pipe>] [--indent <n>]
+  toon-swift decode [<input.toon>] [--output <file>] [--strict|--lenient]
+  toon-swift stats [<input.json>] [--delimiter <comma|tab|pipe>] [--indent <n>]
+  toon-swift validate [<input.toon>] [--strict|--lenient]
 
-If no input file is provided the command reads from STDIN. Encode and decode write to
-STDOUT unless --output is supplied.
+If no input path is provided, commands read from STDIN. Encode/decode write to STDOUT unless --output is set.
 """
             var text = usage
             if !text.hasSuffix("\n") {

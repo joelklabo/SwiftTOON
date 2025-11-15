@@ -115,7 +115,7 @@
 3. **Perf/Smoke**
    - CLI bench command wraps existing benchmarks; ensures shipping binary can run perf tests locally.
 
-> **Status:** Encode/decode/stats commands now read from files or STDIN, write to files/STDOUT, and surface JSON summaries. Integration tests cover file and streaming paths. Remaining work: snapshot tests for `--delimiter/--lenient/--strict`, CLI benchmark hook, and richer diagnostics/validation flags.
+> **Status:** Encode/decode/stats now support STDIN/STDOUT, delimiter + indent flags, lenient decoding, and a `validate` subcommand. Integration tests cover file + streaming flows and the new CLI options. Remaining work: add CLI benchmark hook, expand diagnostics snapshots, and wire validation flags into the perf workflow.
 
 ## Stage 8 – Testing Depth & Automation
 

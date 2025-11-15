@@ -21,18 +21,28 @@ public enum ParserError: Error, Equatable, LocalizedError {
 }
 
 public struct Parser {
+    public struct Options {
+        public var lenientArrays: Bool
+
+        public init(lenientArrays: Bool = false) {
+            self.lenientArrays = lenientArrays
+        }
+    }
+
     private var tokens: [Token]
     private var index: Int = 0
     private let sourceBytes: [UInt8]
+    private let options: Options
     private enum ArrayDelimiter {
         case comma
         case tab
         case pipe
     }
 
-    public init(input: String) throws {
+    public init(input: String, options: Options = Options()) throws {
         self.tokens = try Lexer.tokenize(input)
         self.sourceBytes = Array(input.utf8)
+        self.options = options
     }
 
     public mutating func parse() throws -> JSONValue {
@@ -182,7 +192,7 @@ public struct Parser {
                 return .array(values)
             } else {
                 let values = try readRowValues(delimiter: delimiter)
-                guard values.count == length else {
+                if values.count != length && !options.lenientArrays {
                     throw ParserError.inlineArrayLengthMismatch(expected: length, actual: values.count, line: keyToken.line, column: keyToken.column)
                 }
                 return .array(values)
@@ -254,12 +264,17 @@ public struct Parser {
         var rows: [JSONValue] = []
         for _ in 0..<length {
             let values = try readRowValues(delimiter: delimiter)
-            guard values.count == headers.count else {
+            let adjustedValues: [JSONValue]
+            if values.count == headers.count {
+                adjustedValues = values
+            } else if options.lenientArrays {
+                adjustedValues = normalizeRow(values, expected: headers.count)
+            } else {
                 throw ParserError.tabularRowFieldMismatch(expected: headers.count, actual: values.count, line: contextToken.line, column: contextToken.column)
             }
             var object = JSONObject()
             for (index, header) in headers.enumerated() {
-                object[header] = values[index]
+                object[header] = adjustedValues[index]
             }
             rows.append(.object(object))
         }
@@ -275,6 +290,17 @@ public struct Parser {
             }
         }
         return rows
+    }
+
+    private func normalizeRow(_ values: [JSONValue], expected: Int) -> [JSONValue] {
+        if values.count >= expected {
+            return Array(values.prefix(expected))
+        }
+        var padded = values
+        for _ in values.count..<expected {
+            padded.append(.null)
+        }
+        return padded
     }
 
     private mutating func parseListArray(length: Int, baseIndent: Int, contextToken: Token) throws -> [JSONValue] {

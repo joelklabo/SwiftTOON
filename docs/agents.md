@@ -159,11 +159,11 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 
 ## CLI & Tooling Expectations
 
-- `toon-swift` should mirror TypeScript CLI flags: `encode`, `decode`, `validate`, `stats`, `--delimiter`, `--lenient`, `--strict`.
+- `toon-swift` should mirror TypeScript CLI flags: `encode`, `decode`, `validate`, `stats`, `--delimiter`, `--indent`, `--lenient`, `--strict`.
 - Provide piping support (stdin/stdout) and file arguments.
 - `--stats` prints JSON summary (bytes saved, token estimates from heuristics).
 - Document CLI usage in README with examples; add snapshot tests for output.
-- Current status: encode/decode/stats commands are live with integration tests covering file + STDIN paths. When extending functionality (e.g., delimiter overrides, validation flags) add a new integration test first and update README usage examples.
+- Encode/decode/stats/validate already ship. Any new flags (delimiter variations, lenient/strict behaviors, validation output) must land with integration tests and README updates; CLI benchmark command remains TODO.
 
 ---
 

@@ -107,11 +107,14 @@ $ cat payload.json | toon-swift encode > payload.toon
 $ toon-swift decode payload.toon --output payload.json
 $ cat payload.toon | toon-swift decode > payload.json
 
-# Compare sizes
-$ toon-swift stats payload.json
+# Compare sizes (custom delimiter + indent)
+$ toon-swift stats payload.json --delimiter tab --indent 4
+
+# Validate TOON (strict or lenient parsing)
+$ toon-swift validate payload.toon --lenient
 ```
 
-`stats` prints a JSON blob such as `{ "jsonBytes": 512, "toonBytes": 312, "reductionPercent": 39.0 }`, which makes it easy to script reports or feed dashboards.
+`encode` accepts `--delimiter <comma|tab|pipe>` and `--indent <n>` so you can control emitted TOON formatting. `decode`/`validate` accept `--strict` (default) or `--lenient`; lenient mode relaxes tabular row validations (missing fields are padded with `null`, extra fields are truncated). `stats` prints a JSON blob such as `{ "jsonBytes": 512, "toonBytes": 312, "reductionPercent": 39.0 }`, which makes it easy to script reports or feed dashboards.
 
 ---
 

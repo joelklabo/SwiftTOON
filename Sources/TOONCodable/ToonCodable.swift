@@ -4,9 +4,11 @@ import TOONCore
 public struct ToonDecoder {
     public struct Options {
         public var schema: ToonSchema?
+        public var lenient: Bool
 
-        public init(schema: ToonSchema? = nil) {
+        public init(schema: ToonSchema? = nil, lenient: Bool = false) {
             self.schema = schema
+            self.lenient = lenient
         }
     }
 
@@ -62,7 +64,7 @@ public struct ToonDecoder {
         guard let string = String(data: data, encoding: .utf8) else {
             throw ToonDecodingError.invalidUTF8
         }
-        var parser = try Parser(input: string)
+        var parser = try Parser(input: string, options: Parser.Options(lenientArrays: options.lenient))
         return try parser.parse()
     }
 }

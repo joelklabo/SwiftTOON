@@ -20,6 +20,26 @@ final class EncodeDecodeIntegrationTests: XCTestCase {
         XCTAssertTrue(output.contains("\"Ada\""))
     }
 
+    func testEncodeSupportsTabDelimiter() throws {
+        let runner = TOONCLI.Runner()
+        let jsonInput = #"{"items":[{"id":1,"name":"Ada"}]}"#
+        let output = try runner.invoke(arguments: ["encode", "--delimiter", "tab"], stdin: jsonInput)
+        XCTAssertTrue(output.contains("\t"))
+    }
+
+    func testDecodeLenientAllowsMismatchedTabularRows() throws {
+        let runner = TOONCLI.Runner()
+        let invalidTOON = """
+        users[2,]{id,name}:
+          1,Ada
+          2
+        """
+        XCTAssertThrowsError(try runner.invoke(arguments: ["decode"], stdin: invalidTOON))
+        let json = try runner.invoke(arguments: ["decode", "--lenient"], stdin: invalidTOON)
+        XCTAssertTrue(json.contains("\"id\""))
+        XCTAssertTrue(json.contains("null"))
+    }
+
     private func temporaryFiles(json: String) throws -> (URL, URL) {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
