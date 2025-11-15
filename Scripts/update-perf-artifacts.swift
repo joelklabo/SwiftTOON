@@ -218,7 +218,7 @@ do {
                 "legend": ["display": false],
                 "title": [
                     "display": true,
-                    "text": "Decode Throughput (MB/s) – lower is better",
+                    "text": "Decode Throughput (MB/s) – higher is better",
                     "align": "center",
                     "font": ["size": 18, "weight": "600"],
                     "color": "#1f2933"

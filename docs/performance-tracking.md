@@ -49,6 +49,41 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 
 ---
 
+## Coverage Telemetry (Codecov Replacement)
+
+### Goal
+Surface real SwiftPM coverage numbers without any third-party SaaS dependency so badges stay accurate even if Codecov tokens are missing. Reuse the same gh-pages approach that already powers the performance badge/graph.
+
+### Plan
+1. **Local generation**
+   - Always run `swift test --enable-code-coverage --parallel`.
+   - Execute `swift Scripts/coverage-badge.swift --profile .build/debug/codecov/default.profdata --binary-root .build --output coverage-artifacts` which:
+     - Locates every `.xctest/Contents/MacOS/*` binary under `.build`.
+     - Calls `llvm-cov export -summary-only …` to grab totals directly from LLVM tooling (no JSON parsing hacks).
+     - Emits:
+       - `coverage-badge.json` – Shields payload with percent + label + color.
+       - `coverage-summary.json` – Structured data `{lines, regions, functions, timestamp, commit}` for history.
+       - `README-snippet.md` – Optional snippet that can be embedded elsewhere if we ever want textual coverage notes.
+2. **CI workflow**
+   - New workflow `.github/workflows/coverage.yml` (trigger: push to `main`, manual dispatch) that runs the same local steps plus writes metadata (commit SHA, branch, git time).
+   - Publish artifacts to `gh-pages/coverage/` via `peaceiris/actions-gh-pages@v3` with `force_orphan: true` (parallel to `perf-history.yml`).
+   - Store latest badge JSON at `https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json`.
+3. **README badge**
+   - Replace the Codecov badge with `https://img.shields.io/endpoint?url=<gh-pages-url>` once the workflow lands.
+   - Add a short paragraph in the README “Coverage & Quality” section describing how the badge is produced (LLVM summary + gh-pages).
+4. **Agent docs**
+   - `docs/agents.md` + root `AGENTS.md` must describe:
+     - How to run the coverage script locally.
+     - When to re-run the gh-pages workflow (every push to `main` automatically plus manual dispatch if badge stalls).
+     - Expectation that contributors check `gh run list` / `gh-commit-watch` for `coverage` runs in addition to `ci`, `Performance Benchmarks`, and `Publish Performance History`.
+
+### Future Enhancements
+- Track historical coverage trends (store `coverage-history.json` alongside the badge and render a sparkline similar to perf).
+- Emit per-target coverage so we can spot regressions isolated to `TOONCore` vs `TOONCLI`.
+- Gate merges on minimum coverage thresholds once data stabilizes (e.g., fail CI if `<99%` line coverage).
+
+---
+
 ## Local Developer Checklist
 1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
 2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
@@ -62,3 +97,4 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 - Add Linux runners for cross-platform data.
 - Publish percentile stats (p50/p95) for CLI round-trips.
 - Build an interactive GitHub Pages dashboard that consumes `gh-pages/perf/perf-history.json`.
+- Mirror the coverage badge plan for mutation testing or fuzzing depth once those harnesses exist.

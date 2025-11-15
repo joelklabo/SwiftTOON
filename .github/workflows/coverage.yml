@@ -1,0 +1,57 @@
+name: Coverage Badge
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Run tests with coverage
+        env:
+          SWIFT_STRICT_CONCURRENCY: complete
+        run: swift test --enable-code-coverage --parallel
+
+      - name: Locate coverage profile
+        id: profile
+        run: |
+          PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)
+          if [ -z "$PROFILE" ]; then
+            echo "Coverage profile not found"
+            exit 1
+          fi
+          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
+
+      - name: Generate coverage artifacts
+        env:
+          PROFILE_PATH: ${{ steps.profile.outputs.profile }}
+        run: |
+          mkdir -p coverage-artifacts
+          swift Scripts/coverage-badge.swift \
+            --profile "$PROFILE_PATH" \
+            --binary-root .build \
+            --output coverage-artifacts \
+            --commit "${GITHUB_SHA}" \
+            --branch "${GITHUB_REF_NAME}" \
+            --label "coverage"
+
+      - name: Publish coverage badge
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: coverage-artifacts
+          destination_dir: coverage
+          force_orphan: true

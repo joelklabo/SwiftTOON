@@ -1,7 +1,7 @@
 # SwiftTOON
 
 [![CI](https://github.com/joelklabo/SwiftTOON/actions/workflows/ci.yml/badge.svg)](https://github.com/joelklabo/SwiftTOON/actions/workflows/ci.yml)
-[![Codecov](https://codecov.io/gh/joelklabo/SwiftTOON/branch/main/graph/badge.svg)](https://codecov.io/gh/joelklabo/SwiftTOON)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json&cacheSeconds=600)](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-summary.json)
 [![SwiftPM](https://img.shields.io/badge/SwiftPM-ready-orange?logo=swift)](https://swift.org/package-manager/)
 [![Swift](https://img.shields.io/badge/Swift-5.10+-FF5E33?logo=swift)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%2013%2B%20%7C%20Linux%20(AArch64%2Fx86_64)-blue)](#platform-support)
@@ -96,11 +96,22 @@ let decoded = try decoder.decode([User].self, from: toonData)
 
 ### CLI
 
+`toon-swift` already exposes three zero-dependency subcommands that mirror the TypeScript reference tool. All commands accept an optional input path (defaulting to STDIN) and write to STDOUT unless `--output` is supplied.
+
 ```bash
-$ toon-swift encode input.json --delimiter ',' --stats
-$ toon-swift decode dataset.toon --strict > dataset.json
-$ cat data.json | toon-swift encode --lenient
+# Encode JSON → TOON
+$ toon-swift encode payload.json --output payload.toon
+$ cat payload.json | toon-swift encode > payload.toon
+
+# Decode TOON → JSON
+$ toon-swift decode payload.toon --output payload.json
+$ cat payload.toon | toon-swift decode > payload.json
+
+# Compare sizes
+$ toon-swift stats payload.json
 ```
+
+`stats` prints a JSON blob such as `{ "jsonBytes": 512, "toonBytes": 312, "reductionPercent": 39.0 }`, which makes it easy to script reports or feed dashboards.
 
 ---
 
@@ -147,7 +158,20 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 
 ![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png)
 
-<sub>The badge and graph update automatically after the `Publish Performance History` workflow runs on `main`.</sub>
+<sub>Higher MB/s numbers mean faster decoders (so the ideal trend is up and to the right). The badge and graph update automatically after the `Publish Performance History` workflow runs on `main`.</sub>
+
+---
+
+## Coverage Reporting
+
+- **Zero dependency telemetry:** Instead of relying on Codecov, we run `swift test --enable-code-coverage --parallel` and feed the LLVM profile into [`Scripts/coverage-badge.swift`](Scripts/coverage-badge.swift). The script calls `llvm-cov export -summary-only …` so the percent matches SwiftPM’s notion of coverage exactly.
+- **Automation:** `.github/workflows/coverage.yml` executes on every push to `main`, generates `coverage-badge.json` + `coverage-summary.json`, and publishes them to `gh-pages/coverage/` using the same mechanism as the perf artifacts.
+- **Live badge:** The README badge above hits `https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json` (cached for 10 minutes). Clicking the badge opens the raw summary JSON with counts/percentages for lines, functions, and regions plus metadata (commit, branch, timestamp).
+- **Local workflow:** Run the script locally before pushing if you touch anything coverage-sensitive:
+  1. `swift test --enable-code-coverage --parallel`
+  2. `swift Scripts/coverage-badge.swift --profile $(find .build -path "*/codecov/default.profdata" -print -quit) --binary-root .build --output coverage-artifacts --label coverage`
+  3. Inspect `coverage-artifacts/coverage-summary.json` to confirm no regressions, then clean up (`rm -rf coverage-artifacts`) before committing.
+- **Coming soon:** Once implementation stabilizes we’ll fail CI if line coverage dips below 99%, and we’ll add a coverage sparkline similar to the perf chart.
 
 ---
 

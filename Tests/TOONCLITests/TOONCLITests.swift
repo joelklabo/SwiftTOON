@@ -1,15 +1,14 @@
 import XCTest
-#warning()
 @testable import TOONCLI
 
 final class TOONCLITests: XCTestCase {
     func testHelpCommandExitsCleanly() throws {
-        XCTAssertNoThrow(try TOONCLI.Runner().run(arguments: ["--help"]))
+        let output = try TOONCLI.Runner().invoke(arguments: ["--help"])
+        XCTAssertTrue(output.lowercased().contains("usage"))
     }
 
-    func testRunningWithoutArgumentsFailsUntilCLIIsBuilt() {
-        XCTAssertThrowsError(try TOONCLI.Runner().run(arguments: [])) { error in
-            XCTAssertEqual(error as? TOONCLI.CLError, .notImplemented)
-        }
+    func testRunningWithoutArgumentsShowsUsage() throws {
+        let output = try TOONCLI.Runner().invoke(arguments: [])
+        XCTAssertTrue(output.lowercased().contains("usage"))
     }
 }

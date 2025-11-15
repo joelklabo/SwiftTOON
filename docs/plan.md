@@ -24,8 +24,11 @@
    - Scaffold `TOONBenchmarks` target with placeholder benchmarks that currently call the reference CLI to produce baseline JSON/TOON throughput numbers.
    - Store baseline artifacts (JSON of ops/sec) so we can compare as soon as Swift encoder/decoder exists.
 5. **Coverage + badge plumbing**
-   - Configure Codecov token/permissions and add a stub `.codecov.yml` enforcing ≥99/97 thresholds once data exists.
-   - Create TODO tests that fail until SwiftPM targets produce coverage files, ensuring CI badge wiring is validated early.
+   - Replace the Codecov dependency with an in-repo workflow:
+     - Swift script produces a Shields payload + history JSON by running `llvm-cov export -summary-only` over `.xctest` binaries and the `.build/debug/codecov/default.profdata` profile.
+     - `coverage.yml` workflow (push to `main`) runs tests with `--enable-code-coverage`, generates artifacts, and publishes to `gh-pages/coverage/` using `peaceiris/actions-gh-pages@v3`.
+   - README badge must point at `https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json`.
+   - Document the manual/local workflow in `docs/agents.md` + `docs/performance-tracking.md` so every change keeps coverage + perf telemetry in sync.
 
 ## Stage 1 – Workspace Scaffolding (Red → Green → Refactor Cycle)
 
@@ -111,6 +114,8 @@
    - Provide piping support (stdin/stdout) and helpful diagnostics using shared error taxonomy.
 3. **Perf/Smoke**
    - CLI bench command wraps existing benchmarks; ensures shipping binary can run perf tests locally.
+
+> **Status:** Encode/decode/stats commands now read from files or STDIN, write to files/STDOUT, and surface JSON summaries. Integration tests cover file and streaming paths. Remaining work: snapshot tests for `--delimiter/--lenient/--strict`, CLI benchmark hook, and richer diagnostics/validation flags.
 
 ## Stage 8 – Testing Depth & Automation
 

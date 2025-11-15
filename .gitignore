@@ -3,6 +3,7 @@
 /Packages
 /Benchmarks/results/
 /perf-artifacts/
+/coverage-artifacts/
 /reference/
 xcuserdata/
 DerivedData/

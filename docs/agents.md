@@ -36,7 +36,7 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 7. **Sync with reference** – Differential tests vs `reference/` TypeScript CLI are mandatory for new encoding/decoding features. Keep fixtures up to date.
 8. **Communication** – Summaries must be clear, reference touched files/lines, and propose next steps (tests, docs, benchmarks). No raw command dumps.
 9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`). Use `gh-commit-watch` for every commit/push so CI is monitored asynchronously:
-   - `gh-commit-watch -m "message" -w "ci|Performance Benchmarks|Publish Performance History"` stages all changes, commits, pushes, and spawns a tmux session to tail CI. Detach immediately (`Ctrl-b d`) so work can continue.
+   - `gh-commit-watch -m "message" -w "ci|Performance Benchmarks|Publish Performance History|Coverage Badge"` stages all changes, commits, pushes, and spawns a tmux session to tail CI (including perf + coverage publishers). Detach immediately (`Ctrl-b d`) so work can continue.
    - At the start of every new task, reattach (`tmux attach -t <session>`) or run `gh run list` to confirm previous workflows finished. If any failed, fix them before continuing.
    - The default workflow filter is `ci`—pass a comma/pipe list if perf/history runs are relevant to the change.
 10. **Schema priming awareness** – When touching encoder/decoder logic, consider whether `ToonSchema` hints (validation + serializer fast paths) need updates. Every new structural feature must have schema-backed tests plus README/DocC coverage.
@@ -136,7 +136,13 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Local perf workflow (run before pushing perf-sensitive changes):
   1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
   2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
-- Use `gh` freely for repo inspection: e.g. `gh run list`, `gh run view <id> --log`, `gh issue status`, etc., to diagnose CI failures or workflow status quickly. Capture relevant snippets in final summaries when the CLI output explains a fix.
+- **Coverage workflow (Codecov replacement):**
+  1. `swift test --enable-code-coverage --parallel`
+  2. `PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)` (`exit 1` if empty).
+  3. `swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts --label coverage`
+  4. Inspect `coverage-artifacts/coverage-summary.json` (line/function/region %). Delete the directory before committing.
+  5. `coverage.yml` runs automatically on `main`, pushing `coverage-badge.json` + `coverage-summary.json` to `gh-pages/coverage/`. Treat failures the same as CI/perf.
+- Use `gh` freely for repo inspection: e.g. `gh run list`, `gh run view <id> --log`, `gh issue status`, etc., to diagnose CI failures or workflow status quickly. Capture relevant snippets in final summaries when the CLI output explains a fix (include the `Coverage Badge` workflow in every check).
 
 ---
 
@@ -157,6 +163,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Provide piping support (stdin/stdout) and file arguments.
 - `--stats` prints JSON summary (bytes saved, token estimates from heuristics).
 - Document CLI usage in README with examples; add snapshot tests for output.
+- Current status: encode/decode/stats commands are live with integration tests covering file + STDIN paths. When extending functionality (e.g., delimiter overrides, validation flags) add a new integration test first and update README usage examples.
 
 ---
 

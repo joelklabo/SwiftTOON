@@ -1,16 +1,16 @@
 import Foundation
 import TOONCore
 
-struct ToonSerializer {
+public struct ToonSerializer {
     let options: ToonEncodingOptions
     let schema: ToonSchema?
 
-    init(options: ToonEncodingOptions = ToonEncodingOptions(), schema: ToonSchema? = nil) {
+    public init(options: ToonEncodingOptions = ToonEncodingOptions(), schema: ToonSchema? = nil) {
         self.options = options
         self.schema = schema
     }
 
-    func serialize(jsonValue: JSONValue) -> String {
+    public func serialize(jsonValue: JSONValue) -> String {
         let renderer = Renderer(options: options, schema: schema)
         let lines = renderer.render(
             value: jsonValue,

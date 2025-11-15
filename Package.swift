@@ -40,7 +40,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "TOONCLI",
-            dependencies: ["TOONCodable"],
+            dependencies: ["TOONCodable", "TOONCore"],
             path: "Sources/TOONCLI"
         ),
         .target(
