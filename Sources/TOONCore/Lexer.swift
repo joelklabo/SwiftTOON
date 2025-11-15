@@ -89,6 +89,9 @@ private enum ASCII {
     static let letterN = Character("n").asciiValue!
     static let letterT = Character("t").asciiValue!
     static let letterR = Character("r").asciiValue!
+    static let letterEUpper = Character("E").asciiValue!
+    static let letterELower = Character("e").asciiValue!
+    static let plus = Character("+").asciiValue!
 }
 
 private mutating func nextToken() throws -> Token {
@@ -140,7 +143,7 @@ private mutating func nextToken() throws -> Token {
             return makeZeroLengthToken(kind: .comma)
         case ASCII.dash:
             if let next = peekByte(offset: 1), isDigit(next) {
-                return lexNumber(startingWithMinus: true)
+                return try lexNumber(startingWithMinus: true)
             } else {
                 advance()
                 return makeZeroLengthToken(kind: .dash)
@@ -167,7 +170,7 @@ private mutating func nextToken() throws -> Token {
             return try lexStringLiteral()
         default:
             if isDigit(byte) {
-                return lexNumber()
+                return try lexNumber()
             } else if isIdentifierStart(byte) {
                 return lexIdentifier()
             } else if byte == ASCII.space {
@@ -241,7 +244,7 @@ private mutating func nextToken() throws -> Token {
         return Token(kind: .identifier(substring), range: start..<end, line: line, column: startColumn)
     }
 
-    private mutating func lexNumber(startingWithMinus: Bool = false) -> Token {
+    private mutating func lexNumber(startingWithMinus: Bool = false) throws -> Token {
         let start = index
         let startColumn = column
         if startingWithMinus {
@@ -252,6 +255,19 @@ private mutating func nextToken() throws -> Token {
         }
         if index < buffer.count, buffer[index] == ASCII.period {
             advance()
+            while index < buffer.count, isDigit(buffer[index]) {
+                advance()
+            }
+        }
+        if index < buffer.count, buffer[index] == ASCII.letterEUpper || buffer[index] == ASCII.letterELower {
+            advance()
+            if index < buffer.count, buffer[index] == ASCII.plus || buffer[index] == ASCII.dash {
+                advance()
+            }
+            guard index < buffer.count, isDigit(buffer[index]) else {
+                let character = index < buffer.count ? Character(UnicodeScalar(buffer[index])) : Character(" ")
+                throw LexerError.unexpectedCharacter(line: line, column: column, character: character)
+            }
             while index < buffer.count, isDigit(buffer[index]) {
                 advance()
             }
@@ -286,7 +302,8 @@ private mutating func nextToken() throws -> Token {
                 case ASCII.letterT: escaped = ASCII.tab
                 case ASCII.letterR: escaped = ASCII.carriageReturn
                 default:
-                    escaped = escape
+                    let character = Character(UnicodeScalar(escape))
+                    throw LexerError.unexpectedCharacter(line: line, column: column, character: character)
                 }
                 scalars.append(escaped)
                 advance()

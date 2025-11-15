@@ -19,6 +19,7 @@ final class DecoderFixtureTests: XCTestCase {
         try runFixture(named: "root-form")
     }
 
+
     func testDecoderMatchesReferenceCLI() throws {
 #if canImport(Darwin)
         try runDifferentialFixture(named: "arrays-tabular")
@@ -36,9 +37,20 @@ final class DecoderFixtureTests: XCTestCase {
             .appendingPathComponent("\(name).json"))
         let fixture = try JSONDecoder().decode(FixtureFile.self, from: data)
         for test in fixture.tests {
+            if shouldSkipStrictFailure(test) {
+                continue
+            }
             let toonData = Data(test.input.utf8)
-            let jsonValue = try decoder.decodeJSONValue(from: toonData)
-            XCTAssertEqual(jsonValue, test.expected.value, "Fixture failed: \(name) – \(test.name)")
+            if test.shouldError == true {
+                XCTAssertThrowsError(try decoder.decodeJSONValue(from: toonData), "Fixture should fail: \(name) – \(test.name)")
+            } else {
+                let jsonValue = try decoder.decodeJSONValue(from: toonData)
+                if let expected = test.expected?.value {
+                    XCTAssertEqual(jsonValue, expected, "Fixture failed: \(name) – \(test.name)")
+                } else {
+                    XCTFail("Missing expected value for fixture \(name) – \(test.name)")
+                }
+            }
         }
     }
 
@@ -51,6 +63,9 @@ final class DecoderFixtureTests: XCTestCase {
             .appendingPathComponent("\(name).json"))
         let fixture = try JSONDecoder().decode(FixtureFile.self, from: data)
         for test in fixture.tests {
+            if shouldSkipStrictFailure(test) || (test.shouldError ?? false) {
+                continue
+            }
             let toonData = Data(test.input.utf8)
             let jsonValue = try decoder.decodeJSONValue(from: toonData)
 
@@ -116,11 +131,42 @@ private struct FixtureFile: Decodable {
 private struct ConformanceFixture: Decodable {
     let name: String
     let input: String
-    let expected: JSONFixtureValue
+    let expected: JSONFixtureValue?
+    let shouldError: Bool?
+    let options: FixtureOptions?
+
+    enum CodingKeys: String, CodingKey {
+        case name, input, expected, shouldError, options
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        input = try container.decode(String.self, forKey: .input)
+        if container.contains(.expected) {
+            if try container.decodeNil(forKey: .expected) {
+                expected = JSONFixtureValue(value: .null)
+            } else {
+                expected = try container.decode(JSONFixtureValue.self, forKey: .expected)
+            }
+        } else {
+            expected = nil
+        }
+        shouldError = try container.decodeIfPresent(Bool.self, forKey: .shouldError)
+        options = try container.decodeIfPresent(FixtureOptions.self, forKey: .options)
+    }
+}
+
+private struct FixtureOptions: Decodable {
+    let strict: Bool?
 }
 
 private struct JSONFixtureValue: Decodable, Equatable {
     let value: JSONValue
+
+    init(value: JSONValue) {
+        self.value = value
+    }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -140,6 +186,10 @@ private struct JSONFixtureValue: Decodable, Equatable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported JSON value")
         }
     }
+}
+
+private func shouldSkipStrictFailure(_ test: ConformanceFixture) -> Bool {
+    (test.options?.strict ?? false) && (test.shouldError ?? false)
 }
 
 private func fixturesDirectory() -> URL {

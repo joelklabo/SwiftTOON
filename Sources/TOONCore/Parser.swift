@@ -263,8 +263,16 @@ public struct Parser {
             }
             rows.append(.object(object))
         }
-        if let token = peekToken(), case .dedent = token.kind {
-            advance()
+        consumeNewlines()
+        if let token = peekToken() {
+            switch token.kind {
+            case .dedent:
+                advance()
+            case .indent:
+                throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "end of tabular rows")
+            default:
+                break
+            }
         }
         return rows
     }
@@ -326,6 +334,11 @@ public struct Parser {
 
         if let token = peekToken(), case .dedent = token.kind {
             advance()
+        }
+
+        consumeNewlines()
+        if let token = peekToken(), token.kind == .dash {
+            throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "end of list items")
         }
 
         return values

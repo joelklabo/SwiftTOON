@@ -73,9 +73,36 @@ final class TOONCodableTests: XCTestCase {
         XCTAssertEqual(result.value, "streamed")
     }
 
+    func testDecodesLargeDatasetFromFileStream() throws {
+        struct User: Codable, Equatable {
+            let id: Int
+            let name: String
+            let active: Bool
+        }
+        struct Dataset: Codable, Equatable {
+            let users: [User]
+        }
+        let url = datasetURL(named: "large.toon")
+        guard let stream = InputStream(url: url) else {
+            return XCTFail("Failed to open dataset stream")
+        }
+        let decoder = ToonDecoder()
+        let result = try decoder.decode(Dataset.self, from: stream)
+        XCTAssertEqual(result.users.count, 200)
+        XCTAssertEqual(result.users.first?.name, "User-0001")
+    }
+
     func testEncodingNotImplemented() {
         let encoder = ToonEncoder()
         struct Dummy: Codable {}
         XCTAssertThrowsError(try encoder.encode(Dummy()))
     }
+}
+
+private func datasetURL(named name: String) -> URL {
+    var url = URL(fileURLWithPath: #filePath)
+    url.deleteLastPathComponent() // TOONCodableTests.swift
+    url.deleteLastPathComponent() // TOONCodableTests
+    url.deleteLastPathComponent() // Tests
+    return url.appendingPathComponent("Benchmarks").appendingPathComponent("Datasets").appendingPathComponent(name)
 }
