@@ -18,6 +18,47 @@ final class EncodeFixtureTests: XCTestCase {
             }
         }
     }
+
+    func testEncodeFixturesRoundTripThroughDecoder() throws {
+        let decoder = ToonDecoder()
+        let bundle = Bundle.module
+        let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/encode"))
+
+        for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            let fixtureFile = try EncodeFixtureFile.load(from: url)
+            for fixture in fixtureFile.tests {
+                let serializer = ToonSerializer(options: fixture.options?.encodingOptions() ?? ToonEncodingOptions())
+                let output = serializer.serialize(jsonValue: fixture.input.value)
+                let decoded = try decoder.decodeJSONValue(from: Data(output.utf8))
+                XCTAssertEqual(decoded, fixture.input.value, "\(url.lastPathComponent) – \(fixture.name)")
+            }
+        }
+    }
+
+#if canImport(Darwin)
+    func testEncoderMatchesReferenceCLIOutput() throws {
+        let cli = ReferenceCLI()
+        let bundle = Bundle.module
+        let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/encode"))
+
+        for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            let fixtureFile = try EncodeFixtureFile.load(from: url)
+            for fixture in fixtureFile.tests {
+                let serializer = ToonSerializer(options: fixture.options?.encodingOptions() ?? ToonEncodingOptions())
+                let swiftOutput = serializer.serialize(jsonValue: fixture.input.value).trimmingCharacters(in: .whitespacesAndNewlines)
+
+                let jsonURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent(UUID().uuidString)
+                    .appendingPathExtension("json")
+                defer { try? FileManager.default.removeItem(at: jsonURL) }
+                try fixture.input.jsonData(sortedKeys: true).write(to: jsonURL)
+
+                let referenceOutput = try cli.encode(jsonAt: jsonURL).trimmingCharacters(in: .whitespacesAndNewlines)
+                XCTAssertEqual(swiftOutput, referenceOutput, "Reference mismatch: \(url.lastPathComponent) – \(fixture.name)")
+            }
+        }
+    }
+#endif
 }
 
 private enum EncodeFixtureLoaderError: Error {
@@ -119,5 +160,13 @@ private extension JSONValue {
         default:
             throw EncodeFixtureLoaderError.invalidFormat("Expected integer but found \(self)")
         }
+    }
+}
+
+private extension JSONFixtureValue {
+    func jsonData(sortedKeys: Bool = false) throws -> Data {
+        let any = value.toAny()
+        let options: JSONSerialization.WritingOptions = sortedKeys ? [.sortedKeys] : []
+        return try JSONSerialization.data(withJSONObject: any, options: options)
     }
 }

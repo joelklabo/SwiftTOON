@@ -18,6 +18,28 @@ final class DecoderFixtureTests: XCTestCase {
     func testRootArrayFixtureDecode() throws {
         try runFixture(named: "root-form")
     }
+    func testDecodeFixturesRoundTripThroughEncoder() throws {
+        let decoder = ToonDecoder()
+        let serializer = ToonSerializer()
+        let directory = fixturesDirectory().appendingPathComponent("decode")
+        let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "json" }
+
+        for url in files.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            let data = try Data(contentsOf: url)
+            let fixture = try JSONDecoder().decode(FixtureFile.self, from: data)
+            for test in fixture.tests {
+                if shouldSkipStrictFailure(test) || (test.shouldError ?? false) {
+                    continue
+                }
+                let toonData = Data(test.input.utf8)
+                let jsonValue = try decoder.decodeJSONValue(from: toonData)
+                let reencoded = serializer.serialize(jsonValue: jsonValue)
+                let roundTripValue = try decoder.decodeJSONValue(from: Data(reencoded.utf8))
+                XCTAssertEqual(roundTripValue, jsonValue, "Round-trip failed: \(url.lastPathComponent) – \(test.name)")
+            }
+        }
+    }
 
 
     func testDecoderMatchesReferenceCLI() throws {
