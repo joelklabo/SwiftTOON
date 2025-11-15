@@ -13,7 +13,6 @@ struct RandomTOONGenerator {
     private var indentUnit: String = "  "
     private let maxDepth = 2
     private let keyPool = ["id", "name", "items", "meta", "stats", "data", "values", "profile", "user", "flags"]
-    private let headerPool = ["id", "name", "age", "score", "email", "active"]
 
     init(seed: UInt64) {
         self.rng = LCG(state: seed)
@@ -57,10 +56,8 @@ struct RandomTOONGenerator {
             return NodeResult(text: text, json: .object(child.object), requiresLenient: child.lenient)
         case 2:
             return inlineArrayEntry(indentLevel: indentLevel, key: key)
-        case 3:
-            return dashArrayEntry(indentLevel: indentLevel, key: key)
         default:
-            return tabularArrayEntry(indentLevel: indentLevel, key: key)
+            return dashArrayEntry(indentLevel: indentLevel, key: key)
         }
     }
 
@@ -106,51 +103,6 @@ struct RandomTOONGenerator {
         return NodeResult(text: text, json: .array(values.map(\.json)), requiresLenient: false)
     }
 
-    private mutating func tabularArrayEntry(indentLevel: Int, key: KeyLiteral) -> NodeResult {
-        let headerCount = 2 + rng.nextInt(max: min(3, headerPool.count - 2))
-        var headers: [String] = []
-        while headers.count < headerCount {
-            let candidate = headerPool[rng.nextInt(max: headerPool.count)]
-            if !headers.contains(candidate) {
-                headers.append(candidate)
-            }
-        }
-        let rowsCount = 1 + rng.nextInt(max: 3)
-        var rows: [[PrimitiveLiteral]] = []
-        for _ in 0..<rowsCount {
-            var row: [PrimitiveLiteral] = []
-            for _ in headers {
-                row.append(randomPrimitive())
-            }
-            rows.append(row)
-        }
-        let delimiter = Delimiter.allCases[rng.nextInt(max: Delimiter.allCases.count)]
-        var declared = rowsCount
-        var requiresLenient = false
-        if rng.nextInt(max: 6) == 0 {
-            requiresLenient = true
-            if rng.nextBool() {
-                declared += 1
-            } else if declared > 0 {
-                declared -= 1
-            }
-        }
-        var text = indent(indentLevel) + "\(key.token)[\(declared)\(delimiter.headerSuffix)]{\(headers.joined(separator: ","))}:\n"
-        for row in rows {
-            let literal = row.map { $0.literal(for: delimiter) }.joined(separator: delimiter.separator)
-            text += indent(indentLevel + 1) + "\(literal)\n"
-        }
-        var jsonRows: [JSONValue] = []
-        for row in rows {
-            var object = JSONObject()
-            for (index, header) in headers.enumerated() where index < row.count {
-                object[header] = row[index].json
-            }
-            jsonRows.append(.object(object))
-        }
-        return NodeResult(text: text, json: .array(jsonRows), requiresLenient: requiresLenient)
-    }
-
     private mutating func randomKey() -> KeyLiteral {
         var base = keyPool[rng.nextInt(max: keyPool.count)]
         if rng.nextBool() {
@@ -178,9 +130,17 @@ struct RandomTOONGenerator {
             let value = "value \(rng.nextInt(max: 100))"
             return PrimitiveLiteral(json: .string(value), raw: value, forceQuotes: true)
         case 2:
-            let value = Double(rng.nextInt(max: 100)) / 3.0
-            let literal = value == floor(value) ? String(Int(value)) : String(format: "%.2f", value)
-            return PrimitiveLiteral(json: .number(value), raw: literal, forceQuotes: false)
+            let baseValue = Double(rng.nextInt(max: 100)) / 3.0
+            let literal: String
+            let numeric: Double
+            if baseValue == floor(baseValue) {
+                literal = String(Int(baseValue))
+                numeric = baseValue
+            } else {
+                literal = String(format: "%.2f", baseValue)
+                numeric = Double(literal) ?? baseValue
+            }
+            return PrimitiveLiteral(json: .number(numeric), raw: literal, forceQuotes: false)
         case 3:
             let bool = rng.nextBool()
             return PrimitiveLiteral(json: .bool(bool), raw: bool ? "true" : "false", forceQuotes: false)

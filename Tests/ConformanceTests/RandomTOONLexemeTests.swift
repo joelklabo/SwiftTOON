@@ -14,6 +14,9 @@ final class RandomTOONLexemeTests: XCTestCase {
         for iteration in 0..<30 {
             let sample = generator.nextCase()
             let data = Data(sample.toon.utf8)
+            if ProcessInfo.processInfo.environment["DEBUG_RANDOM_TOON"] == "1" {
+                print("Sample \(iteration):\n\(sample.toon)")
+            }
 
             if sample.requiresLenient {
                 XCTAssertThrowsError(try strictDecoder.decodeJSONValue(from: data), "Strict mode should fail for sample \(iteration)")
