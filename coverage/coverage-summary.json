@@ -1,0 +1,20 @@
+{
+  "branch" : "main",
+  "commit" : "a2d9aa12458b9a671ac3216c5dcce34a51941953",
+  "functions" : {
+    "count" : 1013,
+    "covered" : 858,
+    "percent" : 84.6989141164857
+  },
+  "generatedAt" : "2025-11-15T11:20:08Z",
+  "lines" : {
+    "count" : 5936,
+    "covered" : 5083,
+    "percent" : 85.63005390835579
+  },
+  "regions" : {
+    "count" : 2552,
+    "covered" : 1959,
+    "percent" : 76.76332288401254
+  }
+}
