@@ -156,4 +156,70 @@ final class LexerTests: XCTestCase {
             .eof,
         ])
     }
+
+    func testMultipleDedentsAreEmitted() throws {
+        let input = """
+        root:
+          child:
+            value: 1
+          sibling: true
+        """
+        let tokens = try Lexer.tokenize(input + "\n")
+        XCTAssertEqual(tokens.map(\.kind), [
+            .identifier("root"),
+            .colon,
+            .newline,
+            .indent(level: 2),
+            .identifier("child"),
+            .colon,
+            .newline,
+            .indent(level: 4),
+            .identifier("value"),
+            .colon,
+            .number("1"),
+            .newline,
+            .dedent(level: 2),
+            .identifier("sibling"),
+            .colon,
+            .identifier("true"),
+            .newline,
+            .dedent(level: 0),
+            .eof,
+        ])
+    }
+
+    func testBlankLinesDoNotAffectIndentation() throws {
+        let input = """
+        root:
+          alpha: 1
+
+          beta: 2
+        """
+        let tokens = try Lexer.tokenize(input + "\n")
+        XCTAssertEqual(tokens.map(\.kind), [
+            .identifier("root"),
+            .colon,
+            .newline,
+            .indent(level: 2),
+            .identifier("alpha"),
+            .colon,
+            .number("1"),
+            .newline,
+            .newline,
+            .identifier("beta"),
+            .colon,
+            .number("2"),
+            .newline,
+            .dedent(level: 0),
+            .eof,
+        ])
+    }
+
+    func testUnterminatedStringThrows() {
+        XCTAssertThrowsError(try Lexer.tokenize("note: \"unterminated")) { error in
+            guard case .unterminatedString = error as? LexerError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
 }
