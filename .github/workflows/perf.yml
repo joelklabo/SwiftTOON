@@ -1,0 +1,39 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Benchmarks/**"
+      - "Scripts/compare-benchmarks.swift"
+      - ".github/workflows/perf.yml"
+      - "Package.swift"
+  workflow_dispatch:
+
+jobs:
+  perf:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Run benchmarks
+        env:
+          SWIFT_STRICT_CONCURRENCY: complete
+        run: |
+          mkdir -p Benchmarks/results
+          swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json
+
+      - name: Compare against baseline
+        run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results
+          path: Benchmarks/results/latest.json

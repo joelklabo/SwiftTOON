@@ -119,8 +119,8 @@
    - Address/Thread sanitizers in CI; nightly libFuzzer job generating TOON lexemes, comparing behaviors with reference CLI.
 4. **Performance regression guard & telemetry**
    - Bench harness emits structured JSON (`suite`, `dataset`, `metric`, `value`, `unit`, `commit`, `runner`). Baseline data lives in `Benchmarks/baseline_reference.json`.
-   - `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` + `Scripts/compare-benchmarks.swift` enforce ≤5% regressions inside CI (`ci-perf.yml`).
-   - Separate GitHub Action (see [`docs/performance-tracking.md`](performance-tracking.md)) appends results to a ` Benchmarks/history.json`, publishes Shields endpoint payload + PNG chart to `gh-pages/perf/`, and refreshes the README badge/graph so performance trends are always visible.
+   - `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` + `Scripts/compare-benchmarks.swift` enforce ≤5% regressions inside CI (`.github/workflows/perf.yml`).
+   - Separate GitHub Action (see [`docs/performance-tracking.md`](performance-tracking.md)) will append results to `Benchmarks/history.json`, publish Shields endpoint payload + PNG chart to `gh-pages/perf/`, and refresh the README badge/graph so performance trends are always visible.
 
 ## Stage 9 – Documentation & Release Readiness
 

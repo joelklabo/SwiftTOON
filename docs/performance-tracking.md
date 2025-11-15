@@ -19,11 +19,13 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 4. Document the local workflow (benchmark command + compare script) in this file, `README.md`, and `docs/agents.md`.
 
 ### Step 3 – CI Regression Gate
-1. Create `ci-perf.yml` that runs on PRs touching `Sources/` and nightly on `main`.
+1. `perf.yml` workflow runs on macOS 14 for every push/PR touching perf-sensitive paths (and is manually runnable).
 2. Steps inside the workflow:
+   - Checkout repo.
    - `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
-   - `swift run Scripts/compare-benchmarks Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
-3. Fail the job (and therefore the PR) if any metric regresses beyond tolerance; include deltas in logs for clarity.
+   - `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
+   - Upload the JSON artifact for debugging.
+3. The workflow fails the build if any benchmark deviates beyond tolerance or if samples are missing, giving immediate regression feedback.
 
 ### Step 4 – History & Visualization Pipeline
 1. Add `perf-history.yml` (trigger: push to `main` + nightly) that:
