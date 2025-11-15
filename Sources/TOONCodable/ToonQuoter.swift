@@ -44,9 +44,7 @@ enum ToonQuoter {
             digits += 1
             index = value.index(after: index)
         }
-        var hasFraction = false
         if index < end, value[index] == "." {
-            hasFraction = true
             index = value.index(after: index)
             var fractionDigits = 0
             while index < end, value[index].isWholeNumber {

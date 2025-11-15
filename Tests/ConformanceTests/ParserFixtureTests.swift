@@ -31,7 +31,7 @@ final class ParserFixtureTests: XCTestCase {
         let cli = ReferenceCLI()
         for test in fixture.tests {
             let referenceJSON = try cli.decode(toon: test.input)
-            let referenceValue = try JSONDecoder().decode(JSONFixtureValue.self, from: Data(referenceJSON.utf8))
+            let referenceValue = try JSONDecoder().decode(ParserJSONFixtureValue.self, from: Data(referenceJSON.utf8))
 
             var parser = try Parser(input: test.input)
             let value = try parser.parse()
@@ -44,4 +44,4 @@ private struct FixtureFile: Decodable {
     let tests: [FixtureTest]
 }
 
-private typealias JSONFixtureValue = FixtureTest.JSONValueWrapper
+private typealias ParserJSONFixtureValue = FixtureTest.JSONValueWrapper

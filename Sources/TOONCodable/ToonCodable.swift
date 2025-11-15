@@ -61,13 +61,43 @@ public enum ToonDecodingError: Error, LocalizedError {
 }
 
 public struct ToonEncoder {
-    public init() {}
+    public var jsonEncoder: JSONEncoder
 
-    public func encode<T>(_: T) throws -> Data where T: Encodable {
-        throw ToonEncodingError.notImplemented
+    public init(jsonEncoder: JSONEncoder = JSONEncoder()) {
+        self.jsonEncoder = jsonEncoder
+    }
+
+    public func encode<T>(_ value: T) throws -> Data where T: Encodable {
+        let jsonData = try jsonEncoder.encode(value)
+        let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
+        let jsonValue: JSONValue
+        do {
+            jsonValue = try JSONValue(jsonObject: jsonObject)
+        } catch {
+            throw ToonEncodingError.unsupportedValue
+        }
+        let serializer = ToonSerializer()
+        let output = serializer.serialize(jsonValue: jsonValue)
+        guard let data = output.data(using: .utf8) else {
+            throw ToonEncodingError.encodingFailed
+        }
+        return data
     }
 }
 
-public enum ToonEncodingError: Error {
+public enum ToonEncodingError: Error, LocalizedError {
     case notImplemented
+    case unsupportedValue
+    case encodingFailed
+
+    public var errorDescription: String? {
+        switch self {
+        case .notImplemented:
+            return "Encoding is not yet implemented."
+        case .unsupportedValue:
+            return "Encountered a value that cannot be encoded into TOON."
+        case .encodingFailed:
+            return "Failed to emit TOON output."
+        }
+    }
 }
