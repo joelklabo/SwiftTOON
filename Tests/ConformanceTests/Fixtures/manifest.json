@@ -1,0 +1,116 @@
+{
+  "files" : [
+    {
+      "bytes" : 5433,
+      "relativePath" : "decode\/arrays-nested.json",
+      "sha256" : "4dc82897f96d13042fc0c04009a2dedf3ad8ee9850449020113f5fef1c539925"
+    },
+    {
+      "bytes" : 2755,
+      "relativePath" : "decode\/arrays-primitive.json",
+      "sha256" : "8852a92fafebcb21a27440853ea5c02b9681ace44a35ae6d7ed5ab33d836f3b3"
+    },
+    {
+      "bytes" : 2052,
+      "relativePath" : "decode\/arrays-tabular.json",
+      "sha256" : "8b4cd3824d0c0b5f20d533ee180ea45297451de7f952d002cd4a9099a8eb0db5"
+    },
+    {
+      "bytes" : 3577,
+      "relativePath" : "decode\/blank-lines.json",
+      "sha256" : "4738ef66a549c75b22eb216f633718c543ca7b8027f73d971f165994496b20a8"
+    },
+    {
+      "bytes" : 7245,
+      "relativePath" : "decode\/delimiters.json",
+      "sha256" : "f8d29e4cd818e3330b95a12dabee5efbc429df2947b5941c171a8d1264a4827d"
+    },
+    {
+      "bytes" : 4163,
+      "relativePath" : "decode\/indentation-errors.json",
+      "sha256" : "d2284fea918ffbf0836bc08fabfed7b0514c4acffd61fe95c03826c58db9ce4d"
+    },
+    {
+      "bytes" : 3626,
+      "relativePath" : "decode\/numbers.json",
+      "sha256" : "5967d8c5d479595b38c20ca44a46e1e4d3ff9a4318c18b3132c3bd6e06d3a0f2"
+    },
+    {
+      "bytes" : 5247,
+      "relativePath" : "decode\/objects.json",
+      "sha256" : "d50df3e8acc91b02737da75ca2a4bb4eb4f311683d7cc99752a60697b7207405"
+    },
+    {
+      "bytes" : 3982,
+      "relativePath" : "decode\/path-expansion.json",
+      "sha256" : "cc2538c88df56511fd3d5b644245377db29719897a6e815a5b21efd3adba69b0"
+    },
+    {
+      "bytes" : 3814,
+      "relativePath" : "decode\/primitives.json",
+      "sha256" : "6dd031834e972e1637c2b2038a768d78c025a512237ff850318719e2098892ec"
+    },
+    {
+      "bytes" : 420,
+      "relativePath" : "decode\/root-form.json",
+      "sha256" : "03c736ef792ca3bedb9853f211e9a5e0d9b961b4d37c445a7b938065e1b9d1f7"
+    },
+    {
+      "bytes" : 2289,
+      "relativePath" : "decode\/validation-errors.json",
+      "sha256" : "b0d8b3feda3606039447f3f80c759812d4f53a2166cd08cf4b0d9eca51309785"
+    },
+    {
+      "bytes" : 1711,
+      "relativePath" : "decode\/whitespace.json",
+      "sha256" : "1c8679c47dac76e9c098fffc8aebb04c2286705c7ac9aaaf547c955aacf3927f"
+    },
+    {
+      "bytes" : 2836,
+      "relativePath" : "encode\/arrays-nested.json",
+      "sha256" : "518e488e9c3a096bf6cc8315eaead367f90d823d976103057dad80b0cad166d1"
+    },
+    {
+      "bytes" : 4375,
+      "relativePath" : "encode\/arrays-objects.json",
+      "sha256" : "7d4cb444ad88bb7f7e48e727d00eba9b8a6a3fbc2dfa45f42686034c96821aa3"
+    },
+    {
+      "bytes" : 2131,
+      "relativePath" : "encode\/arrays-primitive.json",
+      "sha256" : "7ffb65557a83d533fa62dc83896e5bafa578d0421aa3ef55259c0bb6cf05ea5c"
+    },
+    {
+      "bytes" : 1785,
+      "relativePath" : "encode\/arrays-tabular.json",
+      "sha256" : "8459a355ebde2ab53ee1736e78f2e81491015f42237e841bff39d9ff62e7ccdb"
+    },
+    {
+      "bytes" : 6323,
+      "relativePath" : "encode\/delimiters.json",
+      "sha256" : "73f204a91b67233b5cc4617af4500933eecd4059bcd8418439d501deb1a9aa9a"
+    },
+    {
+      "bytes" : 4807,
+      "relativePath" : "encode\/key-folding.json",
+      "sha256" : "a4f29c102bd2ad78685b760549bf4c42ce823db5840a80299bbd39f1203bc4da"
+    },
+    {
+      "bytes" : 4715,
+      "relativePath" : "encode\/objects.json",
+      "sha256" : "b9ed6efd71907b5c49aa52ad10f10f52c9c03ee4d28e7f78cf015604c952c666"
+    },
+    {
+      "bytes" : 6356,
+      "relativePath" : "encode\/primitives.json",
+      "sha256" : "46480d55a392bf2d464c786b48ca7c0a71a677e92ba3d7c229e66b035e6878c5"
+    },
+    {
+      "bytes" : 1161,
+      "relativePath" : "encode\/whitespace.json",
+      "sha256" : "21d9f175980a2dbad5dfeb02a6c7510d694e5e94fb61258c69ccf2f854e98125"
+    }
+  ],
+  "generatedAt" : "2025-11-15T01:35:01Z",
+  "specVersion" : "2.0"
+}

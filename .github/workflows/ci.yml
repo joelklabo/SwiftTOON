@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, ubuntu-22.04]
+        swift: ["5.10"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Swift package
+        id: package
+        run: |
+          if [ -f Package.swift ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Swift (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        uses: slashmo/install-swift@v0.4.0
+        with:
+          swift-version: ${{ matrix.swift }}
+
+      - name: Swift version
+        if: steps.package.outputs.exists == 'true'
+        run: swift --version
+
+      - name: Test with coverage
+        if: steps.package.outputs.exists == 'true'
+        env:
+          SWIFT_STRICT_CONCURRENCY: complete
+        run: swift test --enable-code-coverage --parallel
+
+      - name: Upload coverage artifact
+        if: steps.package.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecov-${{ matrix.os }}
+          path: .build/debug/codecov/*.profdata
+
+      - name: Upload to Codecov
+        if: steps.package.outputs.exists == 'true'
+        uses: codecov/codecov-action@v4
+        with:
+          files: .build/debug/codecov/default.profdata
+          flags: ${{ matrix.os }}
+          fail_ci_if_error: true
+          verbose: true
