@@ -99,7 +99,7 @@
 3. **Perf**
    - Compare schema-primed path vs default to ensure measurable gains; make perf tests part of nightly CI.
 
-> **Status:** Schema priming is implemented (`ToonSchema` validates structures and feeds serializer hints), and new Codable tests cover success/mismatch paths. The current encoder/decoder still bridge through `JSONEncoder`/`JSONSerialization`; replacing them with native JSONValue containers (and adding perf counters) is the next step to finish Stage 6.
+> **Status:** Schema priming is implemented and ToonEncoder/ToonDecoder now rely on custom JSONValue coders (no `JSONSerialization` hop). Codable round-trip tests exercise the new encoder/decoder; future perf work will compare schema-primed vs default paths.
 
 ## Stage 7 – CLI & UX
 

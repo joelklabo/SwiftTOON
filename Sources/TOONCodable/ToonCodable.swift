@@ -20,7 +20,6 @@ public struct ToonDecoder {
 
     public func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
         let jsonValue = try parseJSONValue(from: data)
-        let jsonData = try JSONSerialization.data(withJSONObject: jsonValue.toAny(), options: [])
         if let schema = options.schema {
             do {
                 try schema.validate(jsonValue)
@@ -28,7 +27,9 @@ public struct ToonDecoder {
                 throw ToonDecodingError.schemaMismatch(error.localizedDescription)
             }
         }
-        return try jsonDecoder.decode(T.self, from: jsonData)
+        let valueDecoder = JSONValueDecoder()
+        valueDecoder.userInfo = jsonDecoder.userInfo
+        return try valueDecoder.decode(T.self, from: jsonValue)
     }
 
     public func decode<T>(_ type: T.Type, from stream: InputStream) throws -> T where T: Decodable {
@@ -96,14 +97,9 @@ public struct ToonEncoder {
     }
 
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        let jsonData = try jsonEncoder.encode(value)
-        let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
-        let jsonValue: JSONValue
-        do {
-            jsonValue = try JSONValue(jsonObject: jsonObject)
-        } catch {
-            throw ToonEncodingError.unsupportedValue
-        }
+        let valueEncoder = JSONValueEncoder()
+        valueEncoder.userInfo = jsonEncoder.userInfo
+        let jsonValue = try valueEncoder.encode(value)
         if let schema {
             do {
                 try schema.validate(jsonValue)

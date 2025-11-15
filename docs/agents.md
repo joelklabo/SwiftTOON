@@ -35,7 +35,10 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 6. **Docs stay current** – Any behavioral/data/API change must update README, DocC, `docs/plan.md`, this handbook, and downstream context files immediately.
 7. **Sync with reference** – Differential tests vs `reference/` TypeScript CLI are mandatory for new encoding/decoding features. Keep fixtures up to date.
 8. **Communication** – Summaries must be clear, reference touched files/lines, and propose next steps (tests, docs, benchmarks). No raw command dumps.
-9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`).
+9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`). Use `gh-commit-watch` for every commit/push so CI is monitored asynchronously:
+   - `gh-commit-watch -m "message" -w "ci|perf|Publish Performance History"` stages all changes, commits, pushes, and spawns a tmux session that tails `gh run watch` for the new workflows.
+   - As soon as the tmux window appears, detach (`Ctrl-b d` unless remapped) so you can keep working; reattach later (`tmux attach -t <session>`) or let the session self-close when the runs finish.
+   - The default workflow filter is `ci`—pass a comma/pipe list if perf/history runs are relevant to the change.
 10. **Schema priming awareness** – When touching encoder/decoder logic, consider whether `ToonSchema` hints (validation + serializer fast paths) need updates. Every new structural feature must have schema-backed tests plus README/DocC coverage.
 
 ---

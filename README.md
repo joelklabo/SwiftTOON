@@ -18,6 +18,7 @@ Token-perfect TOON↔JSON conversion for Swift: zero dependencies, spec-aligned,
 - **Extreme correctness** – TDD across every layer, nightly fuzzing, and 99%+ coverage enforced in CI.
 - **Performance-obsessed** – unsafe-buffer lexing, schema-primed fast paths, and benchmark gates to keep us within 10% of the reference TypeScript encoder/decoder.
 - **Drop-in ergonomics** – Codable-compatible encoder/decoder, streaming APIs, and a `toon-swift` CLI for pipelines, scripts, and tooling.
+- **Pure Swift Codable pipeline** – Custom `JSONValue` encoder/decoder keeps conversion dependency-free (no `JSONSerialization` hops) while respecting schema validation.
 - **Spec parity** – Mirrors the official [TOON v2](https://github.com/toon-format/spec) fixtures and conformance tests; differential testing keeps us byte-for-byte with the upstream CLI.
 - **Marketing-ready** – Badges, docs, and stats on the README make it easy to trust and adopt.
 
