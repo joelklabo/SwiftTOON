@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-11-15T03:18:20.021849Z",
+  "generatedAt": "2025-11-15T03:35:18.871365Z",
   "samples": [
     {
       "dataset": "large.toon",
@@ -8,7 +8,7 @@
       "status": "success",
       "suite": "lexer_micro",
       "unit": "MB/s",
-      "value": 5.62199736976301
+      "value": 4.25
     },
     {
       "dataset": "large.toon",
@@ -17,7 +17,7 @@
       "status": "success",
       "suite": "parser_micro",
       "unit": "MB/s",
-      "value": 3.470689598038241
+      "value": 2.544
     },
     {
       "dataset": "users.toon",
@@ -26,7 +26,7 @@
       "status": "success",
       "suite": "decode_end_to_end",
       "unit": "MB/s",
-      "value": 4.414921955587799
+      "value": 3.691
     },
     {
       "dataset": "users.toon",
@@ -35,7 +35,7 @@
       "status": "success",
       "suite": "decode_objects_per_second",
       "unit": "obj/s",
-      "value": 480.9788597934716
+      "value": 393.717
     },
     {
       "dataset": "orders.json",

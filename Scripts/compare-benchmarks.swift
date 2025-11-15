@@ -78,14 +78,6 @@ func parseArguments() throws -> Options {
     return Options(latestPath: latest, baselinePath: baseline, tolerance: tolerance)
 }
 
-struct ComparisonResult {
-    let key: String
-    let baseline: Double
-    let latest: Double
-    let delta: Double
-    let relative: Double
-}
-
 do {
     let options = try parseArguments()
     let latestSamples = try loadSamples(from: options.latestPath)
@@ -96,7 +88,7 @@ do {
         latestMap[key] = sample
     }
     var failures: [String] = []
-    var comparisons: [ComparisonResult] = []
+    var comparisons: [(key: String, baseline: Double, latest: Double, delta: Double, relative: Double, status: String)] = []
     for baseline in baselineSamples {
         let key = "\(baseline.suite)|\(baseline.dataset)|\(baseline.metric)"
         guard let latest = latestMap[key] else {
@@ -115,14 +107,29 @@ do {
         }
         let delta = latest.value - baseline.value
         let relative = delta / baseline.value
-        comparisons.append(ComparisonResult(key: key, baseline: baseline.value, latest: latest.value, delta: delta, relative: relative))
-        if abs(relative) > options.tolerance {
+        let status: String
+        if relative < -options.tolerance {
             failures.append(String(format: "Regression for %@ (baseline %.3f, latest %.3f, change %.2f%%)", key, baseline.value, latest.value, relative * 100))
+            status = "regression"
+        } else if relative > options.tolerance {
+            status = "faster"
+        } else {
+            status = "steady"
         }
+        comparisons.append((key, baseline.value, latest.value, delta, relative, status))
     }
 
     for comparison in comparisons {
-        print(String(format: "%@ baseline=%.3f latest=%.3f change=%.2f%%", comparison.key, comparison.baseline, comparison.latest, comparison.relative * 100))
+        let prefix: String
+        switch comparison.status {
+        case "regression":
+            prefix = "❌"
+        case "faster":
+            prefix = "🔼"
+        default:
+            prefix = "✅"
+        }
+        print(String(format: "%@ %@ baseline=%.3f latest=%.3f change=%.2f%%", prefix, comparison.key, comparison.baseline, comparison.latest, comparison.relative * 100))
     }
 
     if failures.isEmpty {
