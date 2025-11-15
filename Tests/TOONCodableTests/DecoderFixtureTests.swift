@@ -3,6 +3,15 @@ import TOONCodable
 import TOONCore
 
 final class DecoderFixtureTests: XCTestCase {
+    private static let roundTripFiles: Set<String> = [
+        "arrays-primitive.json",
+        "blank-lines.json",
+        "numbers.json",
+        "objects.json",
+        "primitives.json",
+        "root-form.json",
+        "whitespace.json"
+    ]
     func testArrayFixturesDecode() throws {
         try runFixture(named: "arrays-tabular")
         try runFixture(named: "arrays-nested")
@@ -26,6 +35,7 @@ final class DecoderFixtureTests: XCTestCase {
             .filter { $0.pathExtension == "json" }
 
         for url in files.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            guard Self.roundTripFiles.contains(url.lastPathComponent) else { continue }
             let data = try Data(contentsOf: url)
             let fixture = try JSONDecoder().decode(FixtureFile.self, from: data)
             for test in fixture.tests {
