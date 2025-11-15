@@ -1,51 +1,48 @@
-{
-  "generatedAt": "2025-11-15T05:07:39.914464Z",
-  "samples": [
-    {
-      "dataset": "large.toon",
-      "iterations": 10,
-      "metric": "throughput",
-      "status": "success",
-      "suite": "lexer_micro",
-      "unit": "MB/s",
-      "value": 3.056
-    },
-    {
-      "dataset": "large.toon",
-      "iterations": 10,
-      "metric": "throughput",
-      "status": "success",
-      "suite": "parser_micro",
-      "unit": "MB/s",
-      "value": 2.292
-    },
-    {
-      "dataset": "users.toon",
-      "iterations": 10,
-      "metric": "throughput",
-      "status": "success",
-      "suite": "decode_end_to_end",
-      "unit": "MB/s",
-      "value": 3.691
-    },
-    {
-      "dataset": "users.toon",
-      "iterations": 10,
-      "metric": "objects_per_second",
-      "status": "success",
-      "suite": "decode_objects_per_second",
-      "unit": "obj/s",
-      "value": 369.126
-    },
-    {
-      "dataset": "orders.json",
-      "iterations": 0,
-      "metric": "status",
-      "note": "Pending CLI encode/decode support",
-      "status": "skipped",
-      "suite": "cli_round_trip",
-      "unit": "-",
-      "value": 0
-    }
-  ]
-}
+[
+  {
+    "dataset" : "large.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "lexer_micro",
+    "unit" : "MB\/s",
+    "value" : 5.431239284244233
+  },
+  {
+    "dataset" : "large.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "parser_micro",
+    "unit" : "MB\/s",
+    "value" : 3.189772991164053
+  },
+  {
+    "dataset" : "users.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "decode_end_to_end",
+    "unit" : "MB\/s",
+    "value" : 4.130748345494655
+  },
+  {
+    "dataset" : "users.toon",
+    "iterations" : 10,
+    "metric" : "objects_per_second",
+    "status" : "success",
+    "suite" : "decode_objects_per_second",
+    "unit" : "obj\/s",
+    "value" : 441.0159244207748
+  },
+  {
+    "dataset" : "orders.json",
+    "iterations" : 0,
+    "metric" : "status",
+    "note" : "Pending CLI encode\/decode support",
+    "status" : "skipped",
+    "suite" : "cli_round_trip",
+    "unit" : "-",
+    "value" : 0
+  }
+]
