@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-11-15T04:39:59.765056Z",
+  "generatedAt": "2025-11-15T05:07:39.914464Z",
   "samples": [
     {
       "dataset": "large.toon",
@@ -35,7 +35,7 @@
       "status": "success",
       "suite": "decode_objects_per_second",
       "unit": "obj/s",
-      "value": 393.717
+      "value": 369.126
     },
     {
       "dataset": "orders.json",
