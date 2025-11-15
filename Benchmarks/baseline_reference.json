@@ -1,48 +1,48 @@
 [
   {
-    "dataset" : "large.toon",
-    "iterations" : 10,
-    "metric" : "throughput",
-    "status" : "success",
-    "suite" : "lexer_micro",
-    "unit" : "MB\/s",
-    "value" : 5.288044027062506
+    "dataset": "large.toon",
+    "iterations": 10,
+    "metric": "throughput",
+    "status": "success",
+    "suite": "lexer_micro",
+    "unit": "MB/s",
+    "value": 5.288044027062506
   },
   {
-    "dataset" : "large.toon",
-    "iterations" : 10,
-    "metric" : "throughput",
-    "status" : "success",
-    "suite" : "parser_micro",
-    "unit" : "MB\/s",
-    "value" : 3.2033337793665053
+    "dataset": "large.toon",
+    "iterations": 10,
+    "metric": "throughput",
+    "status": "success",
+    "suite": "parser_micro",
+    "unit": "MB/s",
+    "value": 3.2033337793665053
   },
   {
-    "dataset" : "users.toon",
-    "iterations" : 10,
-    "metric" : "throughput",
-    "status" : "success",
-    "suite" : "decode_end_to_end",
-    "unit" : "MB\/s",
-    "value" : 4.078495434363743
+    "dataset": "users.toon",
+    "iterations": 10,
+    "metric": "throughput",
+    "status": "success",
+    "suite": "decode_end_to_end",
+    "unit": "MB/s",
+    "value": 4.078495434363743
   },
   {
-    "dataset" : "users.toon",
-    "iterations" : 10,
-    "metric" : "objects_per_second",
-    "status" : "success",
-    "suite" : "decode_objects_per_second",
-    "unit" : "obj\/s",
-    "value" : 444.6038711865844
+    "dataset": "users.toon",
+    "iterations": 10,
+    "metric": "objects_per_second",
+    "status": "success",
+    "suite": "decode_objects_per_second",
+    "unit": "obj/s",
+    "value": 444.6038711865844
   },
   {
-    "dataset" : "orders.json",
-    "iterations" : 0,
-    "metric" : "status",
-    "note" : "Pending CLI encode\/decode support",
-    "status" : "skipped",
-    "suite" : "cli_round_trip",
-    "unit" : "-",
-    "value" : 0
+    "dataset": "orders.json",
+    "iterations": 0,
+    "metric": "status",
+    "note": "Pending CLI encode/decode support",
+    "status": "skipped",
+    "suite": "cli_round_trip",
+    "unit": "-",
+    "value": 0
   }
 ]
