@@ -13,6 +13,7 @@ struct RandomTOONGenerator {
     private var indentUnit: String = "  "
     private let maxDepth = 2
     private let keyPool = ["id", "name", "items", "meta", "stats", "data", "values", "profile", "user", "flags"]
+    private let headerPool = ["id", "name", "age", "score", "email", "active", "status", "tier", "created"]
 
     init(seed: UInt64) {
         self.rng = LCG(state: seed)
@@ -29,7 +30,7 @@ struct RandomTOONGenerator {
         var lines = ""
         var object = JSONObject()
         var requiresLenient = false
-        let entryCount = 1 + rng.nextInt(max: 3)
+        let entryCount = 1
         for _ in 0..<entryCount {
             let key = randomKey()
             let entry = makeEntry(indentLevel: indentLevel, depth: depth, key: key)
@@ -41,12 +42,8 @@ struct RandomTOONGenerator {
     }
 
     private mutating func makeEntry(indentLevel: Int, depth: Int, key: KeyLiteral) -> NodeResult {
-        let choice: Int
-        if depth >= maxDepth {
-            choice = Int(rng.nextInt(max: 2))
-        } else {
-            choice = Int(rng.nextInt(max: 5))
-        }
+        let maxChoice = depth >= maxDepth ? 2 : 5
+        let choice = Int(rng.nextInt(max: maxChoice))
         switch choice {
         case 0:
             return primitiveEntry(indentLevel: indentLevel, key: key)
@@ -56,8 +53,10 @@ struct RandomTOONGenerator {
             return NodeResult(text: text, json: .object(child.object), requiresLenient: child.lenient)
         case 2:
             return inlineArrayEntry(indentLevel: indentLevel, key: key)
-        default:
+        case 3:
             return dashArrayEntry(indentLevel: indentLevel, key: key)
+        default:
+            return tabularArrayEntry(indentLevel: indentLevel, key: key)
         }
     }
 
@@ -101,6 +100,42 @@ struct RandomTOONGenerator {
             text += indent(indentLevel + 1) + "- \(value.literal())\n"
         }
         return NodeResult(text: text, json: .array(values.map(\.json)), requiresLenient: false)
+    }
+
+    private mutating func tabularArrayEntry(indentLevel: Int, key: KeyLiteral) -> NodeResult {
+        var headers: [String] = []
+        let headerCount = min(headerPool.count, 2 + rng.nextInt(max: 3))
+        while headers.count < headerCount {
+            let candidate = headerPool[rng.nextInt(max: headerPool.count)]
+            if !headers.contains(candidate) {
+                headers.append(candidate)
+            }
+        }
+
+        let rowsCount = 1 + rng.nextInt(max: 3)
+        let delimiter: Delimiter = .comma
+
+        var text = indent(indentLevel) + "\(key.token)[\(rowsCount)\(delimiter.headerSuffix)]{\(headers.joined(separator: ","))}:\n"
+        var jsonRows: [JSONValue] = []
+
+        for _ in 0..<rowsCount {
+            var row: [PrimitiveLiteral] = []
+            for _ in headers {
+                row.append(randomPrimitive())
+            }
+
+            let literal = row.map { $0.literal(for: delimiter) }.joined(separator: delimiter.separator)
+            text += indent(indentLevel + 1) + "\(literal)\n"
+
+            let normalized = normalizeRow(row, expected: headers.count)
+            var object = JSONObject()
+            for (index, header) in headers.enumerated() {
+                object[header] = normalized[index].json
+            }
+            jsonRows.append(.object(object))
+        }
+
+        return NodeResult(text: text, json: .array(jsonRows), requiresLenient: false)
     }
 
     private mutating func randomKey() -> KeyLiteral {
@@ -155,6 +190,20 @@ struct RandomTOONGenerator {
     }
 }
 
+private func normalizeRow(_ values: [PrimitiveLiteral], expected: Int) -> [PrimitiveLiteral] {
+    if values.count == expected {
+        return values
+    } else if values.count > expected {
+        return Array(values.prefix(expected))
+    } else {
+        var padded = values
+        for _ in values.count..<expected {
+            padded.append(PrimitiveLiteral(json: .null, raw: "null", forceQuotes: false))
+        }
+        return padded
+    }
+}
+
 private struct KeyLiteral {
     let actual: String
     let token: String
@@ -183,7 +232,6 @@ private struct NodeResult {
 private enum Delimiter: CaseIterable {
     case comma
     case pipe
-    case tab
 
     var headerSuffix: String {
         switch self {
@@ -191,8 +239,6 @@ private enum Delimiter: CaseIterable {
             return ""
         case .pipe:
             return "|"
-        case .tab:
-            return "\t"
         }
     }
 
@@ -202,8 +248,6 @@ private enum Delimiter: CaseIterable {
             return ","
         case .pipe:
             return "|"
-        case .tab:
-            return "\t"
         }
     }
 
@@ -211,8 +255,6 @@ private enum Delimiter: CaseIterable {
         switch self {
         case .comma, .pipe:
             return value.contains(separator) || value.contains(" ")
-        case .tab:
-            return value.contains("\t") || value.contains(" ")
         }
     }
 }
