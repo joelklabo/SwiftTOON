@@ -54,4 +54,4 @@ jobs:
           publish_branch: gh-pages
           publish_dir: coverage-artifacts
           destination_dir: coverage
-          force_orphan: true
+          keep_files: true
