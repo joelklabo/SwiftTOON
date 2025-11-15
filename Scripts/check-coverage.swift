@@ -156,7 +156,9 @@ func findTestBinaries(in root: URL) -> [URL] {
             if fm.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue {
                 let executableDir = url.appendingPathComponent("Contents/MacOS", isDirectory: true)
                 if let contents = try? fm.contentsOfDirectory(at: executableDir, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
-                    binaries.append(contentsOf: contents)
+                    binaries.append(contentsOf: contents.filter { url in
+                        (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
+                    })
                 }
             } else {
                 binaries.append(url)
