@@ -195,7 +195,9 @@ do {
             "datasets": [[
                 "label": "Decode MB/s",
                 "data": values,
-                "borderColor": "#ff6b35",
+                "borderColor": "#1f4ed8",
+                "backgroundColor": "#1f4ed8",
+                "borderWidth": 4,
                 "fill": false,
                 "tension": 0.3
             ]]
@@ -204,8 +206,26 @@ do {
             "scales": [
                 "y": ["beginAtZero": true]
             ],
+            "layout": [
+                "padding": [
+                    "top": 20,
+                    "bottom": 40,
+                    "left": 40,
+                    "right": 40
+                ]
+            ],
             "plugins": [
-                "legend": ["display": false]
+                "legend": ["display": false],
+                "title": [
+                    "display": true,
+                    "text": "Decode Throughput (MB/s) – lower is better",
+                    "align": "center",
+                    "font": ["size": 18, "weight": "600"],
+                    "color": "#1f2933"
+                ]
+            ],
+            "elements": [
+                "point": ["radius": 4, "backgroundColor": "#1f4ed8", "borderWidth": 0]
             ]
         ]
     ]
