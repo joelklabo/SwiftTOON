@@ -102,6 +102,30 @@ final class ParserTabularTests: XCTestCase {
         ]))
     }
 
+    func testInlineArrayLengthMismatchThrows() throws {
+        let input = """
+        tags[2]: a,b,c
+        """
+        var parser = try Parser(input: input)
+        XCTAssertThrowsError(try parser.parse())
+    }
+
+    func testParsesTabDelimitedTabularArray() throws {
+        let input = """
+        items[2\t]{sku\tqty}:
+          A1\t2
+          B2\t1
+        """
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .object([
+            "items": .array([
+                .object(["sku": .string("A1"), "qty": .number(2)]),
+                .object(["sku": .string("B2"), "qty": .number(1)]),
+            ]),
+        ]))
+    }
+
     func testTabularRowCountMismatchThrows() throws {
         let input = """
         items[2]{id,name}:
