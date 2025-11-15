@@ -122,14 +122,34 @@ func run(_ executable: String, _ arguments: [String]) throws -> String {
     process.standardError = stderr
 
     try process.run()
+
+    let stdoutGroup = DispatchGroup()
+    let stderrGroup = DispatchGroup()
+    var stdoutData = Data()
+    var stderrData = Data()
+
+    stdoutGroup.enter()
+    DispatchQueue.global().async {
+        stdoutData = stdout.fileHandleForReading.readDataToEndOfFile()
+        stdoutGroup.leave()
+    }
+
+    stderrGroup.enter()
+    DispatchQueue.global().async {
+        stderrData = stderr.fileHandleForReading.readDataToEndOfFile()
+        stderrGroup.leave()
+    }
+
     process.waitUntilExit()
+    stdoutGroup.wait()
+    stderrGroup.wait()
 
     if process.terminationStatus != 0 {
-        let errorOutput = String(data: stderr.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        let errorOutput = String(data: stderrData, encoding: .utf8) ?? ""
         throw NSError(domain: "CoverageCheck", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: errorOutput])
     }
 
-    return String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+    return String(data: stdoutData, encoding: .utf8) ?? ""
 }
 
 func locateLLVMCov() throws -> String {
@@ -151,7 +171,10 @@ func findTestBinaries(in root: URL) -> [URL] {
     }
     var binaries: Set<URL> = []
     for case let url as URL in enumerator {
-        guard url.path.contains(".xctest/Contents/MacOS/") else { continue }
+        let path = url.path
+        guard path.contains(".xctest/Contents/MacOS/") else { continue }
+        // Skip dSYM bundles – llvm-cov can't export coverage from DWARF files directly.
+        if path.contains(".dSYM/") { continue }
         if let values = try? url.resourceValues(forKeys: [.isRegularFileKey]), values.isRegularFile == true {
             binaries.insert(url)
         }
@@ -194,24 +217,28 @@ do {
     guard !binaries.isEmpty else { throw CoverageCheckError.binariesNotFound }
 
     let llvmCov = try locateLLVMCov()
-for check in options.checks {
-    let escapedComponent = NSRegularExpression.escapedPattern(for: check.pathComponent)
-    let ignorePattern = "^(?!.*\(escapedComponent)).*$"
     let exportJSON = try run(
         llvmCov,
-        ["export", "-instr-profile", options.profile.path, "--ignore-filename-regex", ignorePattern] + binaries.map(\.path)
+        ["export", "-instr-profile", options.profile.path] + binaries.map(\.path)
     )
     let payload = try JSONDecoder().decode(ExportPayload.self, from: Data(exportJSON.utf8))
     let files = payload.data.first?.files ?? []
     guard !files.isEmpty else {
-        throw CoverageCheckError.coverageDataMissing(check.pathComponent)
+        throw CoverageCheckError.coverageDataMissing("(entire dataset)")
     }
-    var aggregated = AggregatedMetric()
-    files.forEach { aggregated.add($0.summary) }
 
-    if aggregated.linePercent + 0.0001 < check.minLine {
-        throw CoverageCheckError.thresholdFailed("Line coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.linePercent))%, below \(check.minLine)%")
-    }
+    for check in options.checks {
+        let needle = check.pathComponent.hasSuffix("/") ? check.pathComponent : "\(check.pathComponent)/"
+        let filtered = files.filter { $0.filename.contains(needle) }
+        guard !filtered.isEmpty else {
+            throw CoverageCheckError.coverageDataMissing(check.pathComponent)
+        }
+        var aggregated = AggregatedMetric()
+        filtered.forEach { aggregated.add($0.summary) }
+
+        if aggregated.linePercent + 0.0001 < check.minLine {
+            throw CoverageCheckError.thresholdFailed("Line coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.linePercent))%, below \(check.minLine)%")
+        }
         if aggregated.branchPercent + 0.0001 < check.minBranch {
             throw CoverageCheckError.thresholdFailed("Branch coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.branchPercent))%, below \(check.minBranch)%")
         }
