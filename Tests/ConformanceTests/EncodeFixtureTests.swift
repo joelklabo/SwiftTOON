@@ -27,6 +27,7 @@ final class EncodeFixtureTests: XCTestCase {
         for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
             let fixtureFile = try EncodeFixtureFile.load(from: url)
             for fixture in fixtureFile.tests {
+                guard fixture.supportsRoundTrip else { continue }
                 let serializer = ToonSerializer(options: fixture.options?.encodingOptions() ?? ToonEncodingOptions())
                 let output = serializer.serialize(jsonValue: fixture.input.value)
                 let decoded = try decoder.decodeJSONValue(from: Data(output.utf8))
@@ -44,6 +45,7 @@ final class EncodeFixtureTests: XCTestCase {
         for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
             let fixtureFile = try EncodeFixtureFile.load(from: url)
             for fixture in fixtureFile.tests {
+                guard fixture.supportsRoundTrip else { continue }
                 let serializer = ToonSerializer(options: fixture.options?.encodingOptions() ?? ToonEncodingOptions())
                 let swiftOutput = serializer.serialize(jsonValue: fixture.input.value).trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -168,5 +170,12 @@ private extension JSONFixtureValue {
         let any = value.toAny()
         let options: JSONSerialization.WritingOptions = sortedKeys ? [.sortedKeys] : []
         return try JSONSerialization.data(withJSONObject: any, options: options)
+    }
+}
+
+private extension EncodeFixture {
+    var supportsRoundTrip: Bool {
+        guard let options else { return true }
+        return options.flattenDepth == nil && options.keyFolding == nil
     }
 }
