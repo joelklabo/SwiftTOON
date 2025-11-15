@@ -1,5 +1,51 @@
 {
-  "note": "Baseline throughput numbers will be recorded once Swift encoder/decoder exist.",
-  "generatedAt": "",
-  "cases": []
+  "generatedAt": "2025-11-15T03:18:20.021849Z",
+  "samples": [
+    {
+      "dataset": "large.toon",
+      "iterations": 10,
+      "metric": "throughput",
+      "status": "success",
+      "suite": "lexer_micro",
+      "unit": "MB/s",
+      "value": 5.62199736976301
+    },
+    {
+      "dataset": "large.toon",
+      "iterations": 10,
+      "metric": "throughput",
+      "status": "success",
+      "suite": "parser_micro",
+      "unit": "MB/s",
+      "value": 3.470689598038241
+    },
+    {
+      "dataset": "users.toon",
+      "iterations": 10,
+      "metric": "throughput",
+      "status": "success",
+      "suite": "decode_end_to_end",
+      "unit": "MB/s",
+      "value": 4.414921955587799
+    },
+    {
+      "dataset": "users.toon",
+      "iterations": 10,
+      "metric": "objects_per_second",
+      "status": "success",
+      "suite": "decode_objects_per_second",
+      "unit": "obj/s",
+      "value": 480.9788597934716
+    },
+    {
+      "dataset": "orders.json",
+      "iterations": 0,
+      "metric": "status",
+      "note": "Pending CLI encode/decode support",
+      "status": "skipped",
+      "suite": "cli_round_trip",
+      "unit": "-",
+      "value": 0
+    }
+  ]
 }

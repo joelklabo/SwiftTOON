@@ -115,7 +115,7 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 
 - **Plan:** See [`docs/performance-tracking.md`](docs/performance-tracking.md) for the full benchmarking + visualization pipeline (baseline capture, history storage, badge/graph generation).
 - **Datasets:** Canonical TOON/JSON fixtures under `Benchmarks/Datasets/` (large parser stress test, users/orders datasets, CLI round-trips).
-- **Local command:** `swift run TOONBenchmarks --format json --output Benchmarks/results/dev.json` (compare against `Benchmarks/baseline_reference.json` using `Scripts/compare-benchmarks.swift` once the helper ships).
+- **Local command:** `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` followed by `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json` to ensure no regressions before you push.
 - **Automation:** A dedicated GitHub Action will (1) run the suite on macOS ARM runners, (2) push history + Shields endpoint JSON to `gh-pages/perf/`, and (3) refresh the README badge + graph automatically.
 - **Coming soon:** Once the workflow lands, this section will show the live graph (`docs/assets/perf-history.png`) sourced from the historical JSON so we can prove performance improves release over release.
 

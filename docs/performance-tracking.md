@@ -13,9 +13,10 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
    `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`.
 
 ### Step 2 – Persist Baselines & Local Guard
-1. Capture original measurements in `Benchmarks/baseline_reference.json`.
-2. Add `Scripts/compare-benchmarks.swift` to diff new results vs. baseline (tolerance default 5%).
-3. Document the local workflow (benchmark command + compare script) in this file, `README.md`, and `docs/agents.md`.
+1. Capture original measurements in `Benchmarks/baseline_reference.json` (JSON wrapper containing `generatedAt` + `samples`).
+2. Add `Scripts/compare-benchmarks.swift` (run via `swift Scripts/compare-benchmarks.swift latest baseline --tolerance 0.05`) to diff new results vs. the committed baseline.
+3. Store ad-hoc benchmark runs in `Benchmarks/results/latest.json` (ignored by Git) so contributors can repeat the workflow without polluting commits.
+4. Document the local workflow (benchmark command + compare script) in this file, `README.md`, and `docs/agents.md`.
 
 ### Step 3 – CI Regression Gate
 1. Create `ci-perf.yml` that runs on PRs touching `Sources/` and nightly on `main`.
@@ -49,8 +50,8 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 ---
 
 ## Local Developer Checklist
-1. `swift run TOONBenchmarks --format json --output Benchmarks/results/dev.json`
-2. `swift run Scripts/compare-benchmarks Benchmarks/results/dev.json Benchmarks/baseline_reference.json --tolerance 0.05`
+1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
+2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
 3. (Optional) `swift run Scripts/visualize-benchmarks Benchmarks/results/dev.json` to render a local sparkline (future enhancement).
 
 ---

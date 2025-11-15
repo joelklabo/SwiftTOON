@@ -128,6 +128,9 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Baselines stored in JSON (commit into repo) and compared automatically; update only after intentional improvements and include justification in PR.
 - For major perf work, capture Instruments/`perf` profiles and summarize hotspots in PR/commit message.
 - Read [`docs/performance-tracking.md`](performance-tracking.md) for the end-to-end telemetry/graph plan (history JSON, Shields endpoint, README badge expectations).
+- Local perf workflow (run before pushing perf-sensitive changes):
+  1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
+  2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
 
 ---
 
