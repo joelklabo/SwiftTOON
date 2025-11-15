@@ -46,9 +46,9 @@ jobs:
         run: swift test --enable-code-coverage --parallel
 
       - name: Upload to Codecov
-        if: steps.package.outputs.exists == 'true'
+        if: steps.package.outputs.exists == 'true' && env.CODECOV_TOKEN
         uses: codecov/codecov-action@v4
         with:
           files: .build/debug/codecov/default.profdata
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
