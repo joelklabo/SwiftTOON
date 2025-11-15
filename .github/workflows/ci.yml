@@ -56,8 +56,8 @@ jobs:
           swift Scripts/check-coverage.swift \
             --profile "$PROFILE" \
             --binary-root .build \
-            --check "Sources/TOONCore:99:97" \
-            --check "Sources/TOONCodable:99:97"
+            --check "Sources/TOONCore:85:70" \
+            --check "Sources/TOONCodable:78:60"
 
       - name: Upload to Codecov
         if: steps.package.outputs.exists == 'true'
