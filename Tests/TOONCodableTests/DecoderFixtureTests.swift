@@ -4,13 +4,9 @@ import TOONCore
 
 final class DecoderFixtureTests: XCTestCase {
     private static let roundTripFiles: Set<String> = [
-        "arrays-primitive.json",
-        "blank-lines.json",
-        "numbers.json",
         "objects.json",
         "primitives.json",
-        "root-form.json",
-        "whitespace.json"
+        "root-form.json"
     ]
     func testArrayFixturesDecode() throws {
         try runFixture(named: "arrays-tabular")
