@@ -203,21 +203,24 @@ do {
     guard !binaries.isEmpty else { throw CoverageCheckError.binariesNotFound }
 
     let llvmCov = try locateLLVMCov()
-    let exportJSON = try run(llvmCov, ["export", "-instr-profile", options.profile.path] + binaries.map(\.path))
+for check in options.checks {
+    let escapedComponent = NSRegularExpression.escapedPattern(for: check.pathComponent)
+    let ignorePattern = "^(?!.*\(escapedComponent)).*$"
+    let exportJSON = try run(
+        llvmCov,
+        ["export", "-instr-profile", options.profile.path, "--ignore-filename-regex", ignorePattern] + binaries.map(\.path)
+    )
     let payload = try JSONDecoder().decode(ExportPayload.self, from: Data(exportJSON.utf8))
     let files = payload.data.first?.files ?? []
+    guard !files.isEmpty else {
+        throw CoverageCheckError.coverageDataMissing(check.pathComponent)
+    }
+    var aggregated = AggregatedMetric()
+    files.forEach { aggregated.add($0.summary) }
 
-    for check in options.checks {
-        var aggregated = AggregatedMetric()
-        let matchingFiles = files.filter { $0.filename.contains(check.pathComponent) }
-        guard !matchingFiles.isEmpty else {
-            throw CoverageCheckError.coverageDataMissing(check.pathComponent)
-        }
-        matchingFiles.forEach { aggregated.add($0.summary) }
-
-        if aggregated.linePercent + 0.0001 < check.minLine {
-            throw CoverageCheckError.thresholdFailed("Line coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.linePercent))%, below \(check.minLine)%")
-        }
+    if aggregated.linePercent + 0.0001 < check.minLine {
+        throw CoverageCheckError.thresholdFailed("Line coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.linePercent))%, below \(check.minLine)%")
+    }
         if aggregated.branchPercent + 0.0001 < check.minBranch {
             throw CoverageCheckError.thresholdFailed("Branch coverage for \(check.pathComponent) is \(String(format: "%.2f", aggregated.branchPercent))%, below \(check.minBranch)%")
         }
