@@ -104,8 +104,8 @@
 ## Stage 7 – CLI & UX
 
 1. **Tests first**
-   - Integration tests invoking `toon-swift encode/decode --stats`, checking exit codes, stdout/stderr, file outputs.
-   - Snapshot tests for `--validate`, `--delimiter`, `--lenient`.
+   - Integration tests invoking `toon-swift encode/decode --stats`, checking exit codes, stdout/stderr, file outputs (initial focus on encode/decode parity and `--stats` JSON summary).
+   - Snapshot tests for `--validate`, `--delimiter`, `--lenient` (deferred until after base CLI subcommands exist).
 2. **Implement**
    - CLI built with `ArgumentParser` (if acceptable) or manual parsing to stay dependency-free.
    - Provide piping support (stdin/stdout) and helpful diagnostics using shared error taxonomy.

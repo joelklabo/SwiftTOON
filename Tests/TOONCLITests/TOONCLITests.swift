@@ -1,4 +1,5 @@
 import XCTest
+#warning()
 @testable import TOONCLI
 
 final class TOONCLITests: XCTestCase {
