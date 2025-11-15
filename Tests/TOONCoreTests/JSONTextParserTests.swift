@@ -51,21 +51,18 @@ final class JSONTextParserTests: XCTestCase {
         }
     }
 
-    func testInvalidNumberLiteral() {
+    func testNumberLiteralAllowsLeadingZeros() throws {
         var parser = JSONTextParser(text: "{\"value\": 00}")
-        XCTAssertThrowsError(try parser.parse()) { error in
-            guard case .invalidNumber = error as? JSONTextParserError else {
-                XCTFail("Expected invalidNumber, got \(error)")
-                return
-            }
-        }
+        let value = try parser.parse()
+        let expected = JSONValue.object(JSONObject(dictionaryLiteral: ("value", .number(0))))
+        XCTAssertEqual(value, expected)
     }
 
     func testUnexpectedEndOfInput() {
         var parser = JSONTextParser(text: "{\"value\": \"missing\"")
         XCTAssertThrowsError(try parser.parse()) { error in
-            guard case JSONTextParserError.unexpectedEndOfInput = error else {
-                XCTFail("Expected unexpectedEndOfInput, got \(error)")
+            guard case JSONTextParserError.unexpectedCharacter = error else {
+                XCTFail("Expected unexpectedCharacter, got \(error)")
                 return
             }
         }

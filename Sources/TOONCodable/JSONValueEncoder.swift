@@ -129,7 +129,11 @@ private final class JSONObjectEncodingContainer<Key: CodingKey>: KeyedEncodingCo
     }
 
     func superEncoder() -> Encoder {
-        return superEncoder(forKey: Key(stringValue: "super")!)
+        let fallbackKey = AnyCodingKey(stringValue: "super")!
+        return encoder.nestedEncoder(for: fallbackKey, assign: { newValue in
+            self.box.object[fallbackKey.stringValue] = newValue
+            self.assign(.object(self.box.object))
+        })
     }
 
     func superEncoder(forKey key: Key) -> Encoder {

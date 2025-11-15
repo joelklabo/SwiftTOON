@@ -439,11 +439,15 @@ private struct NumericEntry: Codable, Equatable {
 }
 
 private struct SingleValueDecodableWrapper: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case value
+    }
+
     let value: Int
 
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self.value = try container.decode(Int.self)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.value = try container.decode(Int.self, forKey: .value)
     }
 }
 

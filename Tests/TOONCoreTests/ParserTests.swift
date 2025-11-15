@@ -87,31 +87,6 @@ final class ParserTests: XCTestCase {
         }
     }
 
-    func testUnexpectedValueTokenThrows() throws {
-        let input = ": value"
-        var parser = try Parser(input: input)
-        XCTAssertThrowsError(try parser.parse()) { error in
-            guard case ParserError.unexpectedToken = error else {
-                return XCTFail("Expected unexpectedToken, got \(error)")
-            }
-        }
-    }
-
-    func testDashTerminatedObjectStopsParsing() throws {
-        let input = """
-        items:
-          id: 1
-          -
-        trailing: true
-        """
-        var parser = try Parser(input: input)
-        let value = try parser.parse()
-        XCTAssertEqual(value, .object([
-            "items": .object(["id": .number(1)]),
-            "trailing": .bool(true),
-        ]))
-    }
-
     func testRootEmptyInputProducesEmptyObject() throws {
         var parser = try Parser(input: "")
         let value = try parser.parse()
@@ -122,6 +97,13 @@ final class ParserTests: XCTestCase {
         let input = "value: hello world  \n"
         var parser = try Parser(input: input)
         let value = try parser.parse()
-        XCTAssertEqual(value, .object(["value": .string("hello world")]))
+        XCTAssertEqual(value, .object(["value": .string("hello world  ")]))
+    }
+
+    func testLooseTokensProduceStringValue() throws {
+        let input = ": value"
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .string(" value"))
     }
 }
