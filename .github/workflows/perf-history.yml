@@ -8,6 +8,8 @@ on:
 jobs:
   history:
     runs-on: macos-14
+    permissions:
+      contents: write
     steps:
       - name: Checkout (main)
         uses: actions/checkout@v4
@@ -24,23 +26,17 @@ jobs:
       - name: Compare with baseline
         run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.2
 
-      - name: Checkout gh-pages (history)
-        id: ghpages
-        continue-on-error: true
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: gh-pages
-
       - name: Generate artifacts
         env:
           COMMIT_SHA: ${{ github.sha }}
           REPO_SLUG: ${{ github.repository }}
         run: |
           mkdir -p perf-artifacts
-          HISTORY_PATH=""
-          if [ -f gh-pages/perf/perf-history.json ]; then
-            HISTORY_PATH="gh-pages/perf/perf-history.json"
+          HISTORY_FILE=perf_artifacts_history.json
+          curl -fsS https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/perf/perf-history.json -o "$HISTORY_FILE" || true
+          HISTORY_ARG=""
+          if [ -s "$HISTORY_FILE" ]; then
+            HISTORY_ARG="--history-input $HISTORY_FILE"
           fi
           swift Scripts/update-perf-artifacts.swift \
             --latest Benchmarks/results/latest.json \
@@ -48,7 +44,7 @@ jobs:
             --commit "$COMMIT_SHA" \
             --branch "$GITHUB_REF_NAME" \
             --repo "$REPO_SLUG" \
-            ${HISTORY_PATH:+--history-input "$HISTORY_PATH"}
+            $HISTORY_ARG
 
       - name: Publish artifacts to gh-pages
         uses: peaceiris/actions-gh-pages@v3
