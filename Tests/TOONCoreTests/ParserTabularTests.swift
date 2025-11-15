@@ -72,4 +72,42 @@ final class ParserTabularTests: XCTestCase {
             ]),
         ]))
     }
+
+    func testParsesRootTabularArray() throws {
+        let input = """
+        [2]{id,name}:
+          1,Ada
+          2,Bob
+        """
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .array([
+            .object(["id": .number(1), "name": .string("Ada")]),
+            .object(["id": .number(2), "name": .string("Bob")]),
+        ]))
+    }
+
+    func testInlinePrimitiveArrayParsing() throws {
+        let input = """
+        tags[3]: alpha,beta,gamma
+        """
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .object([
+            "tags": .array([
+                .string("alpha"),
+                .string("beta"),
+                .string("gamma"),
+            ]),
+        ]))
+    }
+
+    func testTabularRowCountMismatchThrows() throws {
+        let input = """
+        items[2]{id,name}:
+          1,Ada
+        """
+        var parser = try Parser(input: input)
+        XCTAssertThrowsError(try parser.parse())
+    }
 }
