@@ -131,6 +131,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Local perf workflow (run before pushing perf-sensitive changes):
   1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
   2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
+- Use `gh` freely for repo inspection: e.g. `gh run list`, `gh run view <id> --log`, `gh issue status`, etc., to diagnose CI failures or workflow status quickly. Capture relevant snippets in final summaries when the CLI output explains a fix.
 
 ---
 
