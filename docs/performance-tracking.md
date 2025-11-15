@@ -28,7 +28,7 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
 3. The workflow fails the build if any benchmark deviates beyond tolerance or if samples are missing, giving immediate regression feedback.
 
 ### Step 4 – History & Visualization Pipeline
-1. `perf-history.yml` (trigger: push to `main` + manual dispatch) reruns the suite, compares against the baseline, and then uses `Scripts/update-perf-artifacts.swift` to append `{commit, timestamp, samples}` to a history file.
+1. `perf-history.yml` (trigger: push to `main` + manual dispatch) reruns the suite, compares against the baseline (tolerance currently 20% on CI runners), and then uses `Scripts/update-perf-artifacts.swift` to append `{commit, timestamp, samples}` to a history file.
 2. Artifacts written to `perf-artifacts/`:
    - `perf-history.json` – the entire history (metadata + entries).
    - `perf-badge.json` – Shields endpoint payload (decode throughput MB/s).
