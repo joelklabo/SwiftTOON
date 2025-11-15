@@ -6,7 +6,7 @@
     "status" : "success",
     "suite" : "lexer_micro",
     "unit" : "MB\/s",
-    "value" : 5.431239284244233
+    "value" : 4.527
   },
   {
     "dataset" : "large.toon",
@@ -15,7 +15,7 @@
     "status" : "success",
     "suite" : "parser_micro",
     "unit" : "MB\/s",
-    "value" : 3.189772991164053
+    "value" : 2.93
   },
   {
     "dataset" : "users.toon",
@@ -24,7 +24,7 @@
     "status" : "success",
     "suite" : "decode_end_to_end",
     "unit" : "MB\/s",
-    "value" : 4.130748345494655
+    "value" : 3.652
   },
   {
     "dataset" : "users.toon",
@@ -33,7 +33,7 @@
     "status" : "success",
     "suite" : "decode_objects_per_second",
     "unit" : "obj\/s",
-    "value" : 441.0159244207748
+    "value" : 388.228
   },
   {
     "dataset" : "orders.json",
