@@ -54,6 +54,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: perf-artifacts
           destination_dir: perf
-          force_orphan: false
+          force_orphan: true

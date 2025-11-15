@@ -92,10 +92,17 @@ final class TOONCodableTests: XCTestCase {
         XCTAssertEqual(result.users.first?.name, "User-0001")
     }
 
-    func testEncodingNotImplemented() {
+    func testEncoderRoundTripsSimpleStruct() throws {
+        struct Payload: Codable, Equatable {
+            let name: String
+            let tags: [String]
+        }
+        let value = Payload(name: "Ada", tags: ["alpha", "beta"])
         let encoder = ToonEncoder()
-        struct Dummy: Codable {}
-        XCTAssertThrowsError(try encoder.encode(Dummy()))
+        let toon = try encoder.encode(value)
+        let decoder = ToonDecoder()
+        let decoded = try decoder.decode(Payload.self, from: toon)
+        XCTAssertEqual(decoded, value)
     }
 }
 
