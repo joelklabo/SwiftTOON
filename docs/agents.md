@@ -141,7 +141,8 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
   2. `PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)` (`exit 1` if empty).
   3. `swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts --label coverage`
   4. Inspect `coverage-artifacts/coverage-summary.json` (line/function/region %). Delete the directory before committing.
-  5. `coverage.yml` runs automatically on `main`, pushing `coverage-badge.json` + `coverage-summary.json` to `gh-pages/coverage/`. Treat failures the same as CI/perf.
+  5. Run `swift Scripts/check-coverage.swift --profile "$PROFILE" --binary-root .build --check "Sources/TOONCore:99:97" --check "Sources/TOONCodable:99:97"` locally when touching core code to confirm thresholds. CI runs the same script after tests.
+  6. `coverage.yml` runs automatically on `main`, pushing `coverage-badge.json` + `coverage-summary.json` to `gh-pages/coverage/`. Treat failures the same as CI/perf.
 - Use `gh` freely for repo inspection: e.g. `gh run list`, `gh run view <id> --log`, `gh issue status`, etc., to diagnose CI failures or workflow status quickly. Capture relevant snippets in final summaries when the CLI output explains a fix (include the `Coverage Badge` workflow in every check).
 
 ---
@@ -163,7 +164,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Provide piping support (stdin/stdout) and file arguments.
 - `--stats` prints JSON summary (bytes saved, token estimates from heuristics).
 - Document CLI usage in README with examples; add snapshot tests for output.
-- Encode/decode/stats/validate/bench already ship. Any new flags (delimiter variations, lenient/strict behaviors, validation output) must land with integration tests and README updates; expand the snapshot suite as more diagnostics stabilize.
+- Encode/decode/stats/validate/bench already ship. Any new features must include integration tests, snapshots when output stabilizes, and should remain sanitizer-clean (CI now runs AddressSanitizer + ThreadSanitizer jobs).
 
 ---
 

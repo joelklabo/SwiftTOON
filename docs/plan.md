@@ -131,6 +131,8 @@
    - `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` + `Scripts/compare-benchmarks.swift` enforce ≤5% regressions inside CI (`.github/workflows/perf.yml`).
    - Separate GitHub Action (see [`docs/performance-tracking.md`](performance-tracking.md)) will append results to `Benchmarks/history.json`, publish Shields endpoint payload + PNG chart to `gh-pages/perf/`, and refresh the README badge/graph so performance trends are always visible.
 
+> **Status:** Deterministic fixtures now round-trip through the Swift encoder/decoder and random JSON differential tests compare our serializer against the TypeScript CLI. CI enforces ≥99%/97% coverage for `Sources/TOONCore`/`Sources/TOONCodable`, and dedicated sanitizer jobs run AddressSanitizer + ThreadSanitizer on macOS. Next steps: expand fuzzers to TOON lexeme permutations and extend coverage gates to any new targets.
+
 ## Stage 9 – Documentation & Release Readiness
 
 1. **DocC & README**

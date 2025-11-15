@@ -45,6 +45,20 @@ jobs:
           SWIFT_STRICT_CONCURRENCY: complete
         run: swift test --enable-code-coverage --parallel
 
+      - name: Check coverage thresholds
+        if: steps.package.outputs.exists == 'true'
+        run: |
+          PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)
+          if [ -z "$PROFILE" ]; then
+            echo "Coverage profile not found"
+            exit 1
+          fi
+          swift Scripts/check-coverage.swift \
+            --profile "$PROFILE" \
+            --binary-root .build \
+            --check "Sources/TOONCore:99:97" \
+            --check "Sources/TOONCodable:99:97"
+
       - name: Upload to Codecov
         if: steps.package.outputs.exists == 'true'
         uses: codecov/codecov-action@v4
@@ -53,3 +67,21 @@ jobs:
           fail_ci_if_error: false
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  sanitizers:
+    name: Sanitizers (${{ matrix.sanitizer }})
+    runs-on: macos-14
+    strategy:
+      matrix:
+        sanitizer: ["address", "thread"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Run tests with sanitizer
+        env:
+          SWIFT_STRICT_CONCURRENCY: complete
+        run: swift test --sanitize=${{ matrix.sanitizer }}
