@@ -15,9 +15,17 @@ enum ToonQuoter {
         if looksLikeLiteral(value) { return true }
         if looksLikeNumber(value) { return true }
         if value.contains(delimiter) { return true }
+        if value == "-" { return true }
+        if value.hasPrefix("-") {
+            if value.count == 1 {
+                return true
+            } else if let first = value.first, first == "-", let second = value.dropFirst().first, second.isWhitespace {
+                return true
+            }
+        }
         for scalar in value {
             switch scalar {
-            case "\n", "\r", "\t", "\"", "\\", ":", "[", "]", "{", "}", ",":
+            case "\n", "\r", "\t", "\"", "\\", ":", "[", "]", "{", "}":
                 return true
             default:
                 continue
