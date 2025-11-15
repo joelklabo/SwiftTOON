@@ -19,8 +19,12 @@ let package = Package(
             name: "toon-swift",
             targets: ["TOONCLI"]
         ),
-        .library(
+        .executable(
             name: "TOONBenchmarks",
+            targets: ["TOONBenchmarksRunner"]
+        ),
+        .library(
+            name: "TOONBenchmarksCore",
             targets: ["TOONBenchmarks"]
         ),
     ],
@@ -46,6 +50,11 @@ let package = Package(
                 "TOONCodable"
             ],
             path: "Sources/TOONBenchmarks"
+        ),
+        .executableTarget(
+            name: "TOONBenchmarksRunner",
+            dependencies: ["TOONBenchmarks"],
+            path: "Sources/TOONBenchmarksRunner"
         ),
         .target(
             name: "SwiftTOONDocC",
