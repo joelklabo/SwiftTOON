@@ -36,6 +36,7 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 7. **Sync with reference** – Differential tests vs `reference/` TypeScript CLI are mandatory for new encoding/decoding features. Keep fixtures up to date.
 8. **Communication** – Summaries must be clear, reference touched files/lines, and propose next steps (tests, docs, benchmarks). No raw command dumps.
 9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`).
+10. **Schema priming awareness** – When touching encoder/decoder logic, consider whether `ToonSchema` hints (validation + serializer fast paths) need updates. Every new structural feature must have schema-backed tests plus README/DocC coverage.
 
 ---
 
@@ -84,6 +85,7 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 - `swift test --filter ConformanceTests` – focus on fixture/manifest assertions.
 - `swift test --filter ReferenceHarnessTests` – exercises TypeScript CLI bridge; rerun after updating `reference/` or pnpm dependencies.
 - `swift test --filter DecoderFixtureTests` – tight loop while bringing new parser/decoder features online.
+- `swift test --filter EncodeFixtureTests` – drives the JSON→TOON serializer against all golden fixtures (honors delimiter/indent/key folding options).
 - `swift run toon-swift --help` – CLI smoke test; add flags as functionality grows.
 - `swift run TOONBenchmarks --compare Benchmarks/baseline_reference.json` – compare perf regressions once benchmarks exist.
 - `./Scripts/update-fixtures.swift` – refresh spec fixtures & manifest whenever upstream spec updates or before releasing.

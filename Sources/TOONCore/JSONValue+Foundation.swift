@@ -10,8 +10,8 @@ public extension JSONValue {
         switch self {
         case .object(let dict):
             var result: [String: Any] = [:]
-            for (key, value) in dict {
-                result[key] = value.toAny()
+            for entry in dict {
+                result[entry.key] = entry.value.toAny()
             }
             return result
         case .array(let array):
@@ -30,7 +30,7 @@ public extension JSONValue {
     init(jsonObject: Any) throws {
         switch jsonObject {
         case let dict as [String: Any]:
-            var result: [String: JSONValue] = [:]
+            var result = JSONObject()
             for (key, value) in dict {
                 result[key] = try JSONValue(jsonObject: value)
             }

@@ -5,6 +5,119 @@ import XCTest
 
 final class EncodeFixtureTests: XCTestCase {
     func testEncoderMatchesFixtures() throws {
-        throw XCTSkip("Encoder not implemented")
+        let bundle = Bundle.module
+        let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/encode"))
+
+        for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            let fixtureFile = try EncodeFixtureFile.load(from: url)
+            for fixture in fixtureFile.tests {
+                let options = fixture.options?.encodingOptions() ?? ToonEncodingOptions()
+                let serializer = ToonSerializer(options: options)
+                let output = serializer.serialize(jsonValue: fixture.input.value)
+                XCTAssertEqual(output, fixture.expected, "\(url.lastPathComponent) – \(fixture.name)")
+            }
+        }
+    }
+}
+
+private enum EncodeFixtureLoaderError: Error {
+    case invalidFormat(String)
+}
+
+private extension EncodeFixtureFile {
+    static func load(from url: URL) throws -> EncodeFixtureFile {
+        let data = try Data(contentsOf: url)
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw EncodeFixtureLoaderError.invalidFormat("File is not UTF-8: \(url)")
+        }
+        var parser = JSONTextParser(text: text)
+        let root = try parser.parse()
+        return try EncodeFixtureFile(json: root)
+    }
+
+    init(json value: JSONValue) throws {
+        guard case .object(let object) = value else {
+            throw EncodeFixtureLoaderError.invalidFormat("Fixture root must be an object")
+        }
+        guard let testsValue = object.value(forKey: "tests"), case .array(let array) = testsValue else {
+            throw EncodeFixtureLoaderError.invalidFormat("Missing tests array")
+        }
+        tests = try array.map { try EncodeFixture(json: $0) }
+    }
+}
+
+private extension EncodeFixture {
+    init(json value: JSONValue) throws {
+        guard case .object(let object) = value else {
+            throw EncodeFixtureLoaderError.invalidFormat("Fixture entry must be an object")
+        }
+        name = try object.requireString("name")
+        input = JSONFixtureValue(value: try object.requireValue("input"))
+        expected = try object.requireString("expected")
+        if let optionsValue = object.value(forKey: "options") {
+            options = try EncodeFixtureOptions(json: optionsValue)
+        } else {
+            options = nil
+        }
+    }
+}
+
+private extension EncodeFixtureOptions {
+    init(json value: JSONValue) throws {
+        guard case .object(let object) = value else {
+            throw EncodeFixtureLoaderError.invalidFormat("Options must be an object")
+        }
+        if let delimiterValue = object.value(forKey: "delimiter"), case .string(let string) = delimiterValue {
+            delimiter = string
+        } else {
+            delimiter = nil
+        }
+        if let indentValue = object.value(forKey: "indent") {
+            indent = try indentValue.intValue()
+        } else {
+            indent = nil
+        }
+        if let flattenValue = object.value(forKey: "flattenDepth") {
+            flattenDepth = try flattenValue.intValue()
+        } else {
+            flattenDepth = nil
+        }
+        if let foldingValue = object.value(forKey: "keyFolding"), case .string(let string) = foldingValue {
+            keyFolding = KeyFoldingMode(rawValue: string)
+        } else {
+            keyFolding = nil
+        }
+    }
+}
+
+private extension JSONObject {
+    func requireString(_ key: String) throws -> String {
+        guard let value = value(forKey: key), case .string(let string) = value else {
+            throw EncodeFixtureLoaderError.invalidFormat("Missing string for key \(key)")
+        }
+        return string
+    }
+
+    func requireValue(_ key: String) throws -> JSONValue {
+        guard let value = value(forKey: key) else {
+            throw EncodeFixtureLoaderError.invalidFormat("Missing value for key \(key)")
+        }
+        return value
+    }
+}
+
+private extension JSONValue {
+    func intValue() throws -> Int {
+        switch self {
+        case .number(let double):
+            return Int(double)
+        case .string(let string):
+            guard let int = Int(string) else {
+                throw EncodeFixtureLoaderError.invalidFormat("Expected integer string but found \(string)")
+            }
+            return int
+        default:
+            throw EncodeFixtureLoaderError.invalidFormat("Expected integer but found \(self)")
+        }
     }
 }

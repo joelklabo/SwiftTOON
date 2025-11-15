@@ -87,6 +87,8 @@
 4. **Perf**
    - Bench encode throughput vs TypeScript CLI and vs `JSONEncoder` for same structures.
 
+> **Status:** Encode fixture harness is live and all upstream golden tests now run the Swift serializer with delimiter/indent/key folding options. `ToonSerializer` handles inline/tabular/list arrays, preserves field order via `JSONObject`, emits deterministic quoting/number formatting, and enforces safe key folding (collision/quoting/flattenDepth). Next up: wire the differential comparison against the reference TypeScript encoder and add encode-side benchmarks before declaring Stage 5 complete.
+
 ## Stage 6 – Codable Bridges & Schema-Primed Fast Path
 
 1. **Tests first**
@@ -96,6 +98,8 @@
    - Custom `Encoder`/`Decoder` classes, `ToonSchema` description, optional partial evaluation for fixed layouts.
 3. **Perf**
    - Compare schema-primed path vs default to ensure measurable gains; make perf tests part of nightly CI.
+
+> **Status:** Schema priming is implemented (`ToonSchema` validates structures and feeds serializer hints), and new Codable tests cover success/mismatch paths. The current encoder/decoder still bridge through `JSONEncoder`/`JSONSerialization`; replacing them with native JSONValue containers (and adding perf counters) is the next step to finish Stage 6.
 
 ## Stage 7 – CLI & UX
 

@@ -169,12 +169,26 @@ private struct JSONFixtureValue: Decodable, Equatable {
     }
 
     init(from decoder: Decoder) throws {
+        if let container = try? decoder.container(keyedBy: DynamicCodingKey.self) {
+            var object = JSONObject()
+            for key in container.allKeys {
+                let nested = try container.decode(JSONFixtureValue.self, forKey: key)
+                object[key.stringValue] = nested.value
+            }
+            value = .object(object)
+            return
+        }
+        if var arrayContainer = try? decoder.unkeyedContainer() {
+            var elements: [JSONValue] = []
+            while !arrayContainer.isAtEnd {
+                let nested = try arrayContainer.decode(JSONFixtureValue.self)
+                elements.append(nested.value)
+            }
+            value = .array(elements)
+            return
+        }
         let container = try decoder.singleValueContainer()
-        if let dict = try? container.decode([String: JSONFixtureValue].self) {
-            value = .object(dict.mapValues(\.value))
-        } else if let array = try? container.decode([JSONFixtureValue].self) {
-            value = .array(array.map(\.value))
-        } else if let string = try? container.decode(String.self) {
+        if let string = try? container.decode(String.self) {
             value = .string(string)
         } else if let number = try? container.decode(Double.self) {
             value = .number(number)
@@ -201,4 +215,19 @@ private func fixturesDirectory() -> URL {
         .appendingPathComponent("Tests")
         .appendingPathComponent("ConformanceTests")
         .appendingPathComponent("Fixtures")
+}
+
+private struct DynamicCodingKey: CodingKey {
+    let stringValue: String
+    let intValue: Int?
+
+    init?(stringValue: String) {
+        self.stringValue = stringValue
+        self.intValue = nil
+    }
+
+    init?(intValue: Int) {
+        self.stringValue = String(intValue)
+        self.intValue = intValue
+    }
 }

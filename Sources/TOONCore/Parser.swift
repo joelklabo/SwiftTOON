@@ -37,9 +37,9 @@ public struct Parser {
 
     public mutating func parse() throws -> JSONValue {
         consumeNewlines()
-        guard let token = peekToken() else { return .object([:]) }
+        guard let token = peekToken() else { return .object(JSONObject()) }
         if token.kind == .eof {
-            return .object([:])
+            return .object(JSONObject())
         }
         if token.kind == .leftBracket {
             guard let array = try parseArrayValue(keyToken: token, key: nil) else {
@@ -68,8 +68,8 @@ public struct Parser {
         }
     }
 
-    private mutating func parseObject() throws -> [String: JSONValue] {
-        var result: [String: JSONValue] = [:]
+    private mutating func parseObject() throws -> JSONObject {
+        var result = JSONObject()
         while true {
             consumeNewlines()
             guard let token = peekToken() else { break }
@@ -89,11 +89,11 @@ public struct Parser {
                         let nested = try parseObject()
                         result[key] = .object(nested)
                     } else {
-                        result[key] = .object([:])
+                        result[key] = .object(JSONObject())
                     }
                 } else {
                     if let next = peekToken(), next.kind == .eof {
-                        result[key] = .object([:])
+                        result[key] = .object(JSONObject())
                     } else {
                         let value = try parseInlineValue()
                         result[key] = value
@@ -257,7 +257,7 @@ public struct Parser {
             guard values.count == headers.count else {
                 throw ParserError.tabularRowFieldMismatch(expected: headers.count, actual: values.count, line: contextToken.line, column: contextToken.column)
             }
-            var object: [String: JSONValue] = [:]
+            var object = JSONObject()
             for (index, header) in headers.enumerated() {
                 object[header] = values[index]
             }
@@ -294,7 +294,7 @@ public struct Parser {
                     let object = try parseObject()
                     values.append(.object(object))
                 } else {
-                    values.append(.object([:]))
+                    values.append(.object(JSONObject()))
                 }
                 continue
             }
@@ -324,7 +324,7 @@ public struct Parser {
             }
 
             if case .dedent = next.kind {
-                values.append(.object([:]))
+                values.append(.object(JSONObject()))
                 continue
             }
 

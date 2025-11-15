@@ -7,7 +7,7 @@
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%2013%2B%20%7C%20Linux%20(AArch64%2Fx86_64)-blue)](#platform-support)
 [![TOON Spec](https://img.shields.io/badge/TOON%20Spec-v2.0-informational)](https://github.com/toon-format/spec)
 [![Style](https://img.shields.io/badge/Lint-SwiftFormat%20%7C%20SwiftLint-4D7A97)](#contributing)
-[![Perf Trend](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-badge.json)](https://joelklabo.github.io/SwiftTOON/perf/)
+[![Perf Trend](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-badge.json&cacheSeconds=600)](https://joelklabo.github.io/SwiftTOON/perf/)
 
 Token-perfect TOON↔JSON conversion for Swift: zero dependencies, spec-aligned, battle-hardened with exhaustive tests and benchmarks from day one.
 
@@ -64,8 +64,33 @@ targets: [
 ```swift
 import TOONCodable
 
-let toonData = try ToonEncoder().encode(myStruct, options: .tabularPreferred)
+let toonData = try ToonEncoder().encode(myStruct)
 let model = try ToonDecoder().decode(MyStruct.self, from: toonData)
+```
+
+### Schema priming
+
+Provide an explicit schema to lock in structure (and skip runtime inspection on large datasets):
+
+```swift
+import TOONCodable
+
+let schema = ToonSchema.array(
+    element: .object(
+        fields: [
+            .field("id", .number),
+            .field("name", .string),
+        ],
+        allowAdditionalKeys: false
+    ),
+    representation: .tabular(headers: ["id", "name"])
+)
+
+var encoder = ToonEncoder(schema: schema)
+var decoder = ToonDecoder(options: .init(schema: schema))
+
+let toonData = try encoder.encode(users)
+let decoded = try decoder.decode([User].self, from: toonData)
 ```
 
 ### CLI

@@ -104,6 +104,99 @@ final class TOONCodableTests: XCTestCase {
         let decoded = try decoder.decode(Payload.self, from: toon)
         XCTAssertEqual(decoded, value)
     }
+
+    func testDecoderSchemaMismatchThrows() throws {
+        struct Payload: Codable {
+            let count: Int
+        }
+        let toon = "count: 5"
+        var decoder = ToonDecoder()
+        decoder.options.schema = .object(
+            fields: [
+                ToonSchema.field("count", .string),
+            ],
+            allowAdditionalKeys: false
+        )
+        XCTAssertThrowsError(try decoder.decode(Payload.self, from: Data(toon.utf8))) { error in
+            guard case ToonDecodingError.schemaMismatch = error else {
+                return XCTFail("Expected schema mismatch error, got \(error)")
+            }
+        }
+    }
+
+    func testDecoderSchemaAllowsValidData() throws {
+        struct Payload: Codable, Equatable {
+            let flag: Bool
+            let nested: Nested
+
+            struct Nested: Codable, Equatable {
+                let name: String
+            }
+        }
+        let toon = """
+        flag: true
+        nested:
+          name: Ada
+        """
+        var decoder = ToonDecoder()
+        decoder.options.schema = .object(
+            fields: [
+                ToonSchema.field("flag", .bool),
+                ToonSchema.field("nested", .object(
+                    fields: [ToonSchema.field("name", .string)],
+                    allowAdditionalKeys: false
+                )),
+            ],
+            allowAdditionalKeys: false
+        )
+        let value = try decoder.decode(Payload.self, from: Data(toon.utf8))
+        XCTAssertEqual(value.flag, true)
+        XCTAssertEqual(value.nested.name, "Ada")
+    }
+
+    func testEncoderSchemaControlsTabularHeaders() throws {
+        struct Row: Codable {
+            let second: Int
+            let first: Int
+        }
+        let rows = [Row(second: 1, first: 2)]
+        var encoder = ToonEncoder()
+        encoder.schema = .array(
+            element: .object(
+                fields: [
+                    ToonSchema.field("first", .number),
+                    ToonSchema.field("second", .number),
+                ],
+                allowAdditionalKeys: false
+            ),
+            representation: .tabular(headers: ["first", "second"])
+        )
+        let data = try encoder.encode(rows)
+        let text = try XCTUnwrap(String(data: data, encoding: .utf8))
+        XCTAssertEqual(text, "[1]{first,second}:\n  2,1")
+    }
+
+    func testEncoderSchemaMismatchThrows() throws {
+        struct Row: Codable {
+            let value: String
+        }
+        let rows = [Row(value: "text")]
+        var encoder = ToonEncoder()
+        encoder.schema = .array(
+            element: .object(
+                fields: [
+                    ToonSchema.field("value", .number),
+                ],
+                allowAdditionalKeys: false
+            ),
+            representation: .tabular(headers: ["value"])
+        )
+        XCTAssertThrowsError(try encoder.encode(rows)) { error in
+            guard case ToonEncodingError.schemaMismatch = error else {
+                return XCTFail("Expected schema mismatch, got \(error)")
+            }
+        }
+    }
 }
 
 private func datasetURL(named name: String) -> URL {
