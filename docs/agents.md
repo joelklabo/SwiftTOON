@@ -35,6 +35,7 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 6. **Docs stay current** – Any behavioral/data/API change must update README, DocC, `docs/plan.md`, this handbook, and downstream context files immediately.
 7. **Sync with reference** – Differential tests vs `reference/` TypeScript CLI are mandatory for new encoding/decoding features. Keep fixtures up to date.
 8. **Communication** – Summaries must be clear, reference touched files/lines, and propose next steps (tests, docs, benchmarks). No raw command dumps.
+9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`).
 
 ---
 
@@ -59,6 +60,7 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
    - Use reference harness for diff testing when encoding/decoding logic changes.
 6. **Docs & README**
    - Update `README.md`, DocC, `docs/plan.md`, this handbook, and every linked context file whenever behavior/features change; highlight any deferred updates.
+   - Performance work must also refresh `docs/performance-tracking.md` (plan + checklist) so contributors always know the current process.
 7. **Final response**
    - Inline file references (path:line) for modifications.
    - Mention tests/benchmarks run; if skipped, explain why.
