@@ -163,7 +163,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Provide piping support (stdin/stdout) and file arguments.
 - `--stats` prints JSON summary (bytes saved, token estimates from heuristics).
 - Document CLI usage in README with examples; add snapshot tests for output.
-- Encode/decode/stats/validate already ship. Any new flags (delimiter variations, lenient/strict behaviors, validation output) must land with integration tests and README updates; CLI benchmark command remains TODO.
+- Encode/decode/stats/validate/bench already ship. Any new flags (delimiter variations, lenient/strict behaviors, validation output) must land with integration tests and README updates; expand the snapshot suite as more diagnostics stabilize.
 
 ---
 

@@ -112,6 +112,9 @@ $ toon-swift stats payload.json --delimiter tab --indent 4
 
 # Validate TOON (strict or lenient parsing)
 $ toon-swift validate payload.toon --lenient
+
+# Run the benchmark suite locally
+$ toon-swift bench --format json --iterations 5 --output results.json
 ```
 
 `encode` accepts `--delimiter <comma|tab|pipe>` and `--indent <n>` so you can control emitted TOON formatting. `decode`/`validate` accept `--strict` (default) or `--lenient`; lenient mode relaxes tabular row validations (missing fields are padded with `null`, extra fields are truncated). `stats` prints a JSON blob such as `{ "jsonBytes": 512, "toonBytes": 312, "reductionPercent": 39.0 }`, which makes it easy to script reports or feed dashboards.

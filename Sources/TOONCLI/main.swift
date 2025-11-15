@@ -1,6 +1,7 @@
 import Foundation
 import TOONCodable
 import TOONCore
+import TOONBenchmarks
 
 @main
 struct TOONCLI {
@@ -37,6 +38,8 @@ struct TOONCLI {
                 try handleStats(arguments: remainder, context: &context)
             case "validate":
                 try handleValidate(arguments: remainder, context: &context)
+            case "bench":
+                try handleBench(arguments: remainder, context: &context)
             case "--help", "-h", "help":
                 writeUsage(into: &context)
             default:
@@ -138,6 +141,29 @@ struct TOONCLI {
                 throw CLError.invalidTOON(error.localizedDescription)
             }
             try write(string: "TOON is valid", to: .stdout, context: &context)
+        }
+
+        private func handleBench(arguments: [String], context: inout CommandContext) throws {
+            let options = try parseBenchFlags(arguments)
+            let samples = BenchmarkRunner.runAll(datasetsPath: options.datasetsPath, iterations: options.iterations)
+            switch options.format {
+            case .json:
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let data = try encoder.encode(samples)
+                guard let text = String(data: data, encoding: .utf8) else {
+                    throw CLError.encodingFailure
+                }
+                try write(string: text, to: options.outputDestination, context: &context)
+            case .text:
+                var lines: [String] = ["suite,dataset,metric,value,unit,status"]
+                for sample in samples {
+                    let formatted = String(format: "%.3f", sample.value)
+                    lines.append("\(sample.suite),\(sample.dataset),\(sample.metric),\(formatted),\(sample.unit),\(sample.status.rawValue)")
+                }
+                let output = lines.joined(separator: "\n")
+                try write(string: output, to: options.outputDestination, context: &context)
+            }
         }
 
         private func parseIOArguments(_ arguments: [String], allowOutput: Bool) throws -> (InputSource, OutputDestination, [String]) {
@@ -246,6 +272,65 @@ struct TOONCLI {
             return config
         }
 
+        private enum BenchFormat {
+            case text
+            case json
+        }
+
+        private struct BenchFlags {
+            var format: BenchFormat = .text
+            var iterations: Int = 10
+            var datasetsPath: String?
+            var outputPath: String?
+
+            var outputDestination: OutputDestination {
+                if let outputPath {
+                    return .file(URL(fileURLWithPath: outputPath))
+                }
+                return .stdout
+            }
+        }
+
+        private func parseBenchFlags(_ tokens: [String]) throws -> BenchFlags {
+            var config = BenchFlags()
+            var index = 0
+            while index < tokens.count {
+                let flag = tokens[index]
+                switch flag {
+                case "--format":
+                    index += 1
+                    guard index < tokens.count else { throw CLError.usage("Missing value for --format.") }
+                    let value = tokens[index].lowercased()
+                    switch value {
+                    case "json":
+                        config.format = .json
+                    case "text":
+                        config.format = .text
+                    default:
+                        throw CLError.usage("Unsupported bench format '\(tokens[index])'.")
+                    }
+                case "--iterations":
+                    index += 1
+                    guard index < tokens.count, let value = Int(tokens[index]), value > 0 else {
+                        throw CLError.usage("Invalid value for --iterations.")
+                    }
+                    config.iterations = value
+                case "--datasets":
+                    index += 1
+                    guard index < tokens.count else { throw CLError.usage("Missing value for --datasets.") }
+                    config.datasetsPath = tokens[index]
+                case "--output":
+                    index += 1
+                    guard index < tokens.count else { throw CLError.usage("Missing value for --output.") }
+                    config.outputPath = tokens[index]
+                default:
+                    throw CLError.unrecognizedOption(flag)
+                }
+                index += 1
+            }
+            return config
+        }
+
         private func read(from source: InputSource, context: inout CommandContext) throws -> Data {
             switch source {
             case .stdin:
@@ -294,6 +379,7 @@ Usage:
   toon-swift decode [<input.toon>] [--output <file>] [--strict|--lenient]
   toon-swift stats [<input.json>] [--delimiter <comma|tab|pipe>] [--indent <n>]
   toon-swift validate [<input.toon>] [--strict|--lenient]
+  toon-swift bench [--format <text|json>] [--iterations <n>] [--output <file>]
 
 If no input path is provided, commands read from STDIN. Encode/decode write to STDOUT unless --output is set.
 """

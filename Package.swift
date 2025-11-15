@@ -40,7 +40,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "TOONCLI",
-            dependencies: ["TOONCodable", "TOONCore"],
+            dependencies: ["TOONCodable", "TOONCore", "TOONBenchmarks"],
             path: "Sources/TOONCLI"
         ),
         .target(
@@ -82,7 +82,10 @@ let package = Package(
         .testTarget(
             name: "TOONCLITests",
             dependencies: ["TOONCLI"],
-            path: "Tests/TOONCLITests"
+            path: "Tests/TOONCLITests",
+            resources: [
+                .process("Snapshots")
+            ]
         ),
         .testTarget(
             name: "ConformanceTests",

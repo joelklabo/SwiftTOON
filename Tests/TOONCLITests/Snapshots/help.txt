@@ -1,0 +1,8 @@
+Usage:
+  toon-swift encode [<input.json>] [--output <file>] [--delimiter <comma|tab|pipe>] [--indent <n>]
+  toon-swift decode [<input.toon>] [--output <file>] [--strict|--lenient]
+  toon-swift stats [<input.json>] [--delimiter <comma|tab|pipe>] [--indent <n>]
+  toon-swift validate [<input.toon>] [--strict|--lenient]
+  toon-swift bench [--format <text|json>] [--iterations <n>] [--output <file>]
+
+If no input path is provided, commands read from STDIN. Encode/decode write to STDOUT unless --output is set.
