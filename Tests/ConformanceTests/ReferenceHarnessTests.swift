@@ -9,14 +9,14 @@ final class ReferenceHarnessTests: XCTestCase {
     }
 }
 
-private enum FixtureLocator {
+enum FixtureLocator {
     static func file(named name: String, in subdirectory: String) throws -> URL {
         let combinedSubdir = "Fixtures/\(subdirectory)"
         return try XCTUnwrap(Bundle.module.url(forResource: name, withExtension: "json", subdirectory: combinedSubdir))
     }
 }
 
-private struct ReferenceCLI {
+struct ReferenceCLI {
     private let repoRoot: URL = {
         var url = URL(fileURLWithPath: #filePath)
         url.deleteLastPathComponent() // ReferenceHarnessTests.swift
@@ -31,6 +31,15 @@ private struct ReferenceCLI {
 
     func encode(jsonAt url: URL) throws -> String {
         try run(arguments: ["pnpm", "exec", "toon", "--encode", url.path])
+    }
+
+    func decode(toon input: String) throws -> String {
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("toon")
+        try input.write(to: tempURL, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+        return try run(arguments: ["pnpm", "exec", "toon", "--decode", tempURL.path])
     }
 
     @discardableResult
