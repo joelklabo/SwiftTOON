@@ -134,4 +134,32 @@ final class ParserTabularTests: XCTestCase {
         var parser = try Parser(input: input)
         XCTAssertThrowsError(try parser.parse())
     }
+
+    func testInlinePrimitiveArrayWithWhitespaceOnlyStrings() throws {
+        let input = """
+        values[2]: " ","\t"
+        """
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .object([
+            "values": .array([
+                .string(" "),
+                .string("\t"),
+            ]),
+        ]))
+    }
+
+    func testQuotedKeysWithInlineArrays() throws {
+        let input = """
+        "custom:key"[2]: 1,2
+        """
+        var parser = try Parser(input: input)
+        let value = try parser.parse()
+        XCTAssertEqual(value, .object([
+            "custom:key": .array([
+                .number(1),
+                .number(2),
+            ]),
+        ]))
+    }
 }
