@@ -1,7 +1,7 @@
 # SwiftTOON
 
-[![CI](https://github.com/honk/SwiftTOON/actions/workflows/ci.yml/badge.svg)](https://github.com/honk/SwiftTOON/actions/workflows/ci.yml)
-[![Codecov](https://codecov.io/gh/honk/SwiftTOON/branch/main/graph/badge.svg)](https://codecov.io/gh/honk/SwiftTOON)
+[![CI](https://github.com/joelklabo/SwiftTOON/actions/workflows/ci.yml/badge.svg)](https://github.com/joelklabo/SwiftTOON/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/joelklabo/SwiftTOON/branch/main/graph/badge.svg)](https://codecov.io/gh/joelklabo/SwiftTOON)
 [![SwiftPM](https://img.shields.io/badge/SwiftPM-ready-orange?logo=swift)](https://swift.org/package-manager/)
 [![Swift](https://img.shields.io/badge/Swift-5.10+-FF5E33?logo=swift)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%2013%2B%20%7C%20Linux%20(AArch64%2Fx86_64)-blue)](#platform-support)
