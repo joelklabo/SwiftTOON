@@ -159,41 +159,41 @@ private final class JSONArrayEncodingContainer: UnkeyedEncodingContainer {
         self.assign = assign
     }
 
-    func encodeNil() throws { append(.null) }
-    func encode(_ value: Bool) throws { append(.bool(value)) }
-    func encode(_ value: String) throws { append(.string(value)) }
-    func encode(_ value: Double) throws { append(.number(value)) }
-    func encode(_ value: Float) throws { append(.number(Double(value))) }
-    func encode(_ value: Int) throws { append(.number(Double(value))) }
-    func encode(_ value: Int8) throws { append(.number(Double(value))) }
-    func encode(_ value: Int16) throws { append(.number(Double(value))) }
-    func encode(_ value: Int32) throws { append(.number(Double(value))) }
-    func encode(_ value: Int64) throws { append(.number(Double(value))) }
-    func encode(_ value: UInt) throws { append(.number(Double(value))) }
-    func encode(_ value: UInt8) throws { append(.number(Double(value))) }
-    func encode(_ value: UInt16) throws { append(.number(Double(value))) }
-    func encode(_ value: UInt32) throws { append(.number(Double(value))) }
-    func encode(_ value: UInt64) throws { append(.number(Double(value))) }
+    func encodeNil() throws { appendValue(.null) }
+    func encode(_ value: Bool) throws { appendValue(.bool(value)) }
+    func encode(_ value: String) throws { appendValue(.string(value)) }
+    func encode(_ value: Double) throws { appendValue(.number(value)) }
+    func encode(_ value: Float) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: Int) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: Int8) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: Int16) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: Int32) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: Int64) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: UInt) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: UInt8) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: UInt16) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: UInt32) throws { appendValue(.number(Double(value))) }
+    func encode(_ value: UInt64) throws { appendValue(.number(Double(value))) }
 
     func encode<T>(_ value: T) throws where T: Encodable {
-        let nestedKey = AnyCodingKey(index: box.array.count)
+        let index = reserveSlot()
+        let nestedKey = AnyCodingKey(index: index)
         let nested = encoder.nestedEncoder(for: nestedKey, assign: { newValue in
-            self.box.array.append(newValue)
-            self.assign(.array(self.box.array))
+            self.store(newValue, at: index)
         })
         try value.encode(to: nested)
     }
 
     func nestedContainer<N>(keyedBy type: N.Type) -> KeyedEncodingContainer<N> where N: CodingKey {
         let nestedBox = JSONObjectBox()
-        box.array.append(.object(nestedBox.object))
+        let index = reserveSlot()
+        store(.object(nestedBox.object), at: index)
         let container = JSONObjectEncodingContainer<N>(
             encoder: encoder,
-            codingPath: codingPath + [AnyCodingKey(index: box.array.count - 1)],
+            codingPath: codingPath + [AnyCodingKey(index: index)],
             box: nestedBox,
             assign: { value in
-                self.box.array[self.box.array.count - 1] = value
-                self.assign(.array(self.box.array))
+                self.store(value, at: index)
             }
         )
         return KeyedEncodingContainer(container)
@@ -201,28 +201,39 @@ private final class JSONArrayEncodingContainer: UnkeyedEncodingContainer {
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         let nestedBox = JSONArrayBox()
-        box.array.append(.array(nestedBox.array))
+        let index = reserveSlot()
+        store(.array(nestedBox.array), at: index)
         let container = JSONArrayEncodingContainer(
             encoder: encoder,
-            codingPath: codingPath + [AnyCodingKey(index: box.array.count - 1)],
+            codingPath: codingPath + [AnyCodingKey(index: index)],
             box: nestedBox,
             assign: { value in
-                self.box.array[self.box.array.count - 1] = value
-                self.assign(.array(self.box.array))
+                self.store(value, at: index)
             }
         )
         return container
     }
 
     func superEncoder() -> Encoder {
-        encoder.nestedEncoder(for: AnyCodingKey(index: box.array.count), assign: { newValue in
-            self.box.array.append(newValue)
-            self.assign(.array(self.box.array))
+        let index = reserveSlot()
+        return encoder.nestedEncoder(for: AnyCodingKey(index: index), assign: { newValue in
+            self.store(newValue, at: index)
         })
     }
 
-    private func append(_ value: JSONValue) {
+    private func appendValue(_ value: JSONValue) {
         box.array.append(value)
+        assign(.array(box.array))
+    }
+
+    private func reserveSlot() -> Int {
+        let index = box.array.count
+        box.array.append(.null)
+        return index
+    }
+
+    private func store(_ value: JSONValue, at index: Int) {
+        box.array[index] = value
         assign(.array(box.array))
     }
 }
