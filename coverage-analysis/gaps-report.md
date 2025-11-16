@@ -192,7 +192,7 @@ These are likely already tested in integration tests, but line coverage might no
 ## Next Steps
 
 1. Commit this report
-2. Update `docs/plan.md` Phase 1 checklist as complete
+2. Update `docs/plans/plan.md` Phase 1 checklist as complete
 3. Move to Phase 2: Start adding tests for critical gaps
 4. Track progress: run coverage after each batch of 5-10 tests
 5. Ratchet CI gates incrementally (90% → 95% → 99%)

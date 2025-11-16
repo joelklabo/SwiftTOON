@@ -1,6 +1,6 @@
 # DocC Tutorials Checklist
 
-This document tracks the DocC tutorials that stage the SwiftTOON API surface for release. Each tutorial must compile against the real APIs (failing doc tests until the implementation exists) and matches the CLI/manual guidance described in `README.md` and `docs/plan.md`.
+This document tracks the DocC tutorials that stage the SwiftTOON API surface for release. Each tutorial must compile against the real APIs (failing doc tests until the implementation exists) and matches the CLI/manual guidance described in `README.md` and `docs/plans/plan.md`.
 
 | Tutorial | Target Date | Status | Key Snippets | Tests/Validation |
 | --- | --- | --- | --- | --- |
@@ -17,6 +17,6 @@ This document tracks the DocC tutorials that stage the SwiftTOON API surface for
 
 ## Maintenance Notes
 
-- Keep a pinned `docs/DocCTutorials.md` entry in `docs/plan.md` (see Stage 9) so the tutorials remain part of the release readiness conversation.
+- Keep a pinned `docs/DocCTutorials.md` entry in `docs/plans/plan.md` (see Stage 9) so the tutorials remain part of the release readiness conversation.
 - When altering the CLI, encode/decode APIs, or schema structs, revisit the matching DocC snippets and update the “Key Snippets” section to describe the change.
 - Run `docc convert` (or the equivalent SwiftPM doc build) as part of the `swift test --enable-code-coverage` workflow once the tutorials exist; document the command and expected outcomes in this file.

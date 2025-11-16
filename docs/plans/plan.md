@@ -28,7 +28,7 @@
      - Swift script produces a Shields payload + history JSON by running `llvm-cov export -summary-only` over `.xctest` binaries and the `.build/debug/codecov/default.profdata` profile.
      - `coverage.yml` workflow (push to `main`) runs tests with `--enable-code-coverage`, generates artifacts, and publishes to `gh-pages/coverage/` using `peaceiris/actions-gh-pages@v3`.
    - README badge must point at `https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json`.
-  - Document the manual/local workflow in `docs/agents.md` + `docs/plan.md#performance-tracking-playbook` so every change keeps coverage + perf telemetry in sync.
+  - Document the manual/local workflow in `docs/reference/agents.md` + `docs/plan.md#performance-tracking-playbook` so every change keeps coverage + perf telemetry in sync.
 
 ## Stage 1 – Workspace Scaffolding (Red → Green → Refactor Cycle)
 
@@ -282,7 +282,7 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
    - Capture original measurements in `Benchmarks/baseline_reference.json` (JSON wrapper containing `generatedAt` + `samples`).
    - Add `Scripts/compare-benchmarks.swift` (run via `swift Scripts/compare-benchmarks.swift latest baseline --tolerance 0.05`) to diff new results vs. the committed baseline.
    - Store ad-hoc benchmark runs in `Benchmarks/results/latest.json` (ignored by Git) so contributors can repeat the workflow without polluting commits.
-   - Document the local workflow (benchmark command + compare script) plus the analyzer manifest capture (`swift run CaptureEncodeRepresentations`) in this file, `README.md`, and `docs/agents.md`.
+   - Document the local workflow (benchmark command + compare script) plus the analyzer manifest capture (`swift run CaptureEncodeRepresentations`) in this file, `README.md`, and `docs/reference/agents.md`.
 3. **Step 3 – CI Regression Gate**
    - `perf.yml` workflow runs on macOS 14 for every push/PR touching perf-sensitive paths (and is manually runnable).
    - Steps inside the workflow:
@@ -307,7 +307,7 @@ Purpose: capture and publish SwiftTOON performance metrics from day one so regre
    - Optionally publish an extended view on GitHub Pages (`docs/perf/index.md`) that consumes `perf-history.json` for interactive charts.
 6. **Step 6 – Commit & Plan Hygiene**
    - Tackle each step above via focused commits/PRs with descriptive messages (e.g., `perf: add benchmark datasets`, `perf: add compare script`).
-   - Update this plan, `docs/plan.md`, `README.md`, and `docs/agents.md` after every milestone so contributors always see the latest workflow.
+   - Update this plan, `docs/plan.md`, `README.md`, and `docs/reference/agents.md` after every milestone so contributors always see the latest workflow.
 
 ### Coverage Telemetry (Codecov Replacement)
 
@@ -332,7 +332,7 @@ Surface real SwiftPM coverage numbers without any third-party SaaS dependency so
    - Replace the Codecov badge with `https://img.shields.io/endpoint?url=<gh-pages-url>` once the workflow lands.
    - Add a short paragraph in the README “Coverage & Quality” section describing how the badge is produced (LLVM summary + gh-pages).
 4. **Agent docs**
-   - `docs/agents.md` + root `AGENTS.md` must describe:
+   - `docs/reference/agents.md` + root `AGENTS.md` must describe:
      - How to run the coverage script locally.
      - When to re-run the gh-pages workflow (every push to `main` automatically plus manual dispatch if badge stalls).
      - Expectation that contributors check `gh run list` / `gh-commit-watch` for `coverage` runs in addition to `ci`, `Performance Benchmarks`, and `Publish Performance History`.

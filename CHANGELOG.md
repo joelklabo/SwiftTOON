@@ -1,6 +1,6 @@
 # Changelog
 
-- All notable changes will be documented here. Implementation work is currently focused on documentation, onboarding, and compliance infrastructure; see `docs/plan.md` for the living roadmap.
+- All notable changes will be documented here. Implementation work is currently focused on documentation, onboarding, and compliance infrastructure; see `docs/plans/plan.md` for the living roadmap.
 
 
 ## [Unreleased]

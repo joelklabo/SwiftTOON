@@ -26,4 +26,4 @@ This document outlines the steps every release must follow so the DocC tutorials
    - Use `gh-commit-watch -w perf|coverage` to watch the perf and coverage workflows triggered by the release.
    - Update the README `Releases` summary bullet to describe the new version + spec tag + performance/coverage highlights.
 
-Refer back to `docs/plan.md#release-checklist` for extra detail (DocC/perf/coverage gating plus spec alignment). Keep this file in sync with the plan whenever workflows change.
+Refer back to `docs/plans/plan.md#release-checklist` for extra detail (DocC/perf/coverage gating plus spec alignment). Keep this file in sync with the plan whenever workflows change.

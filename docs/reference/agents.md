@@ -15,7 +15,7 @@
 ## Repository Layout Essentials
 
 - `docs/plan.md` – Living roadmap outlining every stage; reference it before writing code/tests.
-- `docs/agents.md` – (this file) canonical instructions for Codex, Cursor, ClaudeMD, Copilot, Quad, etc.
+- `docs/reference/agents.md` – (this file) canonical instructions for Codex, Cursor, ClaudeMD, Copilot, Quad, etc.
 - `reference/` – Upstream `toon-format/toon` checkout for fixtures, differential tests, and performance baselines. Never edit upstream sources except to pull updates.
 - `reference/spec` – Spec repository clone providing canonical fixtures; synced via `Scripts/update-fixtures.swift`.
 - `README.md` – Public marketing page; badges must stay accurate with active CI workflows.
@@ -190,7 +190,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 
 ## Sync Strategy for Agent Files
 
-- `docs/agents.md` is the canonical source.
+- `docs/reference/agents.md` is the canonical source.
 - Create symlinks (or CI copying) for:
   - `AGENTS.md` (root) – so humans see instructions immediately.
   - `.github/copilot-instructions.md` – consumed by GitHub Copilot.
