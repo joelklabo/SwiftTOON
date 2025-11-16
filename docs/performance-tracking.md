@@ -1,3 +1,9 @@
+### Iteration #13 – Use static empty JSONObject in parseListArrayItem
+- **Goal:** Attempt to reduce repeated allocations of empty `JSONObject` instances in `parseListArrayItem` by introducing and returning a `static let emptyJSONObject`.
+- **Profiling evidence:** Comparison of `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks` output before and after the change showed a slight increase in `Parser.parseListArray` and other parser phase durations, indicating no positive performance impact and potentially a slight negative one.
+- **Optimization steps:** Modified `Sources/TOONCore/Parser.swift` to introduce `static let emptyJSONObject = JSONObject()` and use it in `parseListArrayItem` where `JSONObject()` was previously returned.
+- **Outcome:** The change was reverted as it did not yield a positive performance impact. This suggests that for the current benchmark dataset, the overhead of copying the static struct instance outweighs the benefits of avoiding repeated stack allocations of new `JSONObject` instances.
+
 ### Iteration #12 – Increase JSONObject initial capacity
 - **Goal:** Attempt to reduce reallocations in `Parser.parseObject` by increasing the initial `JSONObject` capacity reservation from 8 to 16.
 - **Profiling evidence:** Comparison of `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks` output before and after the change showed a slight increase in `Parser.parseObject` and other parser phase durations, indicating no positive performance impact and potentially a slight negative one.
