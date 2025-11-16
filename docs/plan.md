@@ -401,7 +401,7 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 **Objective:** Generate comprehensive coverage reports and categorize all uncovered code paths.
 
 #### Task 1.1: Generate Coverage Reports
-**Status:** [IN PROGRESS - Copilot]
+**Status:** [DONE - Copilot]
 
 ```bash
 # Run tests with coverage
@@ -431,7 +431,7 @@ xcrun llvm-cov show .build/debug/SwiftTOONPackageTests.xctest/Contents/MacOS/Swi
 **Deliverable:** HTML reports in `coverage-artifacts/{TOONCore,TOONCodable}/`
 
 #### Task 1.2: Analyze Uncovered Lines
-**Status:** [ ] Not started
+**Status:** [DONE - Copilot]
 
 ```bash
 # Generate line-by-line coverage for each source file
@@ -446,7 +446,7 @@ done
 **Deliverable:** Per-file coverage percentages and line numbers
 
 #### Task 1.3: Create Coverage Gaps Document
-**Status:** [ ] Not started
+**Status:** [DONE - Copilot]
 
 Create `coverage-gaps.md` with structure:
 
