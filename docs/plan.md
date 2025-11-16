@@ -392,33 +392,141 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 ## Stage 10 – Coverage Excellence (99%/97% Target)
 
-> **Status:** 🚀 IN PROGRESS (started 2025-11-16). Current: 91.46% line / 89.66% func / 85.14% region (as of 2025-11-16 17:17 UTC). CI gates: 85%/78%. Target: ≥99% line, ≥97% branch.
+> **Status:** 🚀 IN PROGRESS (started 2025-11-16). Current: 91.46% line / 89.66% func / 85.14% region (as of 2025-11-16 17:22 UTC). CI gates: 85%/78%. Target: ≥99% line, ≥97% branch.
 
 **Coordination:** Mark tasks as `[IN PROGRESS - AgentName]` when starting work to avoid conflicts.
 
-**Last Update:** 2025-11-16 17:17 UTC - Copilot-CLI-Coverage completed Phase 2 Priority 1 Critical Gaps (Parser + JSONValueDecoder error tests)
+**Last Update:** 2025-11-16 17:22 UTC - Copilot-CLI-Coverage completed Phase 2 Priority 1 Critical Gaps (Parser + JSONValueDecoder error tests) - 58 tests created, ready to commit
+
+---
+
+### 📊 Coverage Progress Tracking
+
+| Module | Baseline | Current | After Tests* | Target | Remaining |
+|--------|----------|---------|--------------|--------|-----------|
+| **Overall** | 89.7% | 91.46% | ~92.5% | 99% | ~6.5% |
+| **Parser.swift** | 83.3% | 83.3% | ~90% | 99% | ~9% |
+| **JSONValueDecoder.swift** | 75.5% | 75.5% | ~88% | 99% | ~11% |
+| **String+TOONUtils.swift** | 0% | 100%✅ | 100% | 100% | 0% |
+| **PerformanceSignpost.swift** | 50% | 95%+✅ | 95%+ | 99% | <4% |
+| **Lexer.swift** | 89.7% | 89.7% | 89.7% | 99% | 9.3% |
+| **JSONValueEncoder.swift** | 89.7% | 89.7% | 89.7% | 99% | 9.3% |
+| **ToonCodable.swift** | 79.5% | 79.5% | 79.5% | 99% | 19.5% |
+| **CLI main.swift** | 80.1% | 80.1% | 80.1% | 95% | 14.9% |
+
+*Estimated after running new tests - verification needed
 
 ---
 
 ### 📋 Quick Start for Partner Agents
 
-**Current State (2025-11-16 17:17 UTC):**
-- ✅ Phase 1 COMPLETE - Coverage analysis in `coverage-analysis/gaps-report.md`
-- ✅ Phase 2 Priority 1 COMPLETE - Parser (26 tests) + JSONValueDecoder (32 tests) error paths
-- ⏳ Phase 2 Priority 2 NEXT - Lexer.swift (89.7% → 95%) + JSONValueEncoder.swift (89.7% → 95%)
+**Current State (2025-11-16 17:22 UTC):**
+- ✅ Phase 1 COMPLETE - Coverage analysis completed
+- ✅ Phase 2 Priority 1 COMPLETE - Parser (26 tests) + JSONValueDecoder (32 tests) error paths created
+- ⏳ **READY TO COMMIT** - 58 new tests await verification & commit
+- 🎯 Phase 2 Priority 2 NEXT - Lexer.swift (89.7% → 95%) + JSONValueEncoder.swift (89.7% → 95%)
 
 **Files Ready to Commit:**
 1. `Tests/TOONCoreTests/ParserErrorPathsTests.swift` - 26 error path tests (Parser 83.3% → ~90%)
 2. `Tests/TOONCodableTests/JSONValueDecoderErrorTests.swift` - 32 decoder error tests (JSONValueDecoder 75.5% → ~88%)
-3. `Tests/TOONCoreTests/NumericEdgeCasesTests.swift` - Fixed Parser API calls
-4. `Tests/TOONCoreTests/PerformanceSignpostTests.swift` - Already committed
+3. `Tests/TOONCoreTests/NumericEdgeCasesTests.swift` - Fixed Parser API calls (6 locations)
 
-**Next Actions:**
-1. **Run full test suite** to verify 58 new tests compile and pass
-2. **Run coverage** to confirm Parser/Decoder improvements: `swift test --enable-code-coverage --parallel && PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit) && swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts`
-3. **Commit**: `git add Tests/TOONCoreTests/ParserErrorPathsTests.swift Tests/TOONCodableTests/JSONValueDecoderErrorTests.swift Tests/TOONCoreTests/NumericEdgeCasesTests.swift && git commit -m "test: add Parser error paths (83%→90%) and JSONValueDecoder errors (75%→88%)"`
-4. **Push**: `git push origin main`
-5. **Continue to Priority 2**: See `coverage-analysis/gaps-report.md` Phase 1.2 for Lexer + JSONValueEncoder test recommendations
+**Immediate Actions:**
+```bash
+# 1. Verify tests compile and pass
+swift test --parallel
+
+# 2. Run coverage analysis
+swift test --enable-code-coverage --parallel
+PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)
+swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts
+cat coverage-artifacts/coverage-summary.json
+
+# 3. Commit and push
+git add Tests/TOONCoreTests/ParserErrorPathsTests.swift \
+        Tests/TOONCodableTests/JSONValueDecoderErrorTests.swift \
+        Tests/TOONCoreTests/NumericEdgeCasesTests.swift \
+        docs/plan.md
+
+git commit -m "test: add Parser error paths (83%→90%) and JSONValueDecoder errors (75%→88%)
+
+- Add 26 Parser error path tests covering array length mismatches, invalid
+  declarations, list/tabular errors, lenient mode, and nested structures
+- Add 32 JSONValueDecoder error tests covering type mismatches, missing keys,
+  number conversions, container errors, and super decoder paths
+- Fix NumericEdgeCasesTests Parser API usage (6 locations)
+- Update docs/plan.md Stage 10 Phase 2 status
+
+Coverage impact: Parser 83.3%→90%, JSONValueDecoder 75.5%→88%, Overall 91.46%→92.5%"
+
+git push origin main
+
+# 4. Monitor CI
+gh run watch
+```
+
+---
+
+### 🎯 Priority Roadmap (Ordered by Impact)
+
+#### ✅ DONE - Priority 1: Critical Gaps (Below 85%)
+
+1. **String+TOONUtils.swift** - 0% → 100% ✅ (COMMITTED)
+2. **PerformanceSignpost.swift** - 50% → 95%+ ✅ (COMMITTED)
+3. **Parser.swift** - 83.3% → ~90% ✅ (26 tests READY TO COMMIT)
+4. **JSONValueDecoder.swift** - 75.5% → ~88% ✅ (32 tests READY TO COMMIT)
+
+#### 🔄 TODO - Priority 2: Moderate Gaps (85-95%)
+
+**Target:** Bring all modules above 95% before final push to 99%
+
+1. **Lexer.swift** (89.7% → 95%) - 31 lines missing
+   - Invalid escape sequences (`\x`, invalid unicode)
+   - Unterminated strings
+   - Edge case numbers (NaN, Infinity, overflow)
+   - Malformed tokens
+   - **Create:** `Tests/TOONCoreTests/LexerErrorPathsTests.swift`
+
+2. **JSONValueEncoder.swift** (89.7% → 95%) - 25 lines missing
+   - All Swift integer types (Int8/16/32/64, UInt variants)
+   - Nested container encoding
+   - Super encoder paths
+   - Empty containers
+   - **Create:** `Tests/TOONCodableTests/JSONValueEncoderErrorTests.swift`
+
+3. **ToonCodable.swift** (79.5% → 90%) - 23 lines missing
+   - Encoder/decoder initialization edge cases
+   - Options handling
+   - Error paths
+   - **Expand:** `Tests/TOONCodableTests/ToonCodableTests.swift`
+
+4. **ToonSchema.swift** (90.5% → 95%) - 9 lines missing
+   - Schema validation failures
+   - Missing required fields
+   - Unexpected fields with strict mode
+
+5. **JSONTextParser.swift** (93.2% → 95%) - 15 lines missing
+   - JSON parsing edge cases
+   - Malformed JSON recovery
+
+#### 📌 Priority 3: Near Complete (95%+ → 99%)
+
+Polish files already close to goal:
+- ScalarFormatter.swift (94.6%) - 3 lines
+- ToonKeyQuoter.swift (95.5%) - 2 lines
+- JSONObject.swift (95.9%) - 3 lines
+- ToonAnalyzer.swift (96.1%) - 3 lines
+- ToonSerializer.swift (98.5%) - 6 lines
+- ToonQuoter.swift (99.0%) - 1 line
+
+#### 🏢 Priority 4: CLI Coverage (Functional, Not Critical)
+
+**CLI main.swift** (80.1% → 95%) - 80 lines missing
+- Invalid command-line flags
+- Missing input files
+- STDIN/STDOUT error conditions
+- Pipe failures
+- **Note:** May already be covered by integration tests; verify with detailed coverage report
 
 ---
 
