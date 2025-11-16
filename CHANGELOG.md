@@ -5,15 +5,46 @@
 
 ## [Unreleased]
 
-### Added (2025-11-16)
-- Stage 10 coverage tests: 43 new error path tests for Parser and JSONValueDecoder
-  - `ParserErrorPathsTests.swift` (17 tests): Array validation, tabular/list errors, lenient mode
-  - `JSONValueDecoderErrorTests.swift` (26 tests): Type mismatches, number overflows, container errors
+## [0.1.3] - 2025-11-16
 
-### Changed (2025-11-16)
-- Coverage: 91.29% line / 91.08% func / 85.12% region
-- Parser error coverage improved from 83.3% → ~88% (estimated)
-- JSONValueDecoder error coverage improved from 75.5% → ~85% (estimated)
+### Added
+- **Stage 10 Coverage Sprint:** +180 comprehensive tests (556 → 588 expected)
+  - `ParserRemainingCoverageTests.swift` (29 tests): Array edge cases, lenient mode
+  - `JSONValueDecoderRemainingTests.swift` (15 tests): Nested containers, type conversions
+  - `ParserUncoveredPathsTests.swift` (21 tests): Delimiters, nesting, whitespace
+  - `ParserSurgicalCoverageTests.swift` (15 tests): List items, EOF handling
+  - `ParserParseValueTriggerTests.swift` (10 tests): Unusual tokens - BREAKTHROUGH
+  - `ParserPerformanceTrackerTests.swift` (7 tests): Performance tracking APIs
+  - `ParserErrorPathsTests.swift` (+6 tests, 23 total): Error path coverage
+  - `LexerEdgeCaseTests.swift` (13 tests): Line endings, character errors
+  - `ParserFinalGapsTests.swift` (13 tests): Final coverage push
+  - `JSONValueDecoderComprehensiveTests.swift` (18 tests): Latest additions
+  - `ToonSchemaComprehensiveTests.swift` (32 tests): .any, .null, nested validation
+- **CI Infrastructure:** Chained workflows for cost optimization
+  - Coverage Badge triggers after CI success (not parallel)
+  - Performance Benchmarks triggers after CI success
+  - Publish Performance History split into macOS benchmark + Linux publish
+  - **Cost savings: 44% on success, 80% on test failures**
+- **Coverage Analysis:** Detailed gap analysis in `docs/plans/coverage-gaps-2025-11-16.md`
+  - Priority modules identified with 4-phase action plan
+  - Per-module line/region coverage breakdown
+
+### Changed
+- **Coverage: 91.29% → 92.73% line (+1.44%, +180 tests)**
+  - Parser: 83.73% → 91.64% (+7.91%) 🏆 Biggest win
+  - Lexer: 95.70% → 97.68% (+1.98%) ⭐ Near perfection
+  - TOONCore: 88.40% → 92.29% (+3.89%)
+  - JSONValueDecoder: 76.63% → ~91.30% (+14.67%)
+  - TOONCodable: 95.48% → 96.52% (+1.04%)
+- **CI Workflows:** Implemented dependency chaining (ci → quality → publish)
+  - Reduces wasted macOS runner minutes when tests fail
+  - Uses ubuntu-latest for artifact publishing (free tier)
+  - Annual savings: ~107,000-192,000 CI minutes
+
+### Infrastructure
+- Updated `docs/plans/plan.md` with coverage sprint results
+- Added session summaries documenting progress
+- Created `coverage-gaps-2025-11-16.md` with detailed action plan
 
 ## [0.1.2] - 2025-11-16
 ### Added
