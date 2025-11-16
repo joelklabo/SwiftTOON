@@ -1,12 +1,12 @@
 {
   "branch" : "main",
-  "commit" : "593dbee6126b84d2c972b52f39b5664906986254",
+  "commit" : "6512d304fa6b8e0059e1a7a7c18aeb8008cb8bd7",
   "functions" : {
     "count" : 1386,
     "covered" : 1185,
     "percent" : 85.4978354978355
   },
-  "generatedAt" : "2025-11-16T16:56:45Z",
+  "generatedAt" : "2025-11-16T16:59:37Z",
   "lines" : {
     "count" : 7864,
     "covered" : 6972,
