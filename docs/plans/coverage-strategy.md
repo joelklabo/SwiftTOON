@@ -2,22 +2,40 @@
 
 **Goal:** Achieve ≥99% line coverage and ≥97% branch coverage across `TOONCore` and `TOONCodable`.
 
-**Current State:** 92.02% line / 94.51% function (473 tests)
+**Current State:** 92.14% line / 94.12% function (505 tests)
 
 **Progress Summary:**
-- Started: 91.29% line coverage
-- Current: 92.02% line coverage
-- Added: 65 new tests (ParserRemainingCoverageTests: 29, JSONValueDecoderRemainingTests: 15, ParserUncoveredPathsTests: 21)
-- Tests: 408 → 473
+- Session Start: 91.29% line coverage (408 tests)
+- Current: 92.14% line coverage (505 tests)
+- Improvement: +0.85% line, +97 tests (+23.8%)
+
+**Major Breakthroughs:**
+- **Parser:** 83.73% → 91.19% (+7.46%!) - Cracked with unusual token tests
+- **TOONCore:** 88.40% → 91.64% (+3.24%)
+- **JSONValueDecoder:** 76.63% → ~85%+ via targeted Codable tests
 
 **Module Breakdown (current):**
-- TOONCore: 88.40% line (Parser: 83.73% is bottleneck)
-- TOONCodable: 94.52% line (JSONValueDecoder: ~85%+, improved from 76.63%)
+- TOONCore: 91.64% line (Parser: 91.19%, Lexer: 95.70%)
+- TOONCodable: 94.52% line (strong coverage maintained)
 - TOONCLI: ~95%+ (good coverage)
+
+**Tests Added This Session (97 tests in 5 files):**
+1. ParserRemainingCoverageTests (29) - Array edge cases, lenient mode
+2. JSONValueDecoderRemainingTests (15) - Nested containers, type conversions
+3. ParserUncoveredPathsTests (21) - Delimiters, nesting, whitespace
+4. ParserSurgicalCoverageTests (15) - List items, EOF handling
+5. **ParserParseValueTriggerTests (10) - BREAKTHROUGH** - Unusual tokens
+6. ParserPerformanceTrackerTests (7) - Performance tracking APIs
 
 ## Phase 1: Coverage Analysis & Gap Identification ✅
 
-Completed initial analysis and added 65 tests targeting major gaps.
+Completed with 97 targeted tests addressing major gaps.
+
+**Remaining Gaps (to reach 95%+):**
+- Parser: 53 uncovered lines (error paths: lines 140, 152, 156-159, 174, 182-186, 199, 327, 359-363)
+- JSONTextParser: 15 missed lines (93.15% - JSON parsing edge cases)
+- Lexer: 13 missed lines (95.70% - error paths, rare tokens)
+- ParserPerformanceTracker: 21 missed lines (69.12% - observability, acceptable)
 
 ### Step 1.1: Generate Detailed Coverage Report
 
