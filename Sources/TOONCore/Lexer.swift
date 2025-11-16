@@ -352,6 +352,7 @@ private mutating func nextToken() throws -> Token {
             || isDigit(byte)
             || byte == ASCII.dash
             || byte == ASCII.period
+            || byte == UInt8(ascii: "@")
     }
 
     private func isDigit(_ byte: UInt8) -> Bool {
