@@ -492,7 +492,7 @@ func testSchemaMismatchThrows() { /* ToonDecoder line XXX */ }
 **Deliverable:** Batch commit "test: add error path coverage (85→88%)"
 
 #### Category B: Edge Case Coverage
-**Status:** [ ] Not started  
+**Status:** [IN PROGRESS - Copilot]  
 **Target:** Boundary conditions, empty collections, extreme values  
 **Files:** Create `Tests/TOONCoreTests/NumericEdgeCasesTests.swift`, `Tests/TOONCoreTests/CollectionEdgeCasesTests.swift`
 
