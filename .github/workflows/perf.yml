@@ -12,6 +12,10 @@ on:
       - "Package.swift"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   perf:
     runs-on: macos-14
