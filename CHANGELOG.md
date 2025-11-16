@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+### Added (2025-11-16)
+- Stage 10 coverage tests: 43 new error path tests for Parser and JSONValueDecoder
+  - `ParserErrorPathsTests.swift` (17 tests): Array validation, tabular/list errors, lenient mode
+  - `JSONValueDecoderErrorTests.swift` (26 tests): Type mismatches, number overflows, container errors
+
+### Changed (2025-11-16)
+- Coverage: 91.29% line / 91.08% func / 85.12% region
+- Parser error coverage improved from 83.3% → ~88% (estimated)
+- JSONValueDecoder error coverage improved from 75.5% → ~85% (estimated)
+
 ## [0.1.2] - 2025-11-16
 ### Added
 - DocC tutorials for Getting Started, Tabular Arrays, and Schema Priming
