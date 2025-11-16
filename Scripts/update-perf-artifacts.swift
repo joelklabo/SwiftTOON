@@ -185,51 +185,61 @@ do {
 
     let labels = history.entries.enumerated().map { idx, entry -> String in
         let shortCommit = entry.commit.prefix(7)
-        return "#\(idx + 1)" + "\n" + shortCommit
+        return "#\(idx + 1)\n\(shortCommit)"
     }
-    let values = history.entries.map { decodeThroughput(from: $0.samples) ?? 0 }
+    let metricKeys = [
+        "lexer_micro|large.toon|throughput",
+        "parser_micro|large.toon|throughput",
+        "decode_end_to_end|users.toon|throughput",
+        "Parser.parse|phase|duration",
+        "Parser.parseArrayValue|phase|duration",
+        "Parser.parseListArray|phase|duration",
+        "Parser.buildValue|phase|duration"
+    ]
+    let colors = ["#1f4ed8", "#0ea5e9", "#22c55e", "#f97316", "#d946ef", "#facc15", "#22d3ee"]
+    var datasets: [[String: Any]] = []
+    for (index, metric) in metricKeys.enumerated() {
+        let values = history.entries.map {
+            $0.samples.first(where: { $0.suite == metric.components(separatedBy: "|").first && $0.metric == "throughput" && $0.status == .success })?.value ?? 0
+        }
+        datasets.append([
+            "label": metric,
+            "data": values,
+            "borderColor": colors[index % colors.count],
+            "backgroundColor": colors[index % colors.count],
+            "borderWidth": 3,
+            "fill": true,
+            "stack": "stack0",
+            "pointRadius": 1,
+            "tension": 0.3
+        ])
+    }
     let chartConfig: [String: Any] = [
         "type": "line",
         "data": [
             "labels": labels,
-            "datasets": [[
-                "label": "Decode MB/s",
-                "data": values,
-                "borderColor": "#1f4ed8",
-                "backgroundColor": "#1f4ed8",
-                "borderWidth": 4,
-                "fill": false,
-                "tension": 0.3
-            ]]
+            "datasets": datasets
         ],
         "options": [
-            "scales": [
-                "y": ["beginAtZero": true]
-            ],
-            "layout": [
-                "padding": [
-                    "top": 20,
-                    "bottom": 40,
-                    "left": 40,
-                    "right": 40
-                ]
-            ],
             "plugins": [
-                "legend": ["display": false],
+                "legend": ["display": true],
                 "title": [
                     "display": true,
-                    "text": "Decode Throughput (MB/s) – higher is better",
-                    "align": "center",
+                    "text": "Throughput timeline (stacked area)",
                     "font": ["size": 18, "weight": "600"],
-                    "color": "#1f2933"
+                    "color": "#0f172a"
                 ]
             ],
-            "elements": [
-                "point": ["radius": 4, "backgroundColor": "#1f4ed8", "borderWidth": 0]
+            "scales": [
+                "y": ["beginAtZero": true, "title": ["display": true, "text": "MB/s"]],
+                "x": ["ticks": ["maxRotation": 0]]
             ]
         ]
     ]
-    fetchChartImage(config: chartConfig, output: outputDirURL.appendingPathComponent("perf-history.png"))
+    let chartURL = outputDirURL.appendingPathComponent("perf-history.png")
+    fetchChartImage(config: chartConfig, output: chartURL)
+    let chartConfigURL = outputDirURL.appendingPathComponent("perf-history-chart.json")
+    try encodeJSON(chartConfig).write(to: chartConfigURL)
 
     let summary: [String: Any] = [
         "repo": options.repo,

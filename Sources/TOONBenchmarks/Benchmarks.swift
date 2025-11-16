@@ -51,6 +51,7 @@ public struct BenchmarkSample: Codable {
 public enum BenchmarkRunner {
     public static func runAll(datasetsPath: String? = nil, iterations: Int = 10) -> [BenchmarkSample] {
         let root = datasetsRoot(from: datasetsPath)
+        ParserPerformanceTracker.reset()
         var samples: [BenchmarkSample] = []
 
         samples.append(runSuite(
@@ -117,6 +118,20 @@ public enum BenchmarkRunner {
             note: "Pending CLI encode/decode support"
         ))
 
+        ParserPerformanceTracker.reportIfNeeded()
+        let phaseMetrics = ParserPerformanceTracker.snapshotAverages()
+        for (section, average) in phaseMetrics {
+            samples.append(BenchmarkSample(
+                suite: section.rawValue,
+                dataset: "phase",
+                metric: "duration",
+                unit: "s",
+                value: average,
+                iterations: 1,
+                status: .success,
+                note: nil
+            ))
+        }
         return samples
     }
 

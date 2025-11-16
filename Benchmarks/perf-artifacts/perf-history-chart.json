@@ -8,7 +8,8 @@
         "data" : [
           5.3146258773084352,
           5.5286269489881423,
-          5.4791868977671401
+          5.4791868977671401,
+          5.1394694792628286
         ],
         "fill" : true,
         "label" : "lexer_micro|large.toon|throughput",
@@ -23,7 +24,8 @@
         "data" : [
           3.1041272652167549,
           1.8179569572849112,
-          3.1926778896348851
+          3.1926778896348851,
+          2.637318363306437
         ],
         "fill" : true,
         "label" : "parser_micro|large.toon|throughput",
@@ -38,10 +40,75 @@
         "data" : [
           3.8374871297176667,
           2.2442270848038723,
-          4.0094708667901999
+          4.0094708667901999,
+          3.1678561987840337
         ],
         "fill" : true,
         "label" : "decode_end_to_end|users.toon|throughput",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#f97316",
+        "borderColor" : "#f97316",
+        "borderWidth" : 3,
+        "data" : [
+          0,
+          0,
+          0,
+          0
+        ],
+        "fill" : true,
+        "label" : "Parser.parse|phase|duration",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#d946ef",
+        "borderColor" : "#d946ef",
+        "borderWidth" : 3,
+        "data" : [
+          0,
+          0,
+          0,
+          0
+        ],
+        "fill" : true,
+        "label" : "Parser.parseArrayValue|phase|duration",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#facc15",
+        "borderColor" : "#facc15",
+        "borderWidth" : 3,
+        "data" : [
+          0,
+          0,
+          0,
+          0
+        ],
+        "fill" : true,
+        "label" : "Parser.parseListArray|phase|duration",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#22d3ee",
+        "borderColor" : "#22d3ee",
+        "borderWidth" : 3,
+        "data" : [
+          0,
+          0,
+          0,
+          0
+        ],
+        "fill" : true,
+        "label" : "Parser.buildValue|phase|duration",
         "pointRadius" : 1,
         "stack" : "stack0",
         "tension" : 0.29999999999999999
@@ -50,7 +117,8 @@
     "labels" : [
       "#1\n55f595f",
       "#2\n891e83c",
-      "#3\n7b2bde8"
+      "#3\n7b2bde8",
+      "#4\n8f515bb"
     ]
   },
   "options" : {

@@ -18,15 +18,13 @@ public final class ParserPerformanceTracker {
 
     private static let queue = DispatchQueue(label: "org.swiftTOON.parserPerformance")
     private static var measurements: [ParserPerformanceSection: Stats] = [:]
-    public static let enabled: Bool = ProcessInfo.processInfo.environment["SWIFTTOON_PERF_TRACE"] == "1"
+    public static let traceEnabled: Bool = ProcessInfo.processInfo.environment["SWIFTTOON_PERF_TRACE"] == "1"
 
-    public static func begin(_ section: ParserPerformanceSection) -> CFAbsoluteTime? {
-        guard enabled else { return nil }
+    public static func begin(_ section: ParserPerformanceSection) -> CFAbsoluteTime {
         return CFAbsoluteTimeGetCurrent()
     }
 
-    public static func end(_ section: ParserPerformanceSection, since start: CFAbsoluteTime?) {
-        guard let start = start else { return }
+    public static func end(_ section: ParserPerformanceSection, since start: CFAbsoluteTime) {
         let elapsed = CFAbsoluteTimeGetCurrent() - start
         queue.sync {
             var stats = measurements[section] ?? Stats()
@@ -37,7 +35,7 @@ public final class ParserPerformanceTracker {
     }
 
     public static func reportIfNeeded() {
-        guard enabled else { return }
+        guard traceEnabled else { return }
         queue.sync {
             fputs("Parser performance summary:\n", stderr)
             for section in ParserPerformanceSection.allCases {
@@ -53,6 +51,16 @@ public final class ParserPerformanceTracker {
     public static func reset() {
         queue.sync {
             measurements.removeAll()
+        }
+    }
+
+    public static func snapshotAverages() -> [ParserPerformanceSection: Double] {
+        queue.sync {
+            var snapshot: [ParserPerformanceSection: Double] = [:]
+            for (section, stats) in measurements where stats.count > 0 {
+                snapshot[section] = stats.duration / Double(stats.count)
+            }
+            return snapshot
         }
     }
 }

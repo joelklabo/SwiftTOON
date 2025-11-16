@@ -49,12 +49,10 @@ public struct Parser {
 
     public mutating func parse() throws -> JSONValue {
         let signpostID = PerformanceSignpost.begin("Parser.parse")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parse) : nil
+        let timer = ParserPerformanceTracker.begin(.parse)
         defer {
             PerformanceSignpost.end("Parser.parse", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.parse, since: timer)
-            }
+            ParserPerformanceTracker.end(.parse, since: timer)
         }
         consumeNewlines()
         guard let token = peekToken() else { return .object(JSONObject()) }
@@ -90,12 +88,10 @@ public struct Parser {
 
     private mutating func parseObject(currentIndent: Int) throws -> JSONObject {
         let signpostID = PerformanceSignpost.begin("Parser.parseObject")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseObject) : nil
+        let timer = ParserPerformanceTracker.begin(.parseObject)
         defer {
             PerformanceSignpost.end("Parser.parseObject", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.parseObject, since: timer)
-            }
+            ParserPerformanceTracker.end(.parseObject, since: timer)
         }
         var result = JSONObject()
         result.reserveCapacity(8)
@@ -146,12 +142,10 @@ public struct Parser {
 
     private mutating func parseValue() throws -> JSONValue {
         let signpostID = PerformanceSignpost.begin("Parser.parseValue")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseValue) : nil
+        let timer = ParserPerformanceTracker.begin(.parseValue)
         defer {
             PerformanceSignpost.end("Parser.parseValue", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.parseValue, since: timer)
-            }
+            ParserPerformanceTracker.end(.parseValue, since: timer)
         }
         consumeNewlines()
         guard let token = peekToken() else {
@@ -194,12 +188,10 @@ public struct Parser {
 
     private mutating func parseArrayValue(keyToken: Token, key: String?) throws -> JSONValue? {
         let signpostID = PerformanceSignpost.begin("Parser.parseArrayValue")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseArrayValue) : nil
+        let timer = ParserPerformanceTracker.begin(.parseArrayValue)
         defer {
             PerformanceSignpost.end("Parser.parseArrayValue", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.parseArrayValue, since: timer)
-            }
+            ParserPerformanceTracker.end(.parseArrayValue, since: timer)
         }
         guard let bracketToken = peekToken(), bracketToken.kind == .leftBracket else { return nil }
         let (length, delimiter) = try parseArraySignature(contextToken: keyToken)
@@ -353,12 +345,10 @@ public struct Parser {
 
     private mutating func parseListArray(length: Int, baseIndent: Int, contextToken: Token) throws -> [JSONValue] {
         let signpostID = PerformanceSignpost.begin("Parser.parseListArray")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseListArray) : nil
+        let timer = ParserPerformanceTracker.begin(.parseListArray)
         defer {
             PerformanceSignpost.end("Parser.parseListArray", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.parseListArray, since: timer)
-            }
+            ParserPerformanceTracker.end(.parseListArray, since: timer)
         }
         var values: [JSONValue] = []
         values.reserveCapacity(length)
@@ -464,12 +454,10 @@ public struct Parser {
 
     private mutating func readRowValues(delimiter: ArrayDelimiter) throws -> [JSONValue] {
         let signpostID = PerformanceSignpost.begin("Parser.readRowValues")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.readRowValues) : nil
+        let timer = ParserPerformanceTracker.begin(.readRowValues)
         defer {
             PerformanceSignpost.end("Parser.readRowValues", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.readRowValues, since: timer)
-            }
+            ParserPerformanceTracker.end(.readRowValues, since: timer)
         }
         var values: [JSONValue] = []
         rowChunkBuffer.removeAll(keepingCapacity: true)
@@ -561,12 +549,10 @@ public struct Parser {
 
     private func buildValue(from tokens: [Token], contextToken: Token, endIndex: Int?) throws -> JSONValue {
         let signpostID = PerformanceSignpost.begin("Parser.buildValue")
-        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.buildValue) : nil
+        let timer = ParserPerformanceTracker.begin(.buildValue)
         defer {
             PerformanceSignpost.end("Parser.buildValue", id: signpostID)
-            if ParserPerformanceTracker.enabled {
-                ParserPerformanceTracker.end(.buildValue, since: timer)
-            }
+            ParserPerformanceTracker.end(.buildValue, since: timer)
         }
         guard !tokens.isEmpty else {
             throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "value")
