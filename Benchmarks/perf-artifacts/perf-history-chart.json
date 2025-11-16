@@ -1,0 +1,79 @@
+{
+  "data" : {
+    "datasets" : [
+      {
+        "backgroundColor" : "#1f4ed8",
+        "borderColor" : "#1f4ed8",
+        "borderWidth" : 3,
+        "data" : [
+          5.3146258773084352
+        ],
+        "fill" : true,
+        "label" : "lexer_micro|large.toon|throughput",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#0ea5e9",
+        "borderColor" : "#0ea5e9",
+        "borderWidth" : 3,
+        "data" : [
+          3.1041272652167549
+        ],
+        "fill" : true,
+        "label" : "parser_micro|large.toon|throughput",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      },
+      {
+        "backgroundColor" : "#22c55e",
+        "borderColor" : "#22c55e",
+        "borderWidth" : 3,
+        "data" : [
+          3.8374871297176667
+        ],
+        "fill" : true,
+        "label" : "decode_end_to_end|users.toon|throughput",
+        "pointRadius" : 1,
+        "stack" : "stack0",
+        "tension" : 0.29999999999999999
+      }
+    ],
+    "labels" : [
+      "#1\n55f595f"
+    ]
+  },
+  "options" : {
+    "plugins" : {
+      "legend" : {
+        "display" : true
+      },
+      "title" : {
+        "color" : "#0f172a",
+        "display" : true,
+        "font" : {
+          "size" : 18,
+          "weight" : "600"
+        },
+        "text" : "Throughput timeline (stacked area)"
+      }
+    },
+    "scales" : {
+      "x" : {
+        "ticks" : {
+          "maxRotation" : 0
+        }
+      },
+      "y" : {
+        "beginAtZero" : true,
+        "title" : {
+          "display" : true,
+          "text" : "MB\/s"
+        }
+      }
+    }
+  },
+  "type" : "line"
+}

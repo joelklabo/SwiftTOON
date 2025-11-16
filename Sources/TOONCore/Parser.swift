@@ -402,9 +402,14 @@ public struct Parser {
     }
 
     private mutating func parseListArrayItem(baseIndent: Int, contextToken: Token) throws -> JSONValue {
-        if matchNewline() {
-            if let token = peekToken(), case .indent = token.kind {
-                let nestedIndent = try expectIndent()
+        var newlineSeen = false
+        while let token = peekToken(), token.kind == .newline {
+            newlineSeen = true
+            advance()
+        }
+        if newlineSeen {
+            if let token = peekToken(), case .indent(let nestedIndent) = token.kind {
+                advance()
                 let object = try parseObject(currentIndent: nestedIndent)
                 return .object(object)
             }
