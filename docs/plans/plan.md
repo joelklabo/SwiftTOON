@@ -392,12 +392,12 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 ## Stage 10 – Coverage Excellence (99%/97% Target)
 
-> **Status (2025-11-16 21:30 UTC):**  
+> **Status (2025-11-16 21:35 UTC):**  
 > ✅ **Coverage Sprint Complete:** 92.35% line / 94.10% func (556 tests, +148 from sprint)  
 > ✅ **Module Health:** Lexer 97.68%, TOONCodable 96.52%, TOONCore 92.29%, Parser 91.64%  
-> 🔧 **CI Resolved:** GitHub Actions minutes exhausted → budget updated, workflows running  
-> 🔄 **Next Priority:** Optimize workflows to reduce macOS costs (implement chained ci→quality→publish)  
-> 📋 **Immediate:** Restructure workflows for 57-80% cost savings, add ubuntu-latest for publishing
+> ✅ **CI Workflows Optimized:** Implemented chained workflows (ci→coverage/perf→history)  
+> ✅ **Cost Reduction:** 44% savings on success, 80% on test failures (perf-history now uses ubuntu-latest)  
+> 🔄 **Next Priority:** Continue coverage push to 95%+ (Stage 10 continuation)
 
 **Coordination:** Mark tasks as `[IN PROGRESS - AgentName]` when starting work to avoid conflicts.
 
