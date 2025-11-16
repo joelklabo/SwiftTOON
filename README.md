@@ -195,18 +195,37 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 
 ## Performance Tracking
 
-- **Plan:** See the [Performance Tracking Playbook](docs/plan.md#performance-tracking-playbook) for the full benchmarking + visualization pipeline (baseline capture, history storage, badge/graph generation).
-- **Datasets:** Canonical TOON/JSON fixtures under `Benchmarks/Datasets/` (large parser stress test, users/orders datasets, CLI round-trips).
-- **Local command:** `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` followed by `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json` to ensure no regressions before you push.
-- **Analyzer manifest:** running `swift run CaptureEncodeRepresentations` writes `Tests/TOONCodableTests/Fixtures/encode/representation-manifest.json`, so the analyzer’s array layout decisions are captured for every encode fixture before diffing outputs.
-- **Automation:** The `Performance Benchmarks` workflow (`.github/workflows/perf.yml`) runs the suite on macOS runners for every push/PR, compares against `Benchmarks/baseline_reference.json`, and uploads the JSON output. A companion workflow (`perf-history.yml`) reruns the suite on main pushes, aggregates results into `gh-pages/perf/`, and publishes a Shields badge + line chart so visitors can track throughput. Use `swift Scripts/run-benchmarks.swift` locally to rerun the full benchmark pipeline (datasets → JSON → `update-perf-artifacts`) when refreshing artifacts.
-- **Live artifacts:** The graph below and the README badge are sourced from `https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/` and refresh after every main-branch run of `perf-history.yml`.
-- **Badge refresh:** After running `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`, invoke `swift Scripts/update-perf-artifacts.swift --latest Benchmarks/results/latest.json --output-dir perf-artifacts --commit "$(git rev-parse HEAD)" --repo joelklabo/SwiftTOON --branch main` (optionally `--history-input perf-artifacts/perf-history.json`). Commit and push the generated `perf-artifacts/*` files so `perf-history.yml` can copy them to `gh-pages/perf/`, which keeps the badge/graph on this README in sync with the latest MB/s measurement.
-- **Phase metrics:** The README graph now plots both macro throughput suites (`lexer_micro`, `parser_micro`, and `decode_end_to_end`) and the parser’s internal phase durations (`Parser.parse`, `Parser.parseListArray`, `Parser.parseArrayValue`, `Parser.buildValue`) by reusing the new `phase|<section>|duration` samples produced by the benchmarking harness. This helps spot regressions per translation stage, not just total MB/s.
+**Overview:**
+- **Plan:** See the [Performance Tracking Playbook](docs/plans/plan.md#performance-tracking-playbook) for the full benchmarking + visualization pipeline.
+- **Datasets:** Canonical TOON/JSON fixtures under `Benchmarks/Datasets/` (large parser stress test, users/orders datasets).
+- **Local workflow:** `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` → `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
+- **Automation:** Workflows run on every main push, publish artifacts to `gh-pages/perf/`, and update badges/graphs automatically.
 
-![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png?v=2)
+### Pipeline Throughput
 
-<sub>Higher MB/s numbers mean faster decoders (so the ideal trend is up and to the right). The badge and graph update automatically after the `Publish Performance History` workflow runs on `main`.</sub>
+Track end-to-end performance across the lexer, parser, and decode stages. Higher MB/s = faster processing.
+
+![Pipeline throughput](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-throughput.png?v=3)
+
+<details>
+<summary><b>📊 View Parser Phase Breakdown</b></summary>
+
+Diagnostic view showing time spent in each parser function. Stacked area reveals total parse time + per-phase contributions.
+
+![Parser phases](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-phases.png?v=3)
+
+</details>
+
+<details>
+<summary><b>📈 View Object Processing Rate</b></summary>
+
+Measures how many objects per second the decoder can process (useful for streaming workloads).
+
+![Objects per second](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-objects.png?v=3)
+
+</details>
+
+<sub>Graphs update automatically after every push to `main`. Click badge above to see current decode throughput.</sub>
 
 ---
 

@@ -147,6 +147,182 @@ func fetchChartImage(config: [String: Any], output url: URL) {
     }
 }
 
+func generateThroughputChart(history: HistoryFile, labels: [String], outputDir: URL) {
+    let throughputSpecs: [(suite: String, dataset: String, label: String, color: String)] = [
+        ("lexer_micro", "large.toon", "Lexer", "#3b82f6"),
+        ("parser_micro", "large.toon", "Parser", "#f59e0b"),
+        ("decode_end_to_end", "users.toon", "Decode (end-to-end)", "#10b981")
+    ]
+    
+    var datasets: [[String: Any]] = []
+    for spec in throughputSpecs {
+        let values = history.entries.map {
+            $0.samples.first(where: { $0.suite == spec.suite && $0.metric == "throughput" && $0.dataset == spec.dataset && $0.status == .success })?.value ?? 0
+        }
+        datasets.append([
+            "label": spec.label,
+            "data": values,
+            "borderColor": spec.color,
+            "backgroundColor": spec.color + "20",
+            "borderWidth": 3,
+            "fill": false,
+            "pointRadius": 3,
+            "pointHoverRadius": 5,
+            "tension": 0.3
+        ])
+    }
+    
+    let config: [String: Any] = [
+        "type": "line",
+        "data": [
+            "labels": labels,
+            "datasets": datasets
+        ],
+        "options": [
+            "plugins": [
+                "legend": ["display": true, "position": "top"],
+                "title": [
+                    "display": true,
+                    "text": "Pipeline Throughput (MB/s)",
+                    "font": ["size": 20, "weight": "700"],
+                    "color": "#111827"
+                ]
+            ],
+            "scales": [
+                "y": [
+                    "beginAtZero": true,
+                    "title": ["display": true, "text": "MB/s", "font": ["size": 14]],
+                    "grid": ["color": "#e5e7eb"]
+                ],
+                "x": [
+                    "ticks": ["maxRotation": 0, "font": ["size": 11]],
+                    "grid": ["display": false]
+                ]
+            ],
+            "responsive": true
+        ]
+    ]
+    
+    let url = outputDir.appendingPathComponent("perf-throughput.png")
+    fetchChartImage(config: config, output: url)
+}
+
+func generatePhaseChart(history: HistoryFile, labels: [String], outputDir: URL) {
+    let phaseSpecs: [(suite: String, label: String, color: String)] = [
+        ("Parser.parseObject", "parseObject", "#8b5cf6"),
+        ("Parser.parseArrayValue", "parseArrayValue", "#ec4899"),
+        ("Parser.parseListArray", "parseListArray", "#f59e0b"),
+        ("Parser.buildValue", "buildValue", "#10b981"),
+        ("Parser.readRowValues", "readRowValues", "#06b6d4")
+    ]
+    
+    var datasets: [[String: Any]] = []
+    for spec in phaseSpecs {
+        let values = history.entries.map { entry -> Double in
+            let seconds = entry.samples.first(where: { $0.suite == spec.suite && $0.metric == "duration" && $0.dataset == "phase" && $0.status == .success })?.value ?? 0
+            return seconds * 1000 // Convert to milliseconds
+        }
+        datasets.append([
+            "label": spec.label,
+            "data": values,
+            "borderColor": spec.color,
+            "backgroundColor": spec.color,
+            "borderWidth": 2,
+            "fill": true,
+            "stack": "stack0",
+            "pointRadius": 1,
+            "tension": 0.3
+        ])
+    }
+    
+    let config: [String: Any] = [
+        "type": "line",
+        "data": [
+            "labels": labels,
+            "datasets": datasets
+        ],
+        "options": [
+            "plugins": [
+                "legend": ["display": true, "position": "top"],
+                "title": [
+                    "display": true,
+                    "text": "Parser Phase Breakdown (milliseconds)",
+                    "font": ["size": 20, "weight": "700"],
+                    "color": "#111827"
+                ]
+            ],
+            "scales": [
+                "y": [
+                    "beginAtZero": true,
+                    "stacked": true,
+                    "title": ["display": true, "text": "Duration (ms)", "font": ["size": 14]],
+                    "grid": ["color": "#e5e7eb"]
+                ],
+                "x": [
+                    "ticks": ["maxRotation": 0, "font": ["size": 11]],
+                    "grid": ["display": false]
+                ]
+            ],
+            "responsive": true
+        ]
+    ]
+    
+    let url = outputDir.appendingPathComponent("perf-phases.png")
+    fetchChartImage(config: config, output: url)
+}
+
+func generateObjectsChart(history: HistoryFile, labels: [String], outputDir: URL) {
+    let values = history.entries.map {
+        $0.samples.first(where: { $0.suite == "decode_objects_per_second" && $0.metric == "objects_per_second" && $0.dataset == "users.toon" && $0.status == .success })?.value ?? 0
+    }
+    
+    let dataset: [String: Any] = [
+        "label": "Objects/sec",
+        "data": values,
+        "borderColor": "#6366f1",
+        "backgroundColor": "#6366f120",
+        "borderWidth": 3,
+        "fill": true,
+        "pointRadius": 3,
+        "pointHoverRadius": 5,
+        "tension": 0.3
+    ]
+    
+    let config: [String: Any] = [
+        "type": "line",
+        "data": [
+            "labels": labels,
+            "datasets": [dataset]
+        ],
+        "options": [
+            "plugins": [
+                "legend": ["display": false],
+                "title": [
+                    "display": true,
+                    "text": "Object Processing Rate",
+                    "font": ["size": 20, "weight": "700"],
+                    "color": "#111827"
+                ]
+            ],
+            "scales": [
+                "y": [
+                    "beginAtZero": true,
+                    "title": ["display": true, "text": "Objects/sec", "font": ["size": 14]],
+                    "grid": ["color": "#e5e7eb"]
+                ],
+                "x": [
+                    "ticks": ["maxRotation": 0, "font": ["size": 11]],
+                    "grid": ["display": false]
+                ]
+            ],
+            "responsive": true
+        ]
+    ]
+    
+    let url = outputDir.appendingPathComponent("perf-objects.png")
+    fetchChartImage(config: config, output: url)
+}
+
 do {
     let options = try parseArguments()
     let samples = try loadSamples(at: options.latestPath)
@@ -240,6 +416,11 @@ do {
     fetchChartImage(config: chartConfig, output: chartURL)
     let chartConfigURL = outputDirURL.appendingPathComponent("perf-history-chart.json")
     try encodeJSON(chartConfig).write(to: chartConfigURL)
+
+    // Generate separate focused charts
+    generateThroughputChart(history: history, labels: labels, outputDir: outputDirURL)
+    generatePhaseChart(history: history, labels: labels, outputDir: outputDirURL)
+    generateObjectsChart(history: history, labels: labels, outputDir: outputDirURL)
 
     let summary: [String: Any] = [
         "repo": options.repo,
