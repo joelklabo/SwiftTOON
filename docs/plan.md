@@ -220,6 +220,8 @@
 
 ## Stage 9 – Documentation & Release Readiness
 
+> **Status:** With the perf loop stabilized, Stage 9 is the current priority—DocC tutorials, spec alignment artifacts, release checklist, and README/release-note refreshes are next in the plan.
+
 1. **DocC & README**
    - Doc tests referencing real APIs must compile (TDD: failing doc tests until APIs exist).
    - Ship DocC tutorials (“Getting started”, “Tabular arrays”, “Schema priming”) containing real snippets so the exported Bundle remains runnable and exercises every public API.
@@ -383,6 +385,8 @@ Every perf iteration should produce:
 2. Profile the hottest parser path (maybe `parseListArray`, `buildValue`, or `parseInlineValue`) via Instruments or the tracker output.
 3. Apply the targeted optimization, rerun the benchmark + compare + artifact workflows, and update `docs/performance-tracking.md`.
 4. Commit + push the change plus the refreshed artifacts so the perf graph and badge update accordingly.
+
+> **Status:** Stage 8 is complete for this iteration: the parser now reserves `JSONObject` buffers, benchmarks publish `phase|…|duration` samples, and `Scripts/update-perf-artifacts.swift` renders both throughput and per-phase lines so the README graph surfaces each translation stage. The per-stage instrumentation lives alongside the usual MB/s numbers, and the next focus is Stage 9 (DocC + release documentation).
 
 Repeat this cycle so every MB/s gain becomes a commit that the performance graph can show.
 ## Success Criteria

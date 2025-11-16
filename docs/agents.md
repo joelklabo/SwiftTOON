@@ -35,11 +35,15 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
 6. **Docs stay current** – Any behavioral/data/API change must update README, DocC, `docs/plan.md`, this handbook, and downstream context files immediately.
 7. **Sync with reference** – Differential tests vs `reference/` TypeScript CLI are mandatory for new encoding/decoding features. Keep fixtures up to date.
 8. **Communication** – Summaries must be clear, reference touched files/lines, and propose next steps (tests, docs, benchmarks). No raw command dumps.
-9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/performance-tracking.md` / `docs/plan.md` when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`). Use `gh-commit-watch` for every commit/push so CI is monitored asynchronously:
+9. **Plan + commit hygiene** – Break every substantial task into discrete steps (update `docs/plan.md`, including the Performance Tracking Playbook, when plans change) and write descriptive commits that describe *why* and *what* (e.g., `perf: add compare script`, not `update file`). Use `gh-commit-watch` for every commit/push so CI is monitored asynchronously:
    - `gh-commit-watch -m "message" -w "ci|Performance Benchmarks|Publish Performance History|Coverage Badge"` stages all changes, commits, pushes, and spawns a tmux session to tail CI (including perf + coverage publishers). Detach immediately (`Ctrl-b d`) so work can continue.
    - At the start of every new task, reattach (`tmux attach -t <session>`) or run `gh run list` to confirm previous workflows finished. If any failed, fix them before continuing.
    - The default workflow filter is `ci`—pass a comma/pipe list if perf/history runs are relevant to the change.
 10. **Schema priming awareness** – When touching encoder/decoder logic, consider whether `ToonSchema` hints (validation + serializer fast paths) need updates. Every new structural feature must have schema-backed tests plus README/DocC coverage.
+
+## Autonomous Execution
+
+- Treat `docs/plan.md` as the authoritative queue: follow the next pending stage automatically, update this plan (and `docs/performance-tracking.md` when applicable) as you complete pieces, and never stop after a task waiting for "what now?" prompts. If the plan is unclear, pick the next logical item yourself, execute it, and record the decision so reviewers see the new status (no further human direction required for staging).
 
 ---
 
@@ -64,10 +68,17 @@ Future targets (to be created during implementation) include `Sources/TOONCore`,
    - Use reference harness for diff testing when encoding/decoding logic changes.
 6. **Docs & README**
    - Update `README.md`, DocC, `docs/plan.md`, this handbook, and every linked context file whenever behavior/features change; highlight any deferred updates.
-   - Performance work must also refresh `docs/performance-tracking.md` (plan + checklist) so contributors always know the current process.
+   - Performance work must also refresh the Performance Tracking Playbook inside `docs/plan.md` (plan + checklist) so contributors always know the current process.
+   - For releases, rerun `Scripts/check-spec-alignment.swift`, refresh `docs/spec-alignment.md`, update `CHANGELOG.md`, and follow the release checklist in [`docs/plan.md#release-checklist`](docs/plan.md#release-checklist).
 7. **Final response**
    - Inline file references (path:line) for modifications.
    - Mention tests/benchmarks run; if skipped, explain why.
+
+## Commit & Push Discipline
+
+- **Commit after every logical change:** After implementing code, docs, tests, or benchmarks, create a descriptive commit that explains the change’s purpose (e.g., `perf: reuse parser buffers`), even if multiple files were touched.
+- **Push immediately:** Push the commit before starting another task so the release/perf histories stay synchronized and CI/workflows (perf/coverage) can pick up the new artifacts.
+- **Use `gh-commit-watch`:** Run `gh-commit-watch -w perf|coverage|ci` after pushing to monitor the automated workflows related to perf, coverage, and CI.
 
 ---
 
@@ -132,7 +143,7 @@ Add new commands here whenever tooling grows so every agent has the same reprodu
 - Macrobenchmarks: dataset-based, e.g., 100k rows uniform vs nested.
 - Baselines stored in JSON (commit into repo) and compared automatically; update only after intentional improvements and include justification in PR.
 - For major perf work, capture Instruments/`perf` profiles and summarize hotspots in PR/commit message.
-- Read [`docs/performance-tracking.md`](performance-tracking.md) for the end-to-end telemetry/graph plan (history JSON, Shields endpoint, README badge expectations).
+- Read the [Performance Tracking Playbook](docs/plan.md#performance-tracking-playbook) for the end-to-end telemetry/graph plan (history JSON, Shields endpoint, README badge expectations).
 - Local perf workflow (run before pushing perf-sensitive changes):
   1. `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`
   2. `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.05`
