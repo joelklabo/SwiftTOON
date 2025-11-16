@@ -783,13 +783,7 @@ Based on profiling, consider:
 
 ## Stage 12 – Release v0.1.2
 
-> **Status:** Ready to execute. All artifacts prepared, CHANGELOG updated, tests passing.
-
-### Actions
-1. Tag release: `gh release create v0.1.2 --title "v0.1.2 - Stage 9 Complete" --notes-file <(grep -A 30 "## \[0.1.2\]" CHANGELOG.md)`
-2. Monitor workflows: `gh-commit-watch -w "ci|perf|coverage"`
-3. Verify published artifacts on GitHub Releases page
-4. Update plan status to mark Stage 9 as released
+> **Status:** ✅ COMPLETE (released 2025-11-16). All artifacts published.
 
 ## Success Criteria
 
