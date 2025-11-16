@@ -85,6 +85,11 @@ public struct JSONObject: Equatable, ExpressibleByDictionaryLiteral {
         guard let index = indexByKey[key] else { return nil }
         return entries[index].value
     }
+
+    public mutating func reserveCapacity(_ capacity: Int) {
+        entries.reserveCapacity(capacity)
+        indexByKey.reserveCapacity(capacity)
+    }
 }
 
 extension JSONObject: Sequence {

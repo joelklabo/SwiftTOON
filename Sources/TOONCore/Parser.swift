@@ -98,6 +98,7 @@ public struct Parser {
             }
         }
         var result = JSONObject()
+        result.reserveCapacity(8)
         while true {
             consumeNewlines()
             guard let token = peekToken() else { break }
@@ -319,6 +320,7 @@ public struct Parser {
                 throw ParserError.tabularRowFieldMismatch(expected: headers.count, actual: values.count, line: contextToken.line, column: contextToken.column)
             }
             var object = JSONObject()
+            object.reserveCapacity(headers.count)
             for (index, header) in headers.enumerated() {
                 object[header] = adjustedValues[index]
             }

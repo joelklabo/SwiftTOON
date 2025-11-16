@@ -6,7 +6,9 @@
         "borderColor" : "#1f4ed8",
         "borderWidth" : 3,
         "data" : [
-          5.3146258773084352
+          5.3146258773084352,
+          5.5286269489881423,
+          5.4791868977671401
         ],
         "fill" : true,
         "label" : "lexer_micro|large.toon|throughput",
@@ -19,7 +21,9 @@
         "borderColor" : "#0ea5e9",
         "borderWidth" : 3,
         "data" : [
-          3.1041272652167549
+          3.1041272652167549,
+          1.8179569572849112,
+          3.1926778896348851
         ],
         "fill" : true,
         "label" : "parser_micro|large.toon|throughput",
@@ -32,7 +36,9 @@
         "borderColor" : "#22c55e",
         "borderWidth" : 3,
         "data" : [
-          3.8374871297176667
+          3.8374871297176667,
+          2.2442270848038723,
+          4.0094708667901999
         ],
         "fill" : true,
         "label" : "decode_end_to_end|users.toon|throughput",
@@ -42,7 +48,9 @@
       }
     ],
     "labels" : [
-      "#1\n55f595f"
+      "#1\n55f595f",
+      "#2\n891e83c",
+      "#3\n7b2bde8"
     ]
   },
   "options" : {
