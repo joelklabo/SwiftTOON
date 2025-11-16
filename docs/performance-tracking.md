@@ -60,3 +60,9 @@ Each perf iteration should produce:
 - **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` reports `Parser.parse` ≈0.00469 s, `Parser.parseListArray` ≈0.00466 s, and the new shortcut shows up as part of the tracker output we now record per iteration.
 - **Optimization steps:** Added `parseSimpleScalarValue()` to consume simple literals directly via `interpretSingleToken`, and we try that before calling `parseValue`. This avoids building a chunk array when the dash is followed by a single token.
 - **Validation & artifacts:** After the change we reran the bench/compare/artifact scripts plus the perf trace, so the iteration log and perf graph reflect this incremental throughput gain.
+
+### Iteration #6 – Simple standalone scalars
+- **Goal:** Bypass `chunkBuffer` entirely for single-token standalone values by returning them immediately if the next token is newline/dedent/eof.
+- **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` now logs the updated tracker averages for `Parser.parse`, `Parser.parseListArray`, and `Parser.buildValue`, showing this new early exit handles the inline scalar case frequently.
+- **Optimization steps:** Added `parseSimpleStandaloneValue()` at the start of `parseStandaloneValue` to inspect the first token and return it via `interpretSingleToken` when the next token is newline/dedent/eof, preventing the chunk buffer from being populated at all for the simplest values.
+- **Validation & artifacts:** After the tweak we reran the bench/compare/artifact commands plus `SWIFTTOON_PERF_TRACE=1 …` so the iteration log and badge record the faster scalar handling.
