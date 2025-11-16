@@ -24,7 +24,7 @@ final class ToonDecoderSchemaTests: XCTestCase {
 
     func testDecoderWithSchemaRejectsMissingFieldInNestedArray() throws {
         let toonText = """
-        items[1]:
+        items[2]:
           - sku: A1
             tags[2]: alpha,beta
           - sku: B2
