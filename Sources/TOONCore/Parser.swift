@@ -469,8 +469,13 @@ public struct Parser {
         func flushChunk() throws {
             guard !rowChunkBuffer.isEmpty else { return }
             guard let context = rowChunkBuffer.first else { return }
-            let endIndex = rowChunkBuffer.last?.range.upperBound
-            let value = try buildValue(from: rowChunkBuffer, contextToken: context, endIndex: endIndex)
+            let value: JSONValue
+            if rowChunkBuffer.count == 1 {
+                value = try interpretSingleToken(rowChunkBuffer[0])
+            } else {
+                let endIndex = rowChunkBuffer.last?.range.upperBound
+                value = try buildValue(from: rowChunkBuffer, contextToken: context, endIndex: endIndex)
+            }
             values.append(value)
             rowChunkBuffer.removeAll(keepingCapacity: true)
         }

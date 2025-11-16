@@ -72,3 +72,9 @@ Each perf iteration should produce:
 - **Profiling evidence:** The tracker still shows `Parser.parseListArray` dominating, so pre-reserving capacity should improve throughput when thousands of entries are appended.
 - **Optimization steps:** `parseListArray` now calls `values.reserveCapacity(length)` before entering the loop, and `parseTabularRows` reserves `rows.reserveCapacity(length)` so the arrays won’t reallocate while building the tables.
 - **Validation & artifacts:** After applying the reserve changes we reran `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`, `swift Scripts/compare-benchmarks.swift … --tolerance 0.05`, `swift Scripts/update-perf-artifacts.swift …`, and `SWIFTTOON_PERF_TRACE=1 …` so the iteration log and badge reflect this incremental gain.
+
+### Iteration #8 – Inline row shortcuts
+- **Goal:** When `readRowValues` sees exactly one token between delimiters, return that scalar immediately instead of hitting the multi-token `buildValue` path, reducing work during long rows.
+- **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` still shows `Parser.parseListArray` around 4.1 ms, so skipping `buildValue` for single-token rows should shave off a noticeable chunk of time.
+- **Optimization steps:** `flushChunk()` now checks `rowChunkBuffer.count == 1` and shortcut directly by calling `interpretSingleToken` instead of computing `buildValue`.
+- **Validation & artifacts:** After the change we reran the benchmark/compare/artifact scripts and the perf trace so the iteration log and badge capture the updated MB/s for `decode_end_to_end`.
