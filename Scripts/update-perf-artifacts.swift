@@ -187,23 +187,23 @@ do {
         let shortCommit = entry.commit.prefix(7)
         return "#\(idx + 1)\n\(shortCommit)"
     }
-    let metricKeys = [
-        "lexer_micro|large.toon|throughput",
-        "parser_micro|large.toon|throughput",
-        "decode_end_to_end|users.toon|throughput",
-        "Parser.parse|phase|duration",
-        "Parser.parseArrayValue|phase|duration",
-        "Parser.parseListArray|phase|duration",
-        "Parser.buildValue|phase|duration"
+    let metricSpecs: [(suite: String, dataset: String, metric: String)] = [
+        ("lexer_micro", "large.toon", "throughput"),
+        ("parser_micro", "large.toon", "throughput"),
+        ("decode_end_to_end", "users.toon", "throughput"),
+        ("Parser.parse", "phase", "duration"),
+        ("Parser.parseArrayValue", "phase", "duration"),
+        ("Parser.parseListArray", "phase", "duration"),
+        ("Parser.buildValue", "phase", "duration")
     ]
     let colors = ["#1f4ed8", "#0ea5e9", "#22c55e", "#f97316", "#d946ef", "#facc15", "#22d3ee"]
     var datasets: [[String: Any]] = []
-    for (index, metric) in metricKeys.enumerated() {
+    for (index, spec) in metricSpecs.enumerated() {
         let values = history.entries.map {
-            $0.samples.first(where: { $0.suite == metric.components(separatedBy: "|").first && $0.metric == "throughput" && $0.status == .success })?.value ?? 0
+            $0.samples.first(where: { $0.suite == spec.suite && $0.metric == spec.metric && $0.dataset == spec.dataset && $0.status == .success })?.value ?? 0
         }
         datasets.append([
-            "label": metric,
+            "label": "\(spec.suite) \(spec.metric)",
             "data": values,
             "borderColor": colors[index % colors.count],
             "backgroundColor": colors[index % colors.count],
