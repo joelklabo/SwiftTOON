@@ -404,12 +404,12 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 | Module | Baseline | Current | Target | Remaining |
 |--------|----------|---------|--------|-----------|
-| **Overall** | 89.7% | 91.29% | 99% | 7.71% |
+| **Overall** | 89.7% | 91.21% | 99% | 7.79% |
 | **Parser.swift** | 83.3% | ~88%* | 99% | ~11% |
 | **JSONValueDecoder.swift** | 75.5% | ~85%* | 99% | ~14% |
 | **String+TOONUtils.swift** | 0% | 100%✅ | 100% | 0% |
 | **PerformanceSignpost.swift** | 50% | 95%+✅ | 99% | <4% |
-| **Lexer.swift** | 89.7% | 89.7% | 99% | 9.3% |
+| **Lexer.swift** | 89.7% | 95.70%✅ | 99% | 3.3% |
 | **JSONValueEncoder.swift** | 89.7% | 89.7% | 99% | 9.3% |
 | **ToonCodable.swift** | 79.5% | 79.5% | 99% | 19.5% |
 | **CLI main.swift** | 80.1% | 80.1% | 95% | 14.9% |
@@ -421,11 +421,12 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 - ✅ Phase 2 Priority 1: Parser error paths (17 tests) + JSONValueDecoder errors (26 tests)
 - ✅ String+TOONUtils: 0% → 100% (25 tests)
 - ✅ PerformanceSignpost: 50% → 95%+ (9 tests)
+- ✅ Lexer.swift: 89.7% → 95.70% (28 error path tests)
 
 **Next Priorities:**
-1. **Lexer.swift error paths** (89.7% → 95%): Invalid escapes, unterminated strings, edge case numbers
-2. **JSONValueEncoder.swift** (89.7% → 95%): Container encoding, super encoder, all Swift types  
-3. **ToonCodable.swift** (79.5% → 90%): Encoder/decoder initialization, options, error paths
+1. **JSONValueEncoder.swift** (89.7% → 95%): Container encoding, super encoder, all Swift types  
+2. **ToonCodable.swift** (79.5% → 90%): Encoder/decoder initialization, options, error paths
+3. **Parser.swift** (88% → 95%): Remaining edge cases
 
 See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-line recommendations.
 
@@ -433,9 +434,9 @@ See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-li
 
 ### 📋 Quick Start for Partner Agents
 
-**Current State (2025-11-16 17:40 UTC):**
-- ✅ Phase 1 & 2 Priority 1 COMMITTED & PUSHED (commit 9df59b9)
-- 🎯 Next: Lexer.swift error tests or JSONValueEncoder.swift coverage
+**Current State (2025-11-16 18:52 UTC):**
+- ✅ Lexer.swift error paths: 89.7% → 95.70% (28 tests READY TO COMMIT)
+- 🎯 Next: JSONValueEncoder.swift coverage or ToonCodable.swift
 
 **Test & Coverage Workflow:**
 ```bash
@@ -479,16 +480,17 @@ gh run watch
 3. **Parser.swift** - 83.3% → ~90% ✅ (26 tests READY TO COMMIT)
 4. **JSONValueDecoder.swift** - 75.5% → ~88% ✅ (32 tests READY TO COMMIT)
 
+#### ✅ DONE - Lexer.swift (89.7% → 95.70%)
+   - ✅ Invalid escape sequences (`\x`, `\u`, `\a`, `\1`, etc.)
+   - ✅ Unterminated strings (EOF, with escapes, multiline)
+   - ✅ Invalid indentation (mismatched dedents)
+   - ✅ Edge case numbers (exponent without digits, `e+`, `e-`, `ea`)
+   - ✅ Error message localization tests
+   - **Created:** `Tests/TOONCoreTests/LexerErrorPathsTests.swift` (28 tests)
+
 #### 🔄 TODO - Priority 2: Moderate Gaps (85-95%)
 
 **Target:** Bring all modules above 95% before final push to 99%
-
-1. **Lexer.swift** (89.7% → 95%) - 31 lines missing
-   - Invalid escape sequences (`\x`, invalid unicode)
-   - Unterminated strings
-   - Edge case numbers (NaN, Infinity, overflow)
-   - Malformed tokens
-   - **Create:** `Tests/TOONCoreTests/LexerErrorPathsTests.swift`
 
 2. **JSONValueEncoder.swift** (89.7% → 95%) - 25 lines missing
    - All Swift integer types (Int8/16/32/64, UInt variants)
