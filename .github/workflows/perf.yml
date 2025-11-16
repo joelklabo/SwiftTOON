@@ -1,7 +1,9 @@
 name: Performance Benchmarks
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
   pull_request:
     paths:
@@ -18,6 +20,7 @@ concurrency:
 
 jobs:
   perf:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' }}
     runs-on: macos-14
     steps:
       - name: Checkout

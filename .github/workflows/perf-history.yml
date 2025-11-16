@@ -1,7 +1,9 @@
 name: Publish Performance History
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Performance Benchmarks"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -10,10 +12,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  history:
+  benchmark:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: macos-14
-    permissions:
-      contents: write
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: Checkout (main)
         uses: actions/checkout@v4
@@ -29,6 +32,36 @@ jobs:
 
       - name: Compare with baseline
         run: swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json --tolerance 0.2
+
+      - name: Upload benchmark results
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results-${{ github.sha }}
+          path: Benchmarks/results/latest.json
+          retention-days: 7
+
+  publish:
+    needs: benchmark
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          name: perf-results-${{ github.sha }}
+          path: Benchmarks/results
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: "5.10"
 
       - name: Generate artifacts
         env:
