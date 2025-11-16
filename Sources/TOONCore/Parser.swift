@@ -70,7 +70,7 @@ public struct Parser {
         if isObjectStart(token: token) {
             return .object(try parseObject(currentIndent: 0))
         }
-        return try parseValue()
+        return try parseInlineValue()
     }
 
     private func isObjectStart(token: Token) -> Bool {

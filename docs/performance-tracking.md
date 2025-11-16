@@ -44,6 +44,12 @@ Each perf iteration should produce:
 - **Optimization steps:** Adjusted `buildValue` to compute the trimmed end index over `sourceBytes` before decoding and to avoid `String` mutations (no calls to `removeLast`). The slice is now created once using the trimmed byte range and decoded exactly once, substantially reducing work in the high-frequency path.
 - **Validation & artifacts:** After the change we ran `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`, `swift Scripts/compare-benchmarks.swift … --tolerance 0.05` (passes), `swift Scripts/update-perf-artifacts.swift …`, and `SWIFTTOON_PERF_TRACE=1 …` to confirm the tracker reports the revised timings; the badge/history now reflect the faster decode rate.
 
+### Iteration #4 – Inline list parsing
+- **Goal:** Eliminate the extra `parseValue` path inside `parseListArrayItem` when the dash is followed by a simple inline scalar, saving the repeated newline/indent handling inside `parseValue`.
+- **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` now reports `Parser.parse` ≈0.00532 s, `Parser.parseListArray` ≈0.00530 s, and the inline path is highlighted by the signpost log (previously dominated by `parseValue`’s extra logic).
+- **Optimization steps:** When no indent/newline is present after the dash we now call `parseInlineValue()` directly instead of `parseValue()`, since `parseInlineValue` already shares the token buffer and only consumes tokens until newline/dedent (which is exactly what the inline case needs).
+- **Validation & artifacts:** After the change we reran `swift run TOONBenchmarks …`, `swift Scripts/compare-benchmarks … --tolerance 0.05`, `swift Scripts/update-perf-artifacts …`, and `SWIFTTOON_PERF_TRACE=1 …` so the iteration log and badge reflect the optimized throughput.
+
 ## Regression story (current iteration)
 - Restored the original 100/200-entry `Benchmarks/Datasets/users.toon` + `large.toon` that the baseline expects, reran all benchmarks, and confirmed every suite beats (or matches) the baseline within ±5%.
 - Perf artifacts were regenerated so the live badge/graph now reference this clean run (`Benchmarks/perf-artifacts/perf-history.json`, `perf-badge.json`, and `perf-history.png`).
