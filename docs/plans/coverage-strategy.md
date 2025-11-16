@@ -2,30 +2,34 @@
 
 **Goal:** Achieve ≥99% line coverage and ≥97% branch coverage across `TOONCore` and `TOONCodable`.
 
-**Current State:** 92.14% line / 94.12% function (505 tests)
+**Current State:** 92.26% line / 94.09% function (525 tests)
 
 **Progress Summary:**
 - Session Start: 91.29% line coverage (408 tests)
-- Current: 92.14% line coverage (505 tests)
-- Improvement: +0.85% line, +97 tests (+23.8%)
+- Current: 92.26% line coverage (525 tests)
+- Improvement: +0.97% line, +117 tests (+28.7%)
 
 **Major Breakthroughs:**
-- **Parser:** 83.73% → 91.19% (+7.46%!) - Cracked with unusual token tests
+- **Parser:** 83.73% → 91.19% (+7.46%!) ⭐ Biggest win
+- **Lexer:** 95.70% → 97.68% (+1.98%) ⭐ Now at 97%+
 - **TOONCore:** 88.40% → 91.64% (+3.24%)
-- **JSONValueDecoder:** 76.63% → ~85%+ via targeted Codable tests
+- **JSONValueDecoder:** 76.63% → ~85%+ (+8%+)
 
 **Module Breakdown (current):**
-- TOONCore: 91.64% line (Parser: 91.19%, Lexer: 95.70%)
-- TOONCodable: 94.52% line (strong coverage maintained)
-- TOONCLI: ~95%+ (good coverage)
+- Lexer: 97.68% line ⭐ (approaching perfection)
+- TOONCodable: 94.52% line ✅ (strong)
+- TOONCore: 91.64% line ✅ (good)
+- Parser: 91.19% line ✅ (transformed from bottleneck)
 
-**Tests Added This Session (97 tests in 5 files):**
+**Tests Added This Session (8 files, 117 tests):**
 1. ParserRemainingCoverageTests (29) - Array edge cases, lenient mode
 2. JSONValueDecoderRemainingTests (15) - Nested containers, type conversions
 3. ParserUncoveredPathsTests (21) - Delimiters, nesting, whitespace
 4. ParserSurgicalCoverageTests (15) - List items, EOF handling
 5. **ParserParseValueTriggerTests (10) - BREAKTHROUGH** - Unusual tokens
 6. ParserPerformanceTrackerTests (7) - Performance tracking APIs
+7. ParserErrorPathsTests (+6) - Error path coverage
+8. LexerEdgeCaseTests (13) - Line endings, character errors
 
 ## Phase 1: Coverage Analysis & Gap Identification ✅
 
