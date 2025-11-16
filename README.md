@@ -21,6 +21,13 @@ Token-perfect TOON↔JSON conversion for Swift: zero dependencies, spec-aligned,
 - **Pure Swift Codable pipeline** – Custom `JSONValue` encoder/decoder keeps conversion dependency-free (no `JSONSerialization` hops) while respecting schema validation.
 - **Spec parity** – Mirrors the official [TOON v2](https://github.com/toon-format/spec) fixtures and conformance tests; differential testing keeps us byte-for-byte with the upstream CLI.
 - **Marketing-ready** – Badges, docs, and stats on the README make it easy to trust and adopt.
+- **Guided DocC tutorials** – `docs/DocC/GettingStarted.md`, `TabularArrays.md`, and `SchemaPriming.md` stage the public API as compilable code samples that double as DocC test cases.
+
+### Spec Alignment Artifacts
+
+- **Version pinning:** See [`docs/spec-version.md`](docs/spec-version.md) for the upstream spec tag/commit used for this milestone.
+- **Clause → test mapping:** Use [`docs/spec-alignment.md`](docs/spec-alignment.md) to understand which TOON clause each fixture/test combination verifies.
+- **CI enforcement:** `.github/workflows/ci.yml` now runs `swift Scripts/check-spec-alignment.swift` so the clause table stays aligned with the plan on every push.
 
 > **Status:** Architecture, docs, and CI plan are in place. Implementation starts with strict TDD to keep the coverage, performance, and compliance promises above.
 
@@ -152,14 +159,24 @@ $ toon-swift bench --format json --iterations 5 --output results.json
 
 Coverage, spec parity, and perf guardrails all surface as shields at the top of this README once the implementation lands.
 
+## Releases
+
+- **Unreleased** – DocC tutorials, spec-alignment artifacts, and main packaging plans; pinned to TOON spec v2.0 (`docs/spec-version.md`). Details live in [`CHANGELOG.md`](CHANGELOG.md) and will be expanded when the first Swift release ships.
+- **Release readiness** – Run `Scripts/check-spec-alignment.swift`, refresh `docs/spec-alignment.md`, update `CHANGELOG.md`, and follow the checklist in [`docs/plan.md#release-checklist`](docs/plan.md#release-checklist) so the DocC/perf/coverage gates and `gh release create` invocation stay synchronized.
+- **Release playbook** – See [`docs/release-checklist.md`](docs/release-checklist.md) plus the more detailed [`docs/plan.md#release-plan-checklist`](docs/plan.md#release-plan-checklist) for the final release ridge (coverage/DocC/bench executions, spec doc refresh, changelog + README updates, `gh release create`). Run `Scripts/release-checklist.sh` when you’re ready to execute Stage 7 so the commands/artifacts stay reproducible.
+- **Release prep summary** – Stage 7/perf/coverage gates now run via the scripted checklist, benchmarks publish against `Benchmarks/baseline_reference.json`, and `Benchmarks/perf-artifacts/*.json`/`perf-history.png` keep the badge current. Document the tutorials in `docs/DocC/GettingStarted.md`, `TabularArrays.md`, and `SchemaPriming.md`, link them to `CHANGELOG.md`, rerun `Scripts/release-checklist.sh`, and publish via `gh release create` + `gh-commit-watch -w perf|coverage` when you’re ready to tag.
+
+> Once the release workflow (e.g., `gh release create`) is ready, rerun the checklist in `docs/plan.md#release-checklist` so every documentation/perf/coverage step remains reproducible.
+
 ---
 
 ## Performance Tracking
 
-- **Plan:** See [`docs/performance-tracking.md`](docs/performance-tracking.md) for the full benchmarking + visualization pipeline (baseline capture, history storage, badge/graph generation).
+- **Plan:** See the [Performance Tracking Playbook](docs/plan.md#performance-tracking-playbook) for the full benchmarking + visualization pipeline (baseline capture, history storage, badge/graph generation).
 - **Datasets:** Canonical TOON/JSON fixtures under `Benchmarks/Datasets/` (large parser stress test, users/orders datasets, CLI round-trips).
 - **Local command:** `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` followed by `swift Scripts/compare-benchmarks.swift Benchmarks/results/latest.json Benchmarks/baseline_reference.json` to ensure no regressions before you push.
-- **Automation:** The `Performance Benchmarks` workflow (`.github/workflows/perf.yml`) runs the suite on macOS runners for every push/PR, compares against `Benchmarks/baseline_reference.json`, and uploads the JSON output. A companion workflow (`perf-history.yml`) reruns the suite on main pushes, aggregates results into `gh-pages/perf/`, and publishes a Shields badge + line chart so visitors can track throughput.
+- **Analyzer manifest:** running `swift run CaptureEncodeRepresentations` writes `Tests/TOONCodableTests/Fixtures/encode/representation-manifest.json`, so the analyzer’s array layout decisions are captured for every encode fixture before diffing outputs.
+- **Automation:** The `Performance Benchmarks` workflow (`.github/workflows/perf.yml`) runs the suite on macOS runners for every push/PR, compares against `Benchmarks/baseline_reference.json`, and uploads the JSON output. A companion workflow (`perf-history.yml`) reruns the suite on main pushes, aggregates results into `gh-pages/perf/`, and publishes a Shields badge + line chart so visitors can track throughput. Use `swift Scripts/run-benchmarks.swift` locally to rerun the full benchmark pipeline (datasets → JSON → `update-perf-artifacts`) when refreshing artifacts.
 - **Live artifacts:** The graph below and the README badge are sourced from `https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/` and refresh after every main-branch run of `perf-history.yml`.
 
 ![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png)

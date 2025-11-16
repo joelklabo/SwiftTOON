@@ -13,7 +13,7 @@ public enum ParserError: Error, Equatable, LocalizedError {
         case let .invalidNumberLiteral(value, line, column):
             return "Invalid number literal '\(value)' at \(line):\(column)."
         case let .inlineArrayLengthMismatch(expected, actual, line, column):
-            return "Inline array declared with \(expected) values but found \(actual) at \(line):\(column)."
+            return "Array declared with \(expected) values but found \(actual) at \(line):\(column)."
         case let .tabularRowFieldMismatch(expected, actual, line, column):
             return "Tabular row expected \(expected) fields but found \(actual) at \(line):\(column)."
         }
@@ -33,6 +33,8 @@ public struct Parser {
     private var index: Int = 0
     private let sourceBytes: [UInt8]
     private let options: Options
+    private var chunkBuffer: [Token] = []
+    private var rowChunkBuffer: [Token] = []
     private enum ArrayDelimiter {
         case comma
         case tab
@@ -46,6 +48,14 @@ public struct Parser {
     }
 
     public mutating func parse() throws -> JSONValue {
+        let signpostID = PerformanceSignpost.begin("Parser.parse")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parse) : nil
+        defer {
+            PerformanceSignpost.end("Parser.parse", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.parse, since: timer)
+            }
+        }
         consumeNewlines()
         guard let token = peekToken() else { return .object(JSONObject()) }
         if token.kind == .eof {
@@ -58,7 +68,7 @@ public struct Parser {
             return array
         }
         if isObjectStart(token: token) {
-            return .object(try parseObject())
+            return .object(try parseObject(currentIndent: 0))
         }
         return try parseValue()
     }
@@ -78,7 +88,15 @@ public struct Parser {
         }
     }
 
-    private mutating func parseObject() throws -> JSONObject {
+    private mutating func parseObject(currentIndent: Int) throws -> JSONObject {
+        let signpostID = PerformanceSignpost.begin("Parser.parseObject")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseObject) : nil
+        defer {
+            PerformanceSignpost.end("Parser.parseObject", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.parseObject, since: timer)
+            }
+        }
         var result = JSONObject()
         while true {
             consumeNewlines()
@@ -95,8 +113,8 @@ public struct Parser {
                 }
                 try expect(kind: .colon)
                 if matchNewline() {
-                    if let _ = try? expectIndent() {
-                        let nested = try parseObject()
+                    if let indentLevel = try? expectIndent() {
+                        let nested = try parseObject(currentIndent: indentLevel)
                         result[key] = .object(nested)
                     } else {
                         result[key] = .object(JSONObject())
@@ -109,9 +127,11 @@ public struct Parser {
                         result[key] = value
                     }
                 }
-            case .dedent:
+            case .dedent(let level):
+                if level < currentIndent {
+                    return result
+                }
                 advance()
-                return result
             case .dash:
                 return result
             case .eof:
@@ -124,6 +144,14 @@ public struct Parser {
     }
 
     private mutating func parseValue() throws -> JSONValue {
+        let signpostID = PerformanceSignpost.begin("Parser.parseValue")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseValue) : nil
+        defer {
+            PerformanceSignpost.end("Parser.parseValue", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.parseValue, since: timer)
+            }
+        }
         consumeNewlines()
         guard let token = peekToken() else {
             throw ParserError.unexpectedToken(line: 0, column: 0, expected: "value")
@@ -140,27 +168,35 @@ public struct Parser {
     }
 
     private mutating func parseStandaloneValue() throws -> JSONValue {
-        var chunk: [Token] = []
+        chunkBuffer.removeAll(keepingCapacity: true)
         while let token = peekToken() {
             switch token.kind {
             case .newline, .eof, .dedent:
-                guard let context = chunk.first else {
+                guard let context = chunkBuffer.first else {
                     throw ParserError.unexpectedToken(line: token.line, column: token.column, expected: "value")
                 }
-                return try buildValue(from: chunk, contextToken: context, endIndex: token.range.lowerBound)
+                return try buildValue(from: chunkBuffer, contextToken: context, endIndex: token.range.lowerBound)
             default:
-                chunk.append(token)
+                chunkBuffer.append(token)
                 advance()
             }
         }
-        guard let context = chunk.first else {
+        guard let context = chunkBuffer.first else {
             throw ParserError.unexpectedToken(line: 0, column: 0, expected: "value")
         }
-        let endIndex = chunk.last?.range.upperBound
-        return try buildValue(from: chunk, contextToken: context, endIndex: endIndex)
+        let endIndex = chunkBuffer.last?.range.upperBound
+        return try buildValue(from: chunkBuffer, contextToken: context, endIndex: endIndex)
     }
 
     private mutating func parseArrayValue(keyToken: Token, key: String?) throws -> JSONValue? {
+        let signpostID = PerformanceSignpost.begin("Parser.parseArrayValue")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseArrayValue) : nil
+        defer {
+            PerformanceSignpost.end("Parser.parseArrayValue", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.parseArrayValue, since: timer)
+            }
+        }
         guard let bracketToken = peekToken(), bracketToken.kind == .leftBracket else { return nil }
         let (length, delimiter) = try parseArraySignature(contextToken: keyToken)
         guard let next = peekToken() else {
@@ -176,6 +212,9 @@ public struct Parser {
                 throw ParserError.unexpectedToken(line: keyToken.line, column: keyToken.column, expected: "newline before tabular rows")
             }
             if length == 0 {
+                if hasPendingIndent(), !options.lenientArrays {
+                    throw ParserError.inlineArrayLengthMismatch(expected: length, actual: length + 1, line: keyToken.line, column: keyToken.column)
+                }
                 return .array([])
             }
             _ = try expectIndent()
@@ -185,6 +224,9 @@ public struct Parser {
             advance()
             if matchNewline() {
                 if length == 0 {
+                    if hasPendingIndent(), !options.lenientArrays {
+                        throw ParserError.inlineArrayLengthMismatch(expected: length, actual: length + 1, line: keyToken.line, column: keyToken.column)
+                    }
                     return .array([])
                 }
                 let indentLevel = try expectIndent()
@@ -304,83 +346,113 @@ public struct Parser {
     }
 
     private mutating func parseListArray(length: Int, baseIndent: Int, contextToken: Token) throws -> [JSONValue] {
+        let signpostID = PerformanceSignpost.begin("Parser.parseListArray")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.parseListArray) : nil
+        defer {
+            PerformanceSignpost.end("Parser.parseListArray", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.parseListArray, since: timer)
+            }
+        }
         var values: [JSONValue] = []
-        for _ in 0..<length {
+
+        while values.count < length {
             consumeNewlines()
-            guard let dashToken = peekToken(), dashToken.kind == .dash else {
-                let line = peekToken()?.line ?? contextToken.line
-                let column = peekToken()?.column ?? contextToken.column
-                throw ParserError.unexpectedToken(line: line, column: column, expected: "list item '-'")
+            guard let token = peekToken() else {
+                if options.lenientArrays {
+                    values.append(contentsOf: Array(repeating: .null, count: length - values.count))
+                    break
+                }
+                throw unexpectedToken(nil, expected: "list item '-'")
             }
+            if token.kind != .dash {
+                if options.lenientArrays {
+                    values.append(contentsOf: Array(repeating: .null, count: length - values.count))
+                    break
+                }
+                throw unexpectedToken(token, expected: "list item '-'")
+            }
+
             advance()
-
-            if matchNewline() {
-                if let token = peekToken(), case .indent = token.kind {
-                    _ = try expectIndent()
-                    let object = try parseObject()
-                    values.append(.object(object))
-                } else {
-                    values.append(.object(JSONObject()))
-                }
-                continue
-            }
-
-            guard let next = peekToken() else {
-                throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "value after '-'")
-            }
-
-            if next.kind == .leftBracket {
-                if let nested = try parseArrayValue(keyToken: next, key: nil) {
-                    values.append(nested)
-                    continue
-                }
-            }
-
-            if case .identifier = next.kind {
-                if let upcoming = peekToken(offset: 1), upcoming.kind == .colon {
-                    let object = try parseObject()
-                    values.append(.object(object))
-                    continue
-                }
-                if let bracket = peekToken(offset: 1), bracket.kind == .leftBracket {
-                    let object = try parseObject()
-                    values.append(.object(object))
-                    continue
-                }
-            }
-
-            if case .dedent = next.kind {
-                values.append(.object(JSONObject()))
-                continue
-            }
-
-            let value = try parseValue()
-            values.append(value)
+            let item = try parseListArrayItem(baseIndent: baseIndent, contextToken: contextToken)
+            values.append(item)
         }
 
-        if let token = peekToken(), case .dedent = token.kind {
-            advance()
+        consumeNewlines()
+        while let token = peekToken(), token.kind == .dash {
+            if options.lenientArrays {
+                advance()
+                _ = try parseListArrayItem(baseIndent: baseIndent, contextToken: contextToken)
+                continue
+            }
+            throw unexpectedToken(token, expected: "end of list items")
         }
 
         consumeNewlines()
         if let token = peekToken(), token.kind == .dash {
-            throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "end of list items")
+            throw unexpectedToken(token, expected: "end of list items")
         }
 
         return values
     }
 
+    private mutating func parseListArrayItem(baseIndent: Int, contextToken: Token) throws -> JSONValue {
+        if matchNewline() {
+            if let token = peekToken(), case .indent = token.kind {
+                let nestedIndent = try expectIndent()
+                let object = try parseObject(currentIndent: nestedIndent)
+                return .object(object)
+            }
+            return .object(JSONObject())
+        }
+
+        guard let next = peekToken() else {
+            throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "value after '-'")
+        }
+
+        if next.kind == .leftBracket {
+            if let nested = try parseArrayValue(keyToken: next, key: nil) {
+                return nested
+            }
+        }
+
+        if case .identifier = next.kind {
+            if let upcoming = peekToken(offset: 1), upcoming.kind == .colon {
+                let object = try parseObject(currentIndent: baseIndent)
+                return .object(object)
+            }
+            if let bracket = peekToken(offset: 1), bracket.kind == .leftBracket {
+                let object = try parseObject(currentIndent: baseIndent)
+                return .object(object)
+            }
+        }
+
+        if case .dedent = next.kind {
+            return .object(JSONObject())
+        }
+
+        return try parseValue()
+    }
+
     private mutating func readRowValues(delimiter: ArrayDelimiter) throws -> [JSONValue] {
+        let signpostID = PerformanceSignpost.begin("Parser.readRowValues")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.readRowValues) : nil
+        defer {
+            PerformanceSignpost.end("Parser.readRowValues", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.readRowValues, since: timer)
+            }
+        }
         var values: [JSONValue] = []
-        var chunk: [Token] = []
+        rowChunkBuffer.removeAll(keepingCapacity: true)
 
         func flushChunk() throws {
-            guard !chunk.isEmpty else { return }
-            guard let context = chunk.first else { return }
-            let endIndex = chunk.last?.range.upperBound
-            let value = try buildValue(from: chunk, contextToken: context, endIndex: endIndex)
+            guard !rowChunkBuffer.isEmpty else { return }
+            guard let context = rowChunkBuffer.first else { return }
+            let endIndex = rowChunkBuffer.last?.range.upperBound
+            let value = try buildValue(from: rowChunkBuffer, contextToken: context, endIndex: endIndex)
             values.append(value)
-            chunk.removeAll(keepingCapacity: true)
+            rowChunkBuffer.removeAll(keepingCapacity: true)
         }
 
         while let token = peekToken() {
@@ -404,7 +476,7 @@ public struct Parser {
             case .indent, .dedent:
                 advance()
             default:
-                chunk.append(token)
+                rowChunkBuffer.append(token)
                 advance()
             }
         }
@@ -413,27 +485,35 @@ public struct Parser {
     }
 
     private mutating func parseInlineValue() throws -> JSONValue {
-        var chunk: [Token] = []
+        chunkBuffer.removeAll(keepingCapacity: true)
         while let token = peekToken() {
             switch token.kind {
             case .newline, .eof, .dedent:
-                guard let context = chunk.first else {
+                guard let context = chunkBuffer.first else {
                     throw ParserError.unexpectedToken(line: token.line, column: token.column, expected: "value")
                 }
-                return try buildValue(from: chunk, contextToken: context, endIndex: token.range.lowerBound)
+                return try buildValue(from: chunkBuffer, contextToken: context, endIndex: token.range.lowerBound)
             default:
-                chunk.append(token)
+                chunkBuffer.append(token)
                 advance()
             }
         }
-        guard let context = chunk.first else {
+        guard let context = chunkBuffer.first else {
             throw ParserError.unexpectedToken(line: 0, column: 0, expected: "value")
         }
-        let endIndex = chunk.last?.range.upperBound
-        return try buildValue(from: chunk, contextToken: context, endIndex: endIndex)
+        let endIndex = chunkBuffer.last?.range.upperBound
+        return try buildValue(from: chunkBuffer, contextToken: context, endIndex: endIndex)
     }
 
     private func buildValue(from tokens: [Token], contextToken: Token, endIndex: Int?) throws -> JSONValue {
+        let signpostID = PerformanceSignpost.begin("Parser.buildValue")
+        let timer = ParserPerformanceTracker.enabled ? ParserPerformanceTracker.begin(.buildValue) : nil
+        defer {
+            PerformanceSignpost.end("Parser.buildValue", id: signpostID)
+            if ParserPerformanceTracker.enabled {
+                ParserPerformanceTracker.end(.buildValue, since: timer)
+            }
+        }
         guard !tokens.isEmpty else {
             throw ParserError.unexpectedToken(line: contextToken.line, column: contextToken.column, expected: "value")
         }
@@ -544,6 +624,22 @@ public struct Parser {
         while let token = peekToken(), token.kind == .newline {
             advance()
         }
+    }
+
+    private func hasPendingIndent() -> Bool {
+        guard let token = peekToken() else { return false }
+        if case .indent = token.kind {
+            return true
+        }
+        return false
+    }
+
+    private func unexpectedToken(_ token: Token?, expected: String) -> ParserError {
+        ParserError.unexpectedToken(
+            line: token?.line ?? 0,
+            column: token?.column ?? 0,
+            expected: expected
+        )
     }
 
     private func peekToken(offset: Int = 0) -> Token? {
