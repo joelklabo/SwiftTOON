@@ -1,20 +1,20 @@
 {
   "branch" : "main",
-  "commit" : "294b3f88eb1dab423b224ad067298ad93ad9d238",
+  "commit" : "3bbc5a2f6377ea088c4ac368772dbc8eb5f8a10b",
   "functions" : {
-    "count" : 1514,
-    "covered" : 1317,
-    "percent" : 86.98811096433289
+    "count" : 1603,
+    "covered" : 1399,
+    "percent" : 87.27386150966937
   },
-  "generatedAt" : "2025-11-16T17:04:20Z",
+  "generatedAt" : "2025-11-16T17:06:52Z",
   "lines" : {
-    "count" : 8146,
-    "covered" : 7270,
-    "percent" : 89.24625583108275
+    "count" : 8562,
+    "covered" : 7653,
+    "percent" : 89.38332165381921
   },
   "regions" : {
-    "count" : 3338,
-    "covered" : 2700,
-    "percent" : 80.88675853804673
+    "count" : 3469,
+    "covered" : 2814,
+    "percent" : 81.11847794753531
   }
 }
