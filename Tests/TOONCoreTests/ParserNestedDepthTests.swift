@@ -41,12 +41,38 @@ final class ParserNestedDepthTests: XCTestCase {
         var parser = try Parser(input: toonText)
         let result = try parser.parse()
         
-        guard case .object(let obj) = result,
-              case .array(let outer) = obj["outer"],
-              case .array(let inner) = outer[0],
-              case .array(let innermost) = inner[0],
-              case .string(let value) = innermost[0] else {
-            XCTFail("Expected deeply nested arrays")
+        guard case .object(let obj) = result else {
+            XCTFail("Expected object at root, got: \(result)")
+            return
+        }
+        
+        guard case .array(let outer) = obj["outer"] else {
+            XCTFail("Expected array for 'outer', got: \(obj["outer"] ?? .null)")
+            return
+        }
+        
+        guard case .object(let innerObj) = outer[0] else {
+            XCTFail("Expected object in outer[0], got: \(outer[0])")
+            return
+        }
+        
+        guard case .array(let inner) = innerObj["inner"] else {
+            XCTFail("Expected array for 'inner', got: \(innerObj["inner"] ?? .null)")
+            return
+        }
+        
+        guard case .object(let innermostObj) = inner[0] else {
+            XCTFail("Expected object in inner[0], got: \(inner[0])")
+            return
+        }
+        
+        guard case .array(let innermost) = innermostObj["innermost"] else {
+            XCTFail("Expected array for 'innermost', got: \(innermostObj["innermost"] ?? .null)")
+            return
+        }
+        
+        guard case .string(let value) = innermost[0] else {
+            XCTFail("Expected string in innermost[0], got: \(innermost[0])")
             return
         }
         
@@ -220,15 +246,31 @@ final class ParserNestedDepthTests: XCTestCase {
         
         XCTAssertEqual(items.count, 3)
         
-        guard case .string(let first) = items[0],
-              case .object(let second) = items[1],
-              case .array(let third) = items[2] else {
-            XCTFail("Expected mixed item types")
+        // First item is a string
+        guard case .string(let first) = items[0] else {
+            XCTFail("Expected string in items[0], got: \(items[0])")
+            return
+        }
+        XCTAssertEqual(first, "simple")
+        
+        // Second item is an object with nested key
+        guard case .object(let second) = items[1] else {
+            XCTFail("Expected object in items[1], got: \(items[1])")
+            return
+        }
+        XCTAssertNotNil(second["nested"])
+        
+        // Third item is an object with inline array
+        guard case .object(let thirdObj) = items[2] else {
+            XCTFail("Expected object in items[2], got: \(items[2])")
             return
         }
         
-        XCTAssertEqual(first, "simple")
-        XCTAssertNotNil(second["nested"])
-        XCTAssertEqual(third.count, 2)
+        guard case .array(let inlineArray) = thirdObj["inline"] else {
+            XCTFail("Expected array for 'inline', got: \(thirdObj["inline"] ?? .null)")
+            return
+        }
+        
+        XCTAssertEqual(inlineArray.count, 2)
     }
 }
