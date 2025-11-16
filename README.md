@@ -204,7 +204,7 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 - **Badge refresh:** After running `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`, invoke `swift Scripts/update-perf-artifacts.swift --latest Benchmarks/results/latest.json --output-dir perf-artifacts --commit "$(git rev-parse HEAD)" --repo joelklabo/SwiftTOON --branch main` (optionally `--history-input perf-artifacts/perf-history.json`). Commit and push the generated `perf-artifacts/*` files so `perf-history.yml` can copy them to `gh-pages/perf/`, which keeps the badge/graph on this README in sync with the latest MB/s measurement.
 - **Phase metrics:** The README graph now plots both macro throughput suites (`lexer_micro`, `parser_micro`, and `decode_end_to_end`) and the parser’s internal phase durations (`Parser.parse`, `Parser.parseListArray`, `Parser.parseArrayValue`, `Parser.buildValue`) by reusing the new `phase|<section>|duration` samples produced by the benchmarking harness. This helps spot regressions per translation stage, not just total MB/s.
 
-![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png)
+![Performance history graph](https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/perf/perf-history.png?v=2)
 
 <sub>Higher MB/s numbers mean faster decoders (so the ideal trend is up and to the right). The badge and graph update automatically after the `Publish Performance History` workflow runs on `main`.</sub>
 
