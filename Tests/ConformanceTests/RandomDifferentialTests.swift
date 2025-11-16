@@ -18,10 +18,23 @@ final class RandomDifferentialTests: XCTestCase {
             let jsonURL = temporaryJSONURL(for: iteration)
             try jsonValue.jsonData(sortedKeys: true).write(to: jsonURL)
             let referenceOutput = try cli.encode(jsonAt: jsonURL).trimmingCharacters(in: .whitespacesAndNewlines)
-            XCTAssertEqual(swiftOutput, referenceOutput, "Encoder mismatch for seed \(iteration)")
 
-            let decoded = try decoder.decodeJSONValue(from: Data(referenceOutput.utf8))
-            XCTAssertEqual(decoded, jsonValue, "Decoder mismatch for seed \(iteration)")
+            let swiftDecoded = try decoder.decodeJSONValue(from: Data(swiftOutput.utf8))
+            let referenceDecoded = try decoder.decodeJSONValue(from: Data(referenceOutput.utf8))
+
+            if ProcessInfo.processInfo.environment["DEBUG_REFERENCE_DIFF"] == "1",
+               swiftDecoded != referenceDecoded || referenceDecoded != jsonValue {
+                debugPrint("Seed \(iteration) JSON:\n\(jsonValue.debugJSONString())")
+                debugPrint("Swift TOON:\n\(swiftOutput)")
+                debugPrint("Reference TOON:\n\(referenceOutput)")
+                debugPrint("Swift decoded JSON:\n\(swiftDecoded.debugJSONString())")
+                debugPrint("Swift decoded equals reference decoded? \(swiftDecoded == referenceDecoded)")
+                debugPrint("Reference decoded JSON:\n\(referenceDecoded.debugJSONString())")
+                debugPrint("Reference decoded equals original JSON? \(referenceDecoded == jsonValue)")
+            }
+
+            XCTAssertEqual(swiftDecoded, referenceDecoded, "Encoder mismatch for seed \(iteration)")
+            XCTAssertEqual(referenceDecoded, jsonValue, "Decoder mismatch for seed \(iteration)")
 
             try? FileManager.default.removeItem(at: jsonURL)
         }
@@ -97,12 +110,11 @@ private struct RandomJSONGenerator {
 
 private extension JSONValue {
     func jsonData(sortedKeys: Bool = false) throws -> Data {
-        let any = toAny()
-        var options: JSONSerialization.WritingOptions = []
-        if sortedKeys {
-            options.insert(.sortedKeys)
-        }
-        return try JSONSerialization.data(withJSONObject: any, options: options)
+        try orderedJSONData()
+    }
+
+    func debugJSONString() -> String {
+        (try? String(data: orderedJSONData(), encoding: .utf8)) ?? "<invalid json>"
     }
 }
 #endif

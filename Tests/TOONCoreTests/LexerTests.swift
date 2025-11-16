@@ -222,4 +222,49 @@ final class LexerTests: XCTestCase {
             }
         }
     }
+
+    func testRandomTokenRangesRemainMonotonic() throws {
+        struct RNG {
+            var state: UInt64
+            mutating func next() -> UInt64 {
+                state = state &* 6364136223846793005 &+ 1
+                return state
+            }
+        }
+
+        func randomToken(rng: inout RNG) -> String {
+            switch rng.next() % 6 {
+            case 0: return "key\(rng.next()%9):"
+            case 1: return " value"
+            case 2: return " \"value\""
+            case 3: return "[2]{a,b}:"
+            case 4: return " \(rng.next()%10)"
+            default: return " |"
+            }
+        }
+
+        var rng = RNG(state: 0xC0FFEE)
+        for _ in 0..<30 {
+            var builder = ""
+            let lines = Int(rng.next() % 5) + 2
+            for lineIndex in 0..<lines {
+                if lineIndex > 0 {
+                    builder.append("\n")
+                }
+                builder += ""
+                let segments = Int(rng.next() % 4) + 1
+                for _ in 0..<segments {
+                    builder += randomToken(rng: &rng)
+                }
+            }
+            builder.append("\n")
+            let tokens = try Lexer.tokenize(builder)
+            var previousUpper = 0
+            for token in tokens {
+                XCTAssert(token.range.lowerBound >= previousUpper, "Tokens overlap: \(token)")
+                XCTAssert(token.range.upperBound >= token.range.lowerBound, "Invalid range")
+                previousUpper = token.range.upperBound
+            }
+        }
+    }
 }

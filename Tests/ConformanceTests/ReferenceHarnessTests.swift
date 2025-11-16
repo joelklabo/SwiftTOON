@@ -1,4 +1,5 @@
 import Foundation
+import TOONCodable
 import XCTest
 
 final class ReferenceHarnessTests: XCTestCase {
@@ -29,8 +30,10 @@ struct ReferenceCLI {
         repoRoot.appendingPathComponent("reference")
     }
 
-    func encode(jsonAt url: URL) throws -> String {
-        try run(arguments: ["pnpm", "exec", "toon", "--encode", url.path])
+    func encode(jsonAt url: URL, options: ToonEncodingOptions? = nil) throws -> String {
+        var arguments = ["pnpm", "exec", "toon", "--encode", url.path]
+        arguments.append(contentsOf: encodeArguments(from: options))
+        return try run(arguments: arguments)
     }
 
     func decode(toon input: String) throws -> String {
@@ -40,6 +43,23 @@ struct ReferenceCLI {
         try input.write(to: tempURL, atomically: true, encoding: .utf8)
         defer { try? FileManager.default.removeItem(at: tempURL) }
         return try run(arguments: ["pnpm", "exec", "toon", "--decode", tempURL.path])
+    }
+
+    private func encodeArguments(from options: ToonEncodingOptions?) -> [String] {
+        guard let options else { return [] }
+        var arguments: [String] = []
+        arguments.append(contentsOf: ["--delimiter", options.delimiter.symbol])
+        arguments.append(contentsOf: ["--indent", String(options.indentWidth)])
+        switch options.keyFolding {
+        case .off:
+            arguments.append(contentsOf: ["--keyFolding", "off"])
+        case .safe:
+            arguments.append(contentsOf: ["--keyFolding", "safe"])
+        }
+        if let depth = options.flattenDepth {
+            arguments.append(contentsOf: ["--flattenDepth", String(depth)])
+        }
+        return arguments
     }
 
     @discardableResult

@@ -296,7 +296,7 @@ private struct Renderer {
         remainingAdditionalSegments: Int?,
         schema: ToonSchema?
     ) -> [String] {
-        let format = determineArrayFormat(array, schema: schema)
+        let format = ToonAnalyzer.analyzeArray(array, schema: schema, delimiterSymbol: delimiterString)
         let prefix = indentString(indent)
         switch format {
         case .empty:
@@ -333,75 +333,6 @@ private struct Renderer {
         case inline([String])
         case tabular(headers: [String], rows: [[String]])
         case list
-    }
-
-    private func determineArrayFormat(_ array: [JSONValue], schema: ToonSchema?) -> ArrayFormat {
-        if array.isEmpty { return .empty }
-        if let schema {
-            switch schema.arrayRepresentationHint {
-            case .tabular(let headers):
-                if let result = tabularRows(for: array, headers: headers) {
-                    return .tabular(headers: result.headers, rows: result.rows)
-                }
-            case .list:
-                return .list
-            case .auto:
-                break
-            }
-        }
-        if let inline = inlineArray(array) {
-            return .inline(inline)
-        }
-        if let tabular = tabularRows(for: array, headers: nil) {
-            return .tabular(headers: tabular.headers, rows: tabular.rows)
-        }
-        return .list
-    }
-
-    private func inlineArray(_ array: [JSONValue]) -> [String]? {
-        var values: [String] = []
-        values.reserveCapacity(array.count)
-        for element in array {
-            guard let scalar = scalarString(element) else { return nil }
-            values.append(scalar)
-        }
-        return values
-    }
-
-    private func tabularRows(for array: [JSONValue], headers: [String]?) -> (headers: [String], rows: [[String]])? {
-        let resolvedHeaders: [String]
-        let enforceStrictMatch: Bool
-        if let headers, !headers.isEmpty {
-            resolvedHeaders = headers
-            enforceStrictMatch = false
-        } else {
-            guard let first = array.first, case .object(let firstObject) = first else {
-                return nil
-            }
-            resolvedHeaders = firstObject.orderedPairs().map { $0.0 }
-            if resolvedHeaders.isEmpty {
-                return nil
-            }
-            enforceStrictMatch = true
-        }
-        var rows: [[String]] = []
-        rows.reserveCapacity(array.count)
-        for element in array {
-            guard case .object(let object) = element else { return nil }
-            if enforceStrictMatch && object.count != resolvedHeaders.count {
-                return nil
-            }
-            var row: [String] = []
-            row.reserveCapacity(resolvedHeaders.count)
-            for header in resolvedHeaders {
-                guard let value = object.value(forKey: header), let scalar = scalarString(value) else {
-                    return nil
-                }
-                row.append(scalar)
-            }
-            rows.append(row)
-        }
-        return (resolvedHeaders, rows)
     }
 
     private func renderList(

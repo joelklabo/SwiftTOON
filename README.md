@@ -48,8 +48,6 @@ See `docs/plan.md` for the full TDD-driven roadmap.
 
 ## Getting Started
 
-> 🚧 The APIs below land as soon as their TDD suites go green. Use this section as your reference once we tag `0.1.0`.
-
 ### Swift Package Manager
 
 ```swift
@@ -72,8 +70,21 @@ targets: [
 ```swift
 import TOONCodable
 
-let toonData = try ToonEncoder().encode(myStruct)
-let model = try ToonDecoder().decode(MyStruct.self, from: toonData)
+struct User: Codable, Equatable {
+    let id: Int
+    let name: String
+}
+
+let users = [
+    User(id: 1, name: "Alice"),
+    User(id: 2, name: "Bob")
+]
+
+let encoder = ToonEncoder()
+let toonData = try encoder.encode(users)
+let decoder = ToonDecoder()
+let decoded = try decoder.decode([User].self, from: toonData)
+assert(decoded == users)
 ```
 
 ### Schema priming
@@ -83,22 +94,34 @@ Provide an explicit schema to lock in structure (and skip runtime inspection on 
 ```swift
 import TOONCodable
 
+struct Developer: Codable, Equatable {
+    let id: Int
+    let name: String
+    let projects: [String]
+}
+
+let developers = [
+    Developer(id: 1, name: "Alice", projects: ["SwiftTOON", "MyProject"]),
+    Developer(id: 2, name: "Bob", projects: ["AnotherProject"])
+]
+
 let schema = ToonSchema.array(
     element: .object(
         fields: [
-            .field("id", .number),
-            .field("name", .string),
-        ],
-        allowAdditionalKeys: false
+            ToonSchema.field("id", .number),
+            ToonSchema.field("name", .string),
+            ToonSchema.field("projects", ToonSchema.array(element: .string))
+        ]
     ),
-    representation: .tabular(headers: ["id", "name"])
+    representation: .tabular(headers: ["id", "name", "projects"])
 )
 
-var encoder = ToonEncoder(schema: schema)
-var decoder = ToonDecoder(options: .init(schema: schema))
+let encoder = ToonEncoder(schema: schema)
+let decoder = ToonDecoder(options: .init(schema: schema))
 
-let toonData = try encoder.encode(users)
-let decoded = try decoder.decode([User].self, from: toonData)
+let toonData = try encoder.encode(developers)
+let decoded = try decoder.decode([Developer].self, from: toonData)
+assert(decoded == developers)
 ```
 
 ### CLI

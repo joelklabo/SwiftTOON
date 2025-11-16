@@ -1,5 +1,5 @@
 import XCTest
-import TOONCodable
+@testable import TOONCodable
 import TOONCore
 
 final class DecoderFixtureTests: XCTestCase {
@@ -62,6 +62,110 @@ final class DecoderFixtureTests: XCTestCase {
 #else
         throw XCTSkip("Reference CLI comparison requires pnpm on Darwin runners")
 #endif
+    }
+
+    func testInputStreamDecodingMatchesDataDecoding() throws {
+        let (toonString, expected) = makeStreamingPayload(itemCount: 3)
+        let decoder = ToonDecoder()
+
+        let dataValue = try decoder.decode(StreamPayload.self, from: Data(toonString.utf8))
+        XCTAssertEqual(dataValue, expected)
+
+        let stream = InputStream(data: Data(toonString.utf8))
+        let streamedValue = try decoder.decode(StreamPayload.self, from: stream)
+        XCTAssertEqual(streamedValue, expected)
+    }
+
+    func testInputStreamDecodingHandlesLargePayload() throws {
+        let (toonString, expected) = makeStreamingPayload(itemCount: 200)
+        XCTAssertGreaterThan(toonString.utf8.count, 4_096, "Fixture should exceed the decoder chunk size")
+
+        let decoder = ToonDecoder()
+        let stream = InputStream(data: Data(toonString.utf8))
+        let streamedValue = try decoder.decode(StreamPayload.self, from: stream)
+
+        XCTAssertEqual(streamedValue, expected)
+        XCTAssertEqual(streamedValue.items.count, expected.items.count)
+    }
+
+    func testInputStreamDecodingHandlesTinyChunks() throws {
+        let (toonString, expected) = makeStreamingPayload(itemCount: 5)
+        let chunkedStream = ChunkedInputStream(data: Data(toonString.utf8), chunkSize: 7)
+        let decoder = ToonDecoder()
+        let streamedValue = try decoder.decode(StreamPayload.self, from: chunkedStream)
+
+        XCTAssertEqual(streamedValue, expected)
+        XCTAssertGreaterThan(chunkedStream.readCallCount, 1, "Stream should require multiple chunk reads")
+    }
+
+    func testDecodeJSONValueFromStreamMatchesDataPath() throws {
+        let (toonString, expectedPayload) = makeStreamingPayload(itemCount: 4)
+        let decoder = ToonDecoder()
+        let dataValue = try decoder.decodeJSONValue(from: Data(toonString.utf8))
+
+        let stream = InputStream(data: Data(toonString.utf8))
+        let streamValue = try decoder.decodeJSONValue(from: stream)
+        XCTAssertEqual(streamValue, dataValue)
+
+        let valueDecoder = JSONValueDecoder()
+        let decodedPayload = try valueDecoder.decode(StreamPayload.self, from: streamValue)
+        XCTAssertEqual(decodedPayload, expectedPayload)
+    }
+
+    func testStreamJSONValueCallbackReceivesChunkedInput() throws {
+        let (toonString, _) = makeStreamingPayload(itemCount: 3)
+        let chunkedStream = ChunkedInputStream(data: Data(toonString.utf8), chunkSize: 5)
+        let decoder = ToonDecoder()
+        var capturedValue: JSONValue?
+        var invocationCount = 0
+
+        try decoder.streamJSONValue(from: chunkedStream) { value in
+            capturedValue = value
+            invocationCount += 1
+        }
+
+        XCTAssertEqual(invocationCount, 1)
+        XCTAssertEqual(capturedValue, try decoder.decodeJSONValue(from: Data(toonString.utf8)))
+    }
+
+    func testStreamJSONValueCallbackHandlesTinyChunks() throws {
+        let (toonString, _) = makeStreamingPayload(itemCount: 2)
+        let chunkedStream = ChunkedInputStream(data: Data(toonString.utf8), chunkSize: 1)
+        let decoder = ToonDecoder()
+        var captured: JSONValue?
+        var invocations = 0
+
+        try decoder.streamJSONValue(from: chunkedStream) { value in
+            captured = value
+            invocations += 1
+        }
+
+        XCTAssertEqual(invocations, 1)
+        XCTAssertEqual(captured, try decoder.decodeJSONValue(from: Data(toonString.utf8)))
+    }
+
+    func testDecodeFixturesRoundTripThroughSerializer() throws {
+        let decoder = ToonDecoder()
+        let serializer = ToonSerializer()
+        let fixtures = ["arrays-tabular", "arrays-nested"]
+
+        for name in fixtures {
+            let data = try Data(contentsOf: fixturesDirectory()
+                .appendingPathComponent("decode")
+                .appendingPathComponent("\(name).json"))
+            let fixture = try JSONDecoder().decode(FixtureFile.self, from: data)
+            for test in fixture.tests {
+                if shouldSkipStrictFailure(test) || (test.shouldError ?? false) {
+                    continue
+                }
+                let toonData = Data(test.input.utf8)
+                let jsonValue = try decoder.decodeJSONValue(from: toonData)
+                let reencoded = serializer.serialize(jsonValue: jsonValue)
+                let roundTripDecoder = ToonDecoder(options: .init(lenient: true))
+                let roundTrip = try roundTripDecoder.decodeJSONValue(from: Data(reencoded.utf8))
+                XCTAssertEqual(roundTrip, jsonValue, "Round-trip mismatch for \(name) – \(test.name)")
+            }
+        }
     }
 
     private func runFixture(named name: String) throws {
@@ -233,6 +337,92 @@ private struct JSONFixtureValue: Decodable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported JSON value")
         }
+    }
+}
+
+private struct StreamPayload: Decodable, Equatable {
+    let title: String
+    let items: [StreamItem]
+}
+
+private struct StreamItem: Decodable, Equatable {
+    let id: Int
+    let name: String
+    let active: Bool
+    let tags: [String]
+}
+
+private func makeStreamingPayload(itemCount: Int) -> (toon: String, expected: StreamPayload) {
+    var lines = """
+title: Streaming Test
+items[\(itemCount)]:
+"""
+    var items: [StreamItem] = []
+    for index in 0..<itemCount {
+        let isActive = index % 2 == 0
+        let tagA = "tag\(index)"
+        let tagB = "value \(index)"
+        lines.append("""
+
+  - id: \(index)
+    name: "User \(index)"
+    active: \(isActive ? "true" : "false")
+    tags[2]: \(tagA),\"\(tagB)\"
+""")
+        items.append(StreamItem(id: index, name: "User \(index)", active: isActive, tags: [tagA, tagB]))
+    }
+    if !lines.hasSuffix("\n") {
+        lines.append("\n")
+    }
+    let payload = StreamPayload(title: "Streaming Test", items: items)
+    return (lines, payload)
+}
+
+private final class ChunkedInputStream: InputStream {
+    private let data: Data
+    private let chunkSize: Int
+    private var offset: Int = 0
+    private var status: Stream.Status = .notOpen
+    fileprivate private(set) var readCallCount: Int = 0
+
+    init(data: Data, chunkSize: Int) {
+        self.data = data
+        self.chunkSize = max(1, chunkSize)
+        super.init()
+    }
+
+    override func open() {
+        status = .open
+    }
+
+    override func close() {
+        status = .closed
+    }
+
+    override var hasBytesAvailable: Bool {
+        return offset < data.count
+    }
+
+    override var streamStatus: Stream.Status {
+        return status
+    }
+
+    override func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength len: Int) -> Int {
+        guard status != .closed else { return 0 }
+        guard len > 0 else { return 0 }
+        guard offset < data.count else {
+            status = .atEnd
+            return 0
+        }
+        let remaining = data.count - offset
+        let chunk = min(chunkSize, len, remaining)
+        data.copyBytes(to: buffer, from: offset..<(offset + chunk))
+        offset += chunk
+        readCallCount += 1
+        if offset >= data.count {
+            status = .atEnd
+        }
+        return chunk
     }
 }
 

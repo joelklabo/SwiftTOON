@@ -4,7 +4,8 @@ import PackageDescription
 let package = Package(
     name: "SwiftTOON",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v13),
+        .linux(.v22_04) // Ubuntu 22.04+
     ],
     products: [
         .library(
@@ -56,6 +57,11 @@ let package = Package(
             dependencies: ["TOONBenchmarks"],
             path: "Sources/TOONBenchmarksRunner"
         ),
+        .executableTarget(
+            name: "CaptureEncodeRepresentations",
+            dependencies: ["TOONCodable", "TOONCore"],
+            path: "Scripts/CaptureEncodeRepresentations"
+        ),
         .target(
             name: "SwiftTOONDocC",
             path: "Sources/SwiftTOONDocC",
@@ -99,6 +105,11 @@ let package = Package(
             name: "BenchmarkHarnessTests",
             dependencies: ["TOONBenchmarks"],
             path: "Tests/BenchmarkHarnessTests"
+        ),
+        .testTarget(
+            name: "TOONBenchmarksTests",
+            dependencies: ["TOONBenchmarks"],
+            path: "Tests/TOONBenchmarksTests"
         ),
     ]
 )

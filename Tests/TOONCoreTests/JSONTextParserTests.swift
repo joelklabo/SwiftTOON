@@ -67,4 +67,31 @@ final class JSONTextParserTests: XCTestCase {
             }
         }
     }
+
+    func testParsesScientificNotationNumbers() throws {
+        var parser = JSONTextParser(text: "{\"value\": -1.25e3}")
+        let value = try parser.parse()
+        let expected = JSONValue.object(["value": .number(-1250)])
+        XCTAssertEqual(value, expected)
+    }
+
+    func testInvalidUnicodeEscapeThrows() {
+        var parser = JSONTextParser(text: "\"\\u00GG\"")
+        XCTAssertThrowsError(try parser.parse()) { error in
+            guard case JSONTextParserError.invalidEscape = error else {
+                XCTFail("Expected invalidEscape, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testConsumeDigitsFailureReportsCharacter() {
+        var parser = JSONTextParser(text: "{\"value\": 1.}")
+        XCTAssertThrowsError(try parser.parse()) { error in
+            guard case JSONTextParserError.unexpectedCharacter = error else {
+                XCTFail("Expected unexpectedCharacter, got \(error)")
+                return
+            }
+        }
+    }
 }

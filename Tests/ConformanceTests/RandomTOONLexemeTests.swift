@@ -25,7 +25,9 @@ final class RandomTOONLexemeTests: XCTestCase {
             } else {
                 let decoded = try strictDecoder.decodeJSONValue(from: data)
                 XCTAssertEqual(decoded, sample.expected, "Strict decode mismatch for sample \(iteration)")
-                try assertReferenceMatch(sample: sample, iteration: iteration, cli: cli)
+                if sample.cliCompatible {
+                    try assertReferenceMatch(sample: sample, iteration: iteration, cli: cli)
+                }
             }
         }
     }

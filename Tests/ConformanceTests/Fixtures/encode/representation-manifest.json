@@ -1,0 +1,1516 @@
+{
+  "arrays-nested.json" : [
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes nested arrays of primitives"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes strings containing delimiters in nested arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty inner arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 1,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes mixed-length inner arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 5,
+          "format" : "inline"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes root-level primitive array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id"
+          ]
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes root-level array of uniform objects in tabular format"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes root-level array of non-uniform objects in list format"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 0,
+          "format" : "empty"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty root-level array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "[0]"
+        },
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "[1]"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes root-level arrays of arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "user.prefs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "user.tags"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes complex nested structure"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "list",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for arrays mixing primitives and objects"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for arrays mixing objects and arrays"
+    }
+  ],
+  "arrays-objects.json" : [
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for objects with different fields"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for objects with nested values"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items.0.nums"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "preserves field order in list items - array first"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items.0.nums"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "preserves field order in list items - primitive first"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "items.0.matrix"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.0.matrix.0"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.0.matrix.1"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for objects containing arrays of arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id",
+            "name"
+          ],
+          "keyPath" : "items.0.users"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses tabular format for nested uniform object arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "items.0.users"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for nested object arrays with mismatched keys"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.0.tags"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.0.nums"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for objects with multiple array fields"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items.0.tags"
+        },
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items.0.nums"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format for objects with only array fields"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "items.0.data"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes objects with empty arrays in list format"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id"
+          ],
+          "keyPath" : "items.0.users"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "places first field of nested tabular arrays on hyphen line"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "items"
+        },
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "items.0.data"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "places empty arrays on hyphen line when first"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "c",
+            "b",
+            "a"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses field order from first object for tabular headers"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "uses list format when one object has nested column"
+    }
+  ],
+  "arrays-primitive.json" : [
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "tags"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes string arrays inline"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "nums"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes number arrays inline"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 4,
+          "format" : "inline",
+          "keyPath" : "data"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes mixed primitive arrays inline"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 0,
+          "format" : "empty",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty string in single-item array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty string in multi-item array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes whitespace-only strings in arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes array strings with comma"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 4,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes strings that look like booleans in arrays"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes strings with structural meanings in arrays"
+    }
+  ],
+  "arrays-tabular.json" : [
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "qty",
+            "sku",
+            "price"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes arrays of similar objects in tabular format"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "value",
+            "id"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes null values in tabular format"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "qty",
+            "sku",
+            "desc"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes strings containing delimiters in tabular rows"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "status",
+            "id"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes ambiguous strings in tabular rows"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "full name",
+            "order:id"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes tabular arrays with keys needing quotes"
+    }
+  ],
+  "delimiters.json" : [
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "tags"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "encodes primitive arrays with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "tags"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "encodes primitive arrays with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "tags"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes primitive arrays with comma delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "qty",
+            "sku",
+            "price"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "encodes tabular arrays with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "qty",
+            "sku",
+            "price"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "encodes tabular arrays with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "encodes nested arrays with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.1"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "encodes nested arrays with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "encodes root arrays with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "encodes root arrays with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id"
+          ]
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "encodes root arrays of objects with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id"
+          ]
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "encodes root arrays of objects with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "quotes strings containing tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "quotes strings containing pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "does not quote commas with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "does not quote commas with pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id",
+            "note"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes tabular values containing comma delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id",
+            "note"
+          ],
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "does not quote commas in tabular values with tab delimiter"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : "|",
+      "testName" : "does not quote commas in object values with pipe delimiter"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : "\t",
+      "testName" : "does not quote commas in object values with tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "quotes nested array values containing pipe delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "list",
+          "keyPath" : "pairs"
+        },
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "pairs.0"
+        }
+      ],
+      "delimiter" : "\t",
+      "testName" : "quotes nested array values containing tab delimiter"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : "|",
+      "testName" : "preserves ambiguity quoting regardless of delimiter"
+    }
+  ],
+  "key-folding.json" : [
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes folded chain to primitive (safe mode)"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "data.meta.items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes folded chain with inline array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "tabular",
+          "headers" : [
+            "id",
+            "name"
+          ],
+          "keyPath" : "a.b.items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes folded chain with tabular array"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "skips folding when segment requires quotes (safe mode)"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "data.meta.items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "skips folding on sibling literal-key collision (safe mode)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes partial folding with flattenDepth=2"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes full chain with flattenDepth=Infinity (default)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes standard nesting with flattenDepth=0 (no folding)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes standard nesting with flattenDepth=1 (no practical effect)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes standard nesting with keyFolding=off (baseline)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes folded chain ending with empty object"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "a.b"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "stops folding at array boundary (not single-key object)"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes folded chains preserving sibling field order"
+    }
+  ],
+  "objects.json" : [
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "preserves key order in objects"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes null values in objects"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty objects as empty string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with colon"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with comma"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with newline"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with embedded quotes"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with leading space"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value with only spaces"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value that looks like true"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value that looks like number"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string value that looks like negative decimal"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with colon"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with brackets"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with braces"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with comma"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with spaces"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with leading hyphen"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes key with leading and trailing spaces"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes numeric key"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes empty string key"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes newline in key"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes tab in key"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes quotes in key"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes deeply nested objects"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes empty nested object"
+    }
+  ],
+  "primitives.json" : [
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes safe strings without quotes"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes safe string with underscore and numbers"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes empty string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like true"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like false"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like null"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like integer"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like negative decimal"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string that looks like scientific notation"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string with leading zero"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes newline in string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes tab in string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes carriage return in string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "escapes backslash in string"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string with array-like syntax"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string starting with hyphen-space"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes single hyphen as object value"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string starting with hyphen as object value"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 1,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes single hyphen in array"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 3,
+          "format" : "inline",
+          "keyPath" : "tags"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes leading-hyphen string in array"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string with bracket notation"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "quotes string with brace notation"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes Unicode string without quotes"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes Chinese characters without quotes"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes emoji without quotes"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes string with emoji and spaces"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes positive integer"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes decimal number"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes negative integer"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes zero"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes negative zero as zero"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes scientific notation as decimal"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes small decimal from scientific notation"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes large number"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes MAX_SAFE_INTEGER"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes repeating decimal with full precision"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes true"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes false"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "encodes null"
+    }
+  ],
+  "whitespace.json" : [
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "produces no trailing newline at end of output"
+    },
+    {
+      "arrays" : [
+        {
+          "count" : 2,
+          "format" : "inline",
+          "keyPath" : "items"
+        }
+      ],
+      "delimiter" : ",",
+      "testName" : "maintains proper indentation for nested structures"
+    },
+    {
+      "arrays" : [
+
+      ],
+      "delimiter" : ",",
+      "testName" : "respects custom indent size option"
+    }
+  ]
+}

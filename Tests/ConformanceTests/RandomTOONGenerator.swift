@@ -6,6 +6,7 @@ struct RandomTOONCase {
     let toon: String
     let expected: JSONValue
     let requiresLenient: Bool
+    let cliCompatible: Bool
 }
 
 struct RandomTOONGenerator {
@@ -21,9 +22,15 @@ struct RandomTOONGenerator {
 
     mutating func nextCase() -> RandomTOONCase {
         indentUnit = rng.nextBool() ? "  " : "    "
+        let cliCompatible = indentUnit == "  "
         let (text, object, lenient) = makeObject(indentLevel: 0, depth: 0)
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
-        return RandomTOONCase(toon: trimmed, expected: .object(object), requiresLenient: lenient)
+        return RandomTOONCase(
+            toon: trimmed,
+            expected: .object(object),
+            requiresLenient: lenient,
+            cliCompatible: cliCompatible
+        )
     }
 
     private mutating func makeObject(indentLevel: Int, depth: Int) -> (text: String, object: JSONObject, lenient: Bool) {
@@ -42,8 +49,19 @@ struct RandomTOONGenerator {
     }
 
     private mutating func makeEntry(indentLevel: Int, depth: Int, key: KeyLiteral) -> NodeResult {
-        let maxChoice = depth >= maxDepth ? 2 : 5
-        let choice = Int(rng.nextInt(max: maxChoice))
+        if depth >= maxDepth {
+            switch rng.nextInt(max: 4) {
+            case 0:
+                return primitiveEntry(indentLevel: indentLevel, key: key)
+            case 1:
+                return inlineArrayEntry(indentLevel: indentLevel, key: key)
+            case 2:
+                return dashArrayEntry(indentLevel: indentLevel, key: key)
+            default:
+                return tabularArrayEntry(indentLevel: indentLevel, key: key)
+            }
+        }
+        let choice = Int(rng.nextInt(max: 5))
         switch choice {
         case 0:
             return primitiveEntry(indentLevel: indentLevel, key: key)

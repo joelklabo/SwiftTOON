@@ -45,6 +45,10 @@ jobs:
           SWIFT_STRICT_CONCURRENCY: complete
         run: swift test --enable-code-coverage --parallel
 
+      - name: Check spec alignment
+        if: steps.package.outputs.exists == 'true'
+        run: swift Scripts/check-spec-alignment.swift
+
       - name: Check coverage thresholds
         if: steps.package.outputs.exists == 'true'
         run: |

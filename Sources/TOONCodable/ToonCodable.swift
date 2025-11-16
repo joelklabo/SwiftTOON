@@ -38,6 +38,38 @@ public struct ToonDecoder {
         stream.open()
         defer { stream.close() }
 
+        let data = try readAllBytes(from: stream)
+        return try decode(type, from: data)
+    }
+
+    public func decodeJSONValue(from data: Data) throws -> JSONValue {
+        try parseJSONValue(from: data)
+    }
+
+    public func decodeJSONValue(from stream: InputStream) throws -> JSONValue {
+        stream.open()
+        defer { stream.close() }
+        let data = try readAllBytes(from: stream)
+        return try decodeJSONValue(from: data)
+    }
+
+    public func streamJSONValue(from stream: InputStream, handler: (JSONValue) throws -> Void) throws {
+        let jsonValue = try decodeJSONValue(from: stream)
+        try handler(jsonValue)
+    }
+
+    private func parseJSONValue(from data: Data) throws -> JSONValue {
+        let signpostID = PerformanceSignpost.begin("ToonDecoder.parseJSONValue")
+        defer { PerformanceSignpost.end("ToonDecoder.parseJSONValue", id: signpostID) }
+
+        guard let string = String(data: data, encoding: .utf8) else {
+            throw ToonDecodingError.invalidUTF8
+        }
+        var parser = try Parser(input: string, options: Parser.Options(lenientArrays: options.lenient))
+        return try parser.parse()
+    }
+
+    private func readAllBytes(from stream: InputStream) throws -> Data {
         var buffer = Data()
         let chunkSize = 4096
         var localBuffer = [UInt8](repeating: 0, count: chunkSize)
@@ -52,20 +84,7 @@ public struct ToonDecoder {
                 buffer.append(localBuffer, count: read)
             }
         }
-
-        return try decode(type, from: buffer)
-    }
-
-    public func decodeJSONValue(from data: Data) throws -> JSONValue {
-        try parseJSONValue(from: data)
-    }
-
-    private func parseJSONValue(from data: Data) throws -> JSONValue {
-        guard let string = String(data: data, encoding: .utf8) else {
-            throw ToonDecodingError.invalidUTF8
-        }
-        var parser = try Parser(input: string, options: Parser.Options(lenientArrays: options.lenient))
-        return try parser.parse()
+        return buffer
     }
 }
 

@@ -13,13 +13,18 @@ final class EncodeFixtureTests: XCTestCase {
         let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/encode"))
 
         for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
-            guard !Self.roundTripExclusions.contains(url.lastPathComponent) else { continue }
             let fixtureFile = try EncodeFixtureFile.load(from: url)
             for fixture in fixtureFile.tests {
                 let options = fixture.options?.encodingOptions() ?? ToonEncodingOptions()
                 let serializer = ToonSerializer(options: options)
                 let output = serializer.serialize(jsonValue: fixture.input.value)
                 XCTAssertEqual(output, fixture.expected, "\(url.lastPathComponent) – \(fixture.name)")
+                verifyArrayRepresentations(
+                    jsonValue: fixture.input.value,
+                    output: output,
+                    description: "\(url.lastPathComponent) – \(fixture.name)",
+                    delimiter: options.delimiter.symbol
+                )
             }
         }
     }
@@ -49,21 +54,30 @@ final class EncodeFixtureTests: XCTestCase {
         let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/encode"))
 
         for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
-            guard !Self.roundTripExclusions.contains(url.lastPathComponent) else { continue }
             let fixtureFile = try EncodeFixtureFile.load(from: url)
             for fixture in fixtureFile.tests {
                 guard fixture.supportsRoundTrip else { continue }
-                let serializer = ToonSerializer(options: fixture.options?.encodingOptions() ?? ToonEncodingOptions())
+                let options = fixture.options?.encodingOptions() ?? ToonEncodingOptions()
+                let serializer = ToonSerializer(options: options)
                 let swiftOutput = serializer.serialize(jsonValue: fixture.input.value).trimmingCharacters(in: .whitespacesAndNewlines)
 
                 let jsonURL = FileManager.default.temporaryDirectory
                     .appendingPathComponent(UUID().uuidString)
                     .appendingPathExtension("json")
                 defer { try? FileManager.default.removeItem(at: jsonURL) }
-                try fixture.input.jsonData(sortedKeys: true).write(to: jsonURL)
+                try fixture.input.jsonData().write(to: jsonURL)
 
-                let referenceOutput = try cli.encode(jsonAt: jsonURL).trimmingCharacters(in: .whitespacesAndNewlines)
+                let referenceOptions = fixture.options?.encodingOptions()
+                let referenceOutput = try cli.encode(jsonAt: jsonURL, options: referenceOptions)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
                 XCTAssertEqual(swiftOutput, referenceOutput, "Reference mismatch: \(url.lastPathComponent) – \(fixture.name)")
+                verifyArrayRepresentations(jsonValue: fixture.input.value, output: swiftOutput, description: "\(url.lastPathComponent) – \(fixture.name)", delimiter: options.delimiter.symbol)
+                try assertRepresentationParity(
+                    swiftOutput: swiftOutput,
+                    referenceOutput: referenceOutput,
+                    delimiter: options.delimiter.symbol,
+                    description: "\(url.lastPathComponent) – \(fixture.name)"
+                )
             }
         }
     }
@@ -173,10 +187,8 @@ private extension JSONValue {
 }
 
 private extension JSONFixtureValue {
-    func jsonData(sortedKeys: Bool = false) throws -> Data {
-        let any = value.toAny()
-        let options: JSONSerialization.WritingOptions = sortedKeys ? [.sortedKeys] : []
-        return try JSONSerialization.data(withJSONObject: any, options: options)
+    func jsonData() throws -> Data {
+        try value.orderedJSONData()
     }
 }
 
