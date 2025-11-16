@@ -168,6 +168,9 @@ public struct Parser {
     }
 
     private mutating func parseStandaloneValue() throws -> JSONValue {
+        if let simple = try parseSimpleStandaloneValue() {
+            return simple
+        }
         chunkBuffer.removeAll(keepingCapacity: true)
         while let token = peekToken() {
             switch token.kind {
@@ -304,6 +307,7 @@ public struct Parser {
 
     private mutating func parseTabularRows(length: Int, headers: [String], contextToken: Token, delimiter: ArrayDelimiter) throws -> [JSONValue] {
         var rows: [JSONValue] = []
+        rows.reserveCapacity(length)
         for _ in 0..<length {
             let values = try readRowValues(delimiter: delimiter)
             let adjustedValues: [JSONValue]
@@ -355,6 +359,7 @@ public struct Parser {
             }
         }
         var values: [JSONValue] = []
+        values.reserveCapacity(length)
 
         while values.count < length {
             consumeNewlines()
@@ -518,6 +523,27 @@ public struct Parser {
         }
         let endIndex = chunkBuffer.last?.range.upperBound
         return try buildValue(from: chunkBuffer, contextToken: context, endIndex: endIndex)
+    }
+
+    private mutating func parseSimpleStandaloneValue() throws -> JSONValue? {
+        guard let first = peekToken() else { return nil }
+        switch first.kind {
+        case .identifier, .number, .stringLiteral:
+            if let next = peekToken(offset: 1) {
+                switch next.kind {
+                case .newline, .eof, .dedent:
+                    advance()
+                    return try interpretSingleToken(first)
+                default:
+                    return nil
+                }
+            } else {
+                advance()
+                return try interpretSingleToken(first)
+            }
+        default:
+            return nil
+        }
     }
 
     private func buildValue(from tokens: [Token], contextToken: Token, endIndex: Int?) throws -> JSONValue {

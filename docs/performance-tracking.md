@@ -66,3 +66,9 @@ Each perf iteration should produce:
 - **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` now logs the updated tracker averages for `Parser.parse`, `Parser.parseListArray`, and `Parser.buildValue`, showing this new early exit handles the inline scalar case frequently.
 - **Optimization steps:** Added `parseSimpleStandaloneValue()` at the start of `parseStandaloneValue` to inspect the first token and return it via `interpretSingleToken` when the next token is newline/dedent/eof, preventing the chunk buffer from being populated at all for the simplest values.
 - **Validation & artifacts:** After the tweak we reran the bench/compare/artifact commands plus `SWIFTTOON_PERF_TRACE=1 …` so the iteration log and badge record the faster scalar handling.
+
+### Iteration #7 – Reserve list buffers
+- **Goal:** Preallocate the arrays that hold list and tabular rows so they don’t grow during the constant-length loops, reducing reallocations in `parseListArray` and `parseTabularRows`.
+- **Profiling evidence:** The tracker still shows `Parser.parseListArray` dominating, so pre-reserving capacity should improve throughput when thousands of entries are appended.
+- **Optimization steps:** `parseListArray` now calls `values.reserveCapacity(length)` before entering the loop, and `parseTabularRows` reserves `rows.reserveCapacity(length)` so the arrays won’t reallocate while building the tables.
+- **Validation & artifacts:** After applying the reserve changes we reran `swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json`, `swift Scripts/compare-benchmarks.swift … --tolerance 0.05`, `swift Scripts/update-perf-artifacts.swift …`, and `SWIFTTOON_PERF_TRACE=1 …` so the iteration log and badge reflect this incremental gain.
