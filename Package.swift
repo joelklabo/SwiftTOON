@@ -4,9 +4,9 @@ import PackageDescription
 let package = Package(
     name: "SwiftTOON",
     platforms: [
-        .macOS(.v13),
-        .linux(.v22_04) // Ubuntu 22.04+
+        .macOS(.v13)
     ],
+
     products: [
         .library(
             name: "TOONCore",

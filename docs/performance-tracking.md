@@ -1,3 +1,9 @@
+### Iteration #12 – Increase JSONObject initial capacity
+- **Goal:** Attempt to reduce reallocations in `Parser.parseObject` by increasing the initial `JSONObject` capacity reservation from 8 to 16.
+- **Profiling evidence:** Comparison of `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks` output before and after the change showed a slight increase in `Parser.parseObject` and other parser phase durations, indicating no positive performance impact and potentially a slight negative one.
+- **Optimization steps:** Modified `Sources/TOONCore/Parser.swift` to change `result.reserveCapacity(8)` to `result.reserveCapacity(16)` in the `parseObject` function.
+- **Outcome:** The change was reverted as it did not yield a positive performance impact. This suggests that for the current benchmark dataset, the default capacity of 8 is sufficient or that the overhead of allocating a larger initial buffer outweighs the benefits of fewer reallocations.
+
 ### Iteration #11 – Reserve JSONObject buffers & phase metrics
 - **Goal:** Pre-reserve the `JSONObject` entry/dictionary buffers before we parse each object so the parser can avoid repeated heap allocations while decoding large lists of identically shaped records, and capture per-phase durations while the parser excecutes.
 - **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` logs per-section tracer output (`Parser.parseListArray` ≈0.00357 s, `Parser.parse` ≈0.00361 s) and the tracker summary in `perf-artifacts/perf-history.json` still shows these measurements, but the regression comparison uses the default (non-instrumented) benchmark run that produced parser_throughput ≈2.64 MB/s, decode_end_to_end ≈3.17 MB/s, and phase durations underneath the hood.
