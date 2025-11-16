@@ -220,7 +220,7 @@
 
 ## Stage 9 – Documentation & Release Readiness
 
-> **Status:** Stage 9 is in progress. DocC tutorials, spec alignment artifacts, release checklist, and README/release-note refreshes are the current focus.
+> **Status:** Stage 9 is complete (2025-11-16). DocC tutorials verified, spec alignment checker passing, spec version documented (v2.0.0 / commit 3d6c593), CHANGELOG/README updated with v0.1.2 release notes. Ready to tag release.
 
 1. **DocC & README**
    - Doc tests referencing real APIs must compile (TDD: failing doc tests until APIs exist).
@@ -389,6 +389,183 @@ Every perf iteration should produce:
 > **Status:** Stage 8 is complete. The parser now reserves `JSONObject` buffers, benchmarks publish `phase|…|duration` samples, and `Scripts/update-perf-artifacts.swift` renders both throughput and per-phase lines so the README graph surfaces each translation stage. The per-stage instrumentation lives alongside the usual MB/s numbers.
 
 Repeat this cycle so every MB/s gain becomes a commit that the performance graph can show.
+
+## Stage 10 – Coverage Excellence (99%/97% Target)
+
+> **Status:** Not started. Current coverage: 91%/91% (TOONCore/TOONCodable). CI gates at 85%/78%. Goal: ≥99% line, ≥97% branch coverage.
+
+### Strategy
+
+#### Phase 1: Coverage Analysis & Gap Identification
+1. **Generate coverage report**
+   - Run `swift test --enable-code-coverage`
+   - Execute `swift Scripts/coverage-badge.swift --profile .build/debug/codecov/default.profdata --binary-root .build --output coverage-artifacts`
+   - Generate HTML report: Find all `.xctest` binaries, run `xcrun llvm-cov show` for each to identify uncovered lines
+   
+2. **Identify coverage gaps by category**
+   - **Error paths:** Exception handling, validation failures, malformed input edge cases
+   - **Edge cases:** Empty arrays, single-item collections, maximum-length strings, boundary conditions
+   - **Lenient mode paths:** Parser/decoder recovery branches when `lenientArrays: true`
+   - **Schema validation paths:** ToonSchema constraint violations, type mismatches
+   - **Performance fast paths:** Schema-primed encoder/decoder branches
+   - **CLI error handling:** Invalid flags, missing files, pipe failures
+
+#### Phase 2: Systematic Test Addition (TDD)
+For each uncovered code segment:
+
+1. **TOONCore (Parser, Lexer, JSONValue)**
+   - Add malformed TOON tests: invalid indent patterns, mismatched delimiters, truncated files
+   - Test numeric edge cases: MAX_INT, MIN_INT, infinity, NaN, scientific notation boundaries
+   - Test string edge cases: empty strings, Unicode edge cases, control characters
+   - Test array/object edge cases: empty structures, nested depth limits, key ordering
+   - Test error recovery: partial parse success, error message formatting
+
+2. **TOONCodable (Encoder, Decoder, Schema)**
+   - Add schema mismatch tests: missing required fields, unexpected fields, type conflicts
+   - Test codable edge cases: optional fields, nested optionals, custom CodingKeys
+   - Test streaming decoder: chunked reads, interrupted streams, malformed chunks
+   - Test analyzer edge cases: mixed-type arrays, sparse objects, ambiguous structures
+   - Test serializer edge cases: key collision detection, quoting edge cases, delimiter conflicts
+
+3. **TOONCLI**
+   - Add CLI error tests: invalid arguments, missing required flags, contradictory options
+   - Test pipe handling: broken pipes, SIGPIPE, partial writes
+   - Test file I/O errors: permission denied, disk full, non-existent paths
+   - Test stats edge cases: empty files, malformed input with lenient mode
+
+#### Phase 3: Ratchet CI Thresholds
+After each test addition batch:
+1. Run coverage locally and capture new percentages
+2. Update CI thresholds in `.github/workflows/ci.yml` (currently 85/78)
+3. Ratchet up by 2-3% increments: `85→88→91→94→97→99%`
+4. Commit tests + threshold updates together
+5. Push and verify CI passes with new gates
+
+#### Phase 4: Document Untestable Code
+If any code paths cannot reach 99%:
+1. Add inline `// Coverage: exempt - [reason]` comments
+2. Document in `docs/coverage-exceptions.md` with justification
+3. Link to GitHub issues for future improvement
+4. Examples: platform-specific code, defensive impossible states, deprecated paths
+
+### Deliverables
+- [ ] Coverage report HTML published to `gh-pages/coverage/report/`
+- [ ] All uncovered lines categorized and ticketed
+- [ ] Test suites expanded for each category
+- [ ] CI thresholds ratcheted to 99%/97%
+- [ ] `docs/coverage-exceptions.md` created if needed
+- [ ] Coverage badge shows 99%+ line coverage
+
+### Estimated Timeline
+- Phase 1 (Analysis): 1-2 days
+- Phase 2 (Test Addition): 5-7 days (iterative, batch commits)
+- Phase 3 (Ratcheting): Continuous during Phase 2
+- Phase 4 (Documentation): 1 day
+
+## Stage 11 – Performance Optimization to ±10% Target
+
+> **Status:** Not started. Current: Within ±20% tolerance. Goal: Within ±10% of TypeScript reference, demonstrate ≥20% schema-primed gains.
+
+### Strategy
+
+#### Phase 1: Establish Performance Baseline
+1. **Current state**
+   - Lexer: 5.40 MB/s (+19.9% vs baseline) ✅
+   - Parser: 2.67 MB/s (-9.3% regression) ⚠️
+   - Decoder: 3.14 MB/s (-17.3% regression) ⚠️
+   
+2. **Benchmark TypeScript reference**
+   - Run `cd reference && pnpm toon encode/decode` with same datasets
+   - Capture TypeScript throughput as comparison target
+   - Document in `Benchmarks/baseline_typescript.json`
+
+#### Phase 2: Parser Performance Recovery
+**Goal:** Recover the -9.3% parser regression
+
+1. **Profile parser hotspots**
+   - Run with `SWIFTTOON_PERF_TRACE=1` to see phase durations
+   - Use Instruments Time Profiler on `parser_micro` benchmark
+   - Identify specific functions consuming most time
+
+2. **Optimization candidates**
+   - Review recent commits for unintended allocations
+   - Check `parseListArray` changes (moved from explicit length to optional)
+   - Profile `buildValue` call overhead
+   - Consider inline hints for hot paths
+   - Reduce token lookahead overhead
+
+3. **Validate optimizations**
+   - Run benchmarks after each change
+   - Use `swift Scripts/compare-benchmarks.swift` with 5% tolerance
+   - Document in `docs/performance-tracking.md` iteration log
+
+#### Phase 3: Decoder Performance Recovery  
+**Goal:** Recover the -17.3% decoder regression
+
+1. **Profile decoder path**
+   - Trace `decode_end_to_end` benchmark
+   - Identify if regression is in parser or JSONValue→Codable translation
+   - Check for JSONSerialization bottlenecks (should be eliminated)
+
+2. **Optimization candidates**
+   - Review `JSONValueDecoder` allocations
+   - Check container unwrapping overhead
+   - Profile keyed/unkeyed container performance
+   - Consider caching CodingKey lookups
+
+#### Phase 4: Schema-Primed Fast Path Demonstration
+**Goal:** Show ≥20% improvement with schema hints
+
+1. **Create schema-primed benchmark**
+   - Add `schema_primed_encode` and `schema_primed_decode` suites
+   - Use fixed schema for uniform datasets (users, orders)
+   - Compare against default path on same data
+
+2. **Optimize schema path**
+   - Skip analyzer when schema provided
+   - Pre-allocate based on schema field counts
+   - Direct field access instead of reflection
+   - Cache serializer format decisions
+
+3. **Document gains**
+   - Add benchmark comparison to README
+   - Update DocC SchemaPriming tutorial with actual numbers
+   - Add to `docs/performance-tracking.md`
+
+#### Phase 5: Additional Micro-Optimizations
+Based on profiling, consider:
+- String interning for common keys
+- Lazy token parsing
+- Buffer pooling for large files
+- SIMD for numeric parsing
+- Custom allocators for temporary structures
+
+### Deliverables
+- [ ] TypeScript baseline captured in `Benchmarks/baseline_typescript.json`
+- [ ] Parser regression recovered (within -5%)
+- [ ] Decoder regression recovered (within -10%)
+- [ ] Schema-primed benchmarks show ≥20% improvement
+- [ ] All benchmarks within ±10% of TypeScript reference
+- [ ] Performance iterations documented in `docs/performance-tracking.md`
+- [ ] README perf badge reflects improvements
+
+### Estimated Timeline
+- Phase 1 (Baseline): 1 day
+- Phase 2 (Parser): 2-3 days
+- Phase 3 (Decoder): 2-3 days
+- Phase 4 (Schema): 2-3 days
+- Phase 5 (Micro-opts): Ongoing/optional
+
+## Stage 12 – Release v0.1.2
+
+> **Status:** Ready to execute. All artifacts prepared, CHANGELOG updated, tests passing.
+
+### Actions
+1. Tag release: `gh release create v0.1.2 --title "v0.1.2 - Stage 9 Complete" --notes-file <(grep -A 30 "## \[0.1.2\]" CHANGELOG.md)`
+2. Monitor workflows: `gh-commit-watch -w "ci|perf|coverage"`
+3. Verify published artifacts on GitHub Releases page
+4. Update plan status to mark Stage 9 as released
+
 ## Success Criteria
 
 - 100% of official fixtures + differential tests pass on both encode and decode.
