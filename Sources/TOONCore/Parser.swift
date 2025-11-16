@@ -422,11 +422,12 @@ public struct Parser {
         }
 
         if case .identifier = next.kind {
-            if let upcoming = peekToken(offset: 1), upcoming.kind == .colon {
+            let upcoming = peekToken(offset: 1)
+            if upcoming?.kind == .colon {
                 let object = try parseObject(currentIndent: baseIndent)
                 return .object(object)
             }
-            if let bracket = peekToken(offset: 1), bracket.kind == .leftBracket {
+            if upcoming?.kind == .leftBracket {
                 let object = try parseObject(currentIndent: baseIndent)
                 return .object(object)
             }
