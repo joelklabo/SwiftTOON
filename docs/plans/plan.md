@@ -613,17 +613,20 @@ Create `coverage-gaps.md` with structure:
 
 **Objective:** Add targeted tests for each uncovered code path, organized by category.
 
-**Current Status (2025-11-16 17:54 UTC):**
-- ✅ Category A: DONE - 58 tests (Parser errors, Decoder errors) - COMMITTED
-- ✅ Category B: DONE - 86 tests (String utils, Numeric, Collections, Foundation, Parser nesting) - COMMITTED
-- ✅ All tests passing, coverage at 91.22% line / 91.24% func / 85.06% region
-- 🔄 **IN PROGRESS:** Category C (Lenient Mode Coverage)
-- **Next:** Categories D, E and update CI thresholds to lock in gains
+**Current Status (2025-11-16 18:10 UTC):**
+- ✅ Category A: DONE - 58 tests (Parser errors, Decoder errors) - COMMITTED & PUSHED
+- ✅ Category B: DONE - 86 tests (String utils, Numeric, Collections, Foundation, Parser nesting) - COMMITTED & PUSHED  
+- ✅ Category C: DONE - 16 tests (Lenient mode coverage) - COMMITTED & PUSHED
+- ✅ All tests passing, coverage at 91.12% line / 91.70% func / 85.08% region
+- ✅ Performance graph updated: 7 series (lexer/parser/decode throughput + 4 parser phase durations)
+- 🔄 **IN PROGRESS:** Category D (Schema Validation Coverage)
+- **Next:** Category E and update CI thresholds to 91% to lock in gains
 
 **Coordination Notes:**
-- Categories A+B committed and pushed (144 new tests)
-- Coverage stable at 91.22% (previous 91.29% - slight variance due to test infrastructure)
-- Ready to proceed with Category C (lenient mode branches)
+- Categories A+B+C committed and pushed (160 new tests total)
+- Coverage stable at ~91% with good branch coverage
+- Perf-history workflow triggers on every main push; graph auto-updates to gh-pages
+- Ready to proceed with Category D (schema validation error paths)
 
 #### Category A: Error Path Coverage
 **Status:** [DONE - Copilot-CLI-Coverage] ✅ Completed 2025-11-16  
