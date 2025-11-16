@@ -404,14 +404,14 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 | Module | Baseline | Current | Target | Remaining |
 |--------|----------|---------|--------|-----------|
-| **Overall** | 89.7% | 91.50% | 99% | 7.50% |
+| **Overall** | 89.7% | 91.88% | 99% | 7.12% |
 | **Parser.swift** | 83.3% | ~88%* | 99% | ~11% |
 | **JSONValueDecoder.swift** | 75.5% | ~85%* | 99% | ~14% |
 | **String+TOONUtils.swift** | 0% | 100%✅ | 100% | 0% |
 | **PerformanceSignpost.swift** | 50% | 95%+✅ | 99% | <4% |
 | **Lexer.swift** | 89.7% | 95.70%✅ | 99% | 3.3% |
 | **JSONValueEncoder.swift** | 89.7% | 98.35%✅ | 99% | 0.65% |
-| **ToonCodable.swift** | 79.5% | 79.5% | 99% | 19.5% |
+| **ToonCodable.swift** | 79.5% | 97.32%✅ | 99% | 1.68% |
 | **CLI main.swift** | 80.1% | 80.1% | 95% | 14.9% |
 
 *Estimated based on added error path tests - per-module verification pending
@@ -423,11 +423,12 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 - ✅ PerformanceSignpost: 50% → 95%+ (9 tests)
 - ✅ Lexer.swift: 89.7% → 95.70% (28 error path tests)
 - ✅ JSONValueEncoder.swift: 89.7% → 98.35% (17 comprehensive tests)
+- ✅ ToonCodable.swift: 79.5% → 97.32% (23 comprehensive tests)
 
 **Next Priorities:**
-1. **ToonCodable.swift** (79.5% → 90%): Encoder/decoder initialization, options, error paths
-2. **Parser.swift** (88% → 95%): Remaining edge cases
-3. **Final push to 99%**: Remaining gaps in all modules
+1. **Parser.swift** (88% → 95%): Remaining edge cases
+2. **Final push to 99%**: Remaining gaps in all modules
+3. **CLI main.swift** (80.1% → 95%): Command-line option handling
 
 See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-line recommendations.
 
@@ -435,9 +436,9 @@ See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-li
 
 ### 📋 Quick Start for Partner Agents
 
-**Current State (2025-11-16 19:09 UTC):**
-- ✅ JSONValueEncoder.swift: 89.7% → 98.35% (17 tests READY TO COMMIT)
-- 🎯 Next: ToonCodable.swift (79.5% → 90%) or final push to 99%
+**Current State (2025-11-16 19:20 UTC):**
+- ✅ ToonCodable.swift: 79.5% → 97.32% (23 tests READY TO COMMIT)
+- 🎯 Next: Parser.swift remaining edge cases or final 99% push
 
 **Test & Coverage Workflow:**
 ```bash
