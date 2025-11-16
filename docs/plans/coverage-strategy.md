@@ -2,9 +2,22 @@
 
 **Goal:** Achieve ≥99% line coverage and ≥97% branch coverage across `TOONCore` and `TOONCodable`.
 
-**Current State:** 91%/91% (local), CI gates at 85%/78%
+**Current State:** 92.02% line / 94.51% function (473 tests)
 
-## Phase 1: Coverage Analysis & Gap Identification
+**Progress Summary:**
+- Started: 91.29% line coverage
+- Current: 92.02% line coverage
+- Added: 65 new tests (ParserRemainingCoverageTests: 29, JSONValueDecoderRemainingTests: 15, ParserUncoveredPathsTests: 21)
+- Tests: 408 → 473
+
+**Module Breakdown (current):**
+- TOONCore: 88.40% line (Parser: 83.73% is bottleneck)
+- TOONCodable: 94.52% line (JSONValueDecoder: ~85%+, improved from 76.63%)
+- TOONCLI: ~95%+ (good coverage)
+
+## Phase 1: Coverage Analysis & Gap Identification ✅
+
+Completed initial analysis and added 65 tests targeting major gaps.
 
 ### Step 1.1: Generate Detailed Coverage Report
 
