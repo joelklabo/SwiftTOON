@@ -392,75 +392,300 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 ## Stage 10 – Coverage Excellence (99%/97% Target)
 
-> **Status:** Not started. Current coverage: 91%/91% (TOONCore/TOONCodable). CI gates at 85%/78%. Goal: ≥99% line, ≥97% branch coverage.
+> **Status:** 🚀 Ready to start (created 2025-11-16). Current: 91%/91% (TOONCore/TOONCodable), CI gates: 85%/78%. Target: ≥99% line, ≥97% branch.
 
-### Strategy
+**Coordination:** Mark tasks as `[IN PROGRESS - AgentName]` when starting work to avoid conflicts.
 
-#### Phase 1: Coverage Analysis & Gap Identification
-1. **Generate coverage report**
-   - Run `swift test --enable-code-coverage`
-   - Execute `swift Scripts/coverage-badge.swift --profile .build/debug/codecov/default.profdata --binary-root .build --output coverage-artifacts`
-   - Generate HTML report: Find all `.xctest` binaries, run `xcrun llvm-cov show` for each to identify uncovered lines
-   
-2. **Identify coverage gaps by category**
-   - **Error paths:** Exception handling, validation failures, malformed input edge cases
-   - **Edge cases:** Empty arrays, single-item collections, maximum-length strings, boundary conditions
-   - **Lenient mode paths:** Parser/decoder recovery branches when `lenientArrays: true`
-   - **Schema validation paths:** ToonSchema constraint violations, type mismatches
-   - **Performance fast paths:** Schema-primed encoder/decoder branches
-   - **CLI error handling:** Invalid flags, missing files, pipe failures
+### Phase 1: Coverage Analysis & Gap Identification
 
-#### Phase 2: Systematic Test Addition (TDD)
-For each uncovered code segment:
+**Objective:** Generate comprehensive coverage reports and categorize all uncovered code paths.
 
-1. **TOONCore (Parser, Lexer, JSONValue)**
-   - Add malformed TOON tests: invalid indent patterns, mismatched delimiters, truncated files
-   - Test numeric edge cases: MAX_INT, MIN_INT, infinity, NaN, scientific notation boundaries
-   - Test string edge cases: empty strings, Unicode edge cases, control characters
-   - Test array/object edge cases: empty structures, nested depth limits, key ordering
-   - Test error recovery: partial parse success, error message formatting
+#### Task 1.1: Generate Coverage Reports
+**Status:** [ ] Not started
 
-2. **TOONCodable (Encoder, Decoder, Schema)**
-   - Add schema mismatch tests: missing required fields, unexpected fields, type conflicts
-   - Test codable edge cases: optional fields, nested optionals, custom CodingKeys
-   - Test streaming decoder: chunked reads, interrupted streams, malformed chunks
-   - Test analyzer edge cases: mixed-type arrays, sparse objects, ambiguous structures
-   - Test serializer edge cases: key collision detection, quoting edge cases, delimiter conflicts
+```bash
+# Run tests with coverage
+swift test --enable-code-coverage --parallel
 
-3. **TOONCLI**
-   - Add CLI error tests: invalid arguments, missing required flags, contradictory options
-   - Test pipe handling: broken pipes, SIGPIPE, partial writes
-   - Test file I/O errors: permission denied, disk full, non-existent paths
-   - Test stats edge cases: empty files, malformed input with lenient mode
+# Find profile
+PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)
 
-#### Phase 3: Ratchet CI Thresholds
-After each test addition batch:
-1. Run coverage locally and capture new percentages
-2. Update CI thresholds in `.github/workflows/ci.yml` (currently 85/78)
-3. Ratchet up by 2-3% increments: `85→88→91→94→97→99%`
-4. Commit tests + threshold updates together
-5. Push and verify CI passes with new gates
+# Generate badge/summary
+swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts
 
-#### Phase 4: Document Untestable Code
-If any code paths cannot reach 99%:
-1. Add inline `// Coverage: exempt - [reason]` comments
-2. Document in `docs/coverage-exceptions.md` with justification
-3. Link to GitHub issues for future improvement
-4. Examples: platform-specific code, defensive impossible states, deprecated paths
+# Generate HTML report for TOONCore
+xcrun llvm-cov show .build/debug/SwiftTOONPackageTests.xctest/Contents/MacOS/SwiftTOONPackageTests \
+  -instr-profile="$PROFILE" \
+  Sources/TOONCore \
+  -format=html \
+  -output-dir=coverage-artifacts/TOONCore
 
-### Deliverables
-- [ ] Coverage report HTML published to `gh-pages/coverage/report/`
-- [ ] All uncovered lines categorized and ticketed
-- [ ] Test suites expanded for each category
-- [ ] CI thresholds ratcheted to 99%/97%
-- [ ] `docs/coverage-exceptions.md` created if needed
-- [ ] Coverage badge shows 99%+ line coverage
+# Generate HTML report for TOONCodable  
+xcrun llvm-cov show .build/debug/SwiftTOONPackageTests.xctest/Contents/MacOS/SwiftTOONPackageTests \
+  -instr-profile="$PROFILE" \
+  Sources/TOONCodable \
+  -format=html \
+  -output-dir=coverage-artifacts/TOONCodable
+```
 
-### Estimated Timeline
-- Phase 1 (Analysis): 1-2 days
-- Phase 2 (Test Addition): 5-7 days (iterative, batch commits)
-- Phase 3 (Ratcheting): Continuous during Phase 2
-- Phase 4 (Documentation): 1 day
+**Deliverable:** HTML reports in `coverage-artifacts/{TOONCore,TOONCodable}/`
+
+#### Task 1.2: Analyze Uncovered Lines
+**Status:** [ ] Not started
+
+```bash
+# Generate line-by-line coverage for each source file
+for file in Sources/TOONCore/*.swift; do
+  echo "=== $(basename $file) ==="
+  xcrun llvm-cov report .build/debug/SwiftTOONPackageTests.xctest/Contents/MacOS/SwiftTOONPackageTests \
+    -instr-profile="$PROFILE" \
+    "$file"
+done
+```
+
+**Deliverable:** Per-file coverage percentages and line numbers
+
+#### Task 1.3: Create Coverage Gaps Document
+**Status:** [ ] Not started
+
+Create `coverage-gaps.md` with structure:
+
+```markdown
+## TOONCore
+
+### Lexer.swift (XX% → 99%)
+- [ ] Line 123: Error path for invalid UTF-8 sequence
+- [ ] Line 145-148: Numeric overflow edge case
+
+### Parser.swift (XX% → 99%)
+- [ ] Lines 350-355: Lenient mode padding for short tabular rows
+- [ ] Lines 400-410: Deeply nested object error recovery
+
+## TOONCodable
+
+### ToonDecoder.swift (XX% → 99%)
+- [ ] Lines 100-105: InputStream chunk boundary edge case
+- [ ] Line 150: Schema validation failure path
+```
+
+**Deliverable:** `coverage-gaps.md` with all uncovered lines categorized
+
+---
+
+### Phase 2: Systematic Test Addition (TDD)
+
+**Objective:** Add targeted tests for each uncovered code path, organized by category.
+
+#### Category A: Error Path Coverage
+**Status:** [ ] Not started  
+**Target:** All `throw` statements, error constructors, validation failures  
+**Files:** Create `Tests/TOONCoreTests/ParserErrorPathsTests.swift`, `Tests/TOONCodableTests/DecoderErrorPathsTests.swift`
+
+Example tests:
+```swift
+func testInvalidIndentThrows() { /* Parser line XXX */ }
+func testMalformedArrayLengthThrows() { /* Parser line YYY */ }
+func testUnterminatedStringThrows() { /* Lexer line ZZZ */ }
+func testSchemaMismatchThrows() { /* ToonDecoder line XXX */ }
+```
+
+**Deliverable:** Batch commit "test: add error path coverage (85→88%)"
+
+#### Category B: Edge Case Coverage
+**Status:** [ ] Not started  
+**Target:** Boundary conditions, empty collections, extreme values  
+**Files:** Create `Tests/TOONCoreTests/NumericEdgeCasesTests.swift`, `Tests/TOONCoreTests/CollectionEdgeCasesTests.swift`
+
+Example tests:
+```swift
+func testIntMaxValue() { /* Int.max boundary */ }
+func testScientificNotationBoundaries() { /* 1e308, 1e-308, 1e309 */ }
+func testZeroVariants() { /* 0, 0.0, -0, -0.0, 0e0 */ }
+func testEmptyArray() { /* items[0]: */ }
+func testSingleItemArray() { /* items[1]: solo */ }
+```
+
+**Deliverable:** Batch commit "test: add edge case coverage (88→91%)"
+
+#### Category C: Lenient Mode Coverage
+**Status:** [ ] Not started  
+**Target:** All `if options.lenientArrays` branches  
+**Files:** Create `Tests/TOONCoreTests/LenientModeTests.swift`
+
+Example tests:
+```swift
+func testLenientPadsShortTabularRow() { /* pad with nulls */ }
+func testLenientTruncatesLongListArray() { /* ignore extra items */ }
+```
+
+**Deliverable:** Batch commit "test: add lenient mode coverage (91→93%)"
+
+#### Category D: Schema Validation Coverage
+**Status:** [ ] Not started  
+**Target:** All ToonSchema constraint checks  
+**Files:** Create `Tests/TOONCodableTests/SchemaValidationTests.swift`
+
+Example tests:
+```swift
+func testMissingRequiredField() { /* schema rejects missing field */ }
+func testUnexpectedFieldWithStrictSchema() { /* schema rejects extra field */ }
+func testNestedSchemaValidation() { /* nested type mismatch */ }
+```
+
+**Deliverable:** Batch commit "test: add schema validation coverage (93→95%)"
+
+#### Category E: CLI Error Handling Coverage
+**Status:** [ ] Not started  
+**Target:** All CLI error paths, pipe handling, I/O failures  
+**Files:** Create `Tests/TOONCLITests/CLIErrorHandlingTests.swift`
+
+Example tests:
+```swift
+func testInvalidFlagProducesError() { /* unknown flag handling */ }
+func testMissingInputFileProducesError() { /* file not found */ }
+func testBrokenPipeHandling() { /* SIGPIPE graceful exit */ }
+```
+
+**Deliverable:** Batch commit "test: add CLI error handling coverage (95→97%)"
+
+---
+
+### Phase 3: CI Threshold Ratcheting
+
+**Objective:** Incrementally increase CI coverage gates to lock in gains.
+
+#### Batch 1: 85% → 88%
+**Status:** [ ] Not started  
+**Update:** `.github/workflows/ci.yml` coverage check to `--check "Sources/TOONCore:88:80" --check "Sources/TOONCodable:88:80"`  
+**Commit:** Included in Category A commit
+
+#### Batch 2: 88% → 91%
+**Status:** [ ] Not started  
+**Update:** `.github/workflows/ci.yml` coverage check to `91:82`  
+**Commit:** Included in Category B commit
+
+#### Batch 3: 91% → 94%
+**Status:** [ ] Not started  
+**Update:** `.github/workflows/ci.yml` coverage check to `94:85`  
+**Commit:** Included in Categories C+D commits
+
+#### Batch 4: 94% → 97%
+**Status:** [ ] Not started  
+**Update:** `.github/workflows/ci.yml` coverage check to `97:90`  
+**Commit:** Included in Category E commit
+
+#### Batch 5: 97% → 99%
+**Status:** [ ] Not started  
+**Update:** `.github/workflows/ci.yml` coverage check to `99:97`  
+**Commit:** "test: achieve 99%/97% coverage target"
+
+---
+
+### Phase 4: Document Untestable Code
+
+**Objective:** Explicitly mark and justify any code paths that cannot reach 99% coverage.
+
+#### Task 4.1: Create Coverage Exceptions Document
+**Status:** [ ] Not started
+
+Create `docs/coverage-exceptions.md`:
+```markdown
+# Coverage Exceptions
+
+## TOONCore/Parser.swift
+
+### Lines 500-505: Platform-specific error formatting
+```swift
+#if os(Linux)
+    // Linux-specific error formatting
+#else
+    // macOS-specific error formatting
+#endif
+```
+**Reason:** CI runs on single platform  
+**Mitigation:** Manual testing on Linux  
+**Issue:** #123
+```
+
+**Deliverable:** `docs/coverage-exceptions.md`
+
+#### Task 4.2: Add Inline Exemption Comments
+**Status:** [ ] Not started
+
+Add to source code:
+```swift
+// Coverage: exempt - platform-specific code, tested manually on Linux
+#if os(Linux)
+    let errorFormat = linuxFormat(error)
+#else
+    let errorFormat = macosFormat(error)
+#endif
+```
+
+**Deliverable:** Inline comments for all exempt code
+
+---
+
+### Automation & Reporting
+
+#### Local Coverage Script
+**Status:** [ ] Not started
+
+Create `Scripts/coverage-report.sh`:
+```bash
+#!/bin/bash
+set -e
+echo "🧪 Running tests with coverage..."
+swift test --enable-code-coverage --parallel
+PROFILE=$(find .build -path "*/codecov/default.profdata" -print -quit)
+echo "📊 Generating coverage report..."
+swift Scripts/coverage-badge.swift --profile "$PROFILE" --binary-root .build --output coverage-artifacts
+echo "📈 Coverage Summary:"
+cat coverage-artifacts/coverage-summary.json | jq '.lines.percent, .functions.percent, .regions.percent'
+echo "🎯 Checking thresholds..."
+swift Scripts/check-coverage.swift --profile "$PROFILE" --binary-root .build --check "Sources/TOONCore:99:97" --check "Sources/TOONCodable:99:97"
+echo "✅ Coverage check complete!"
+```
+
+**Deliverable:** Executable `Scripts/coverage-report.sh`
+
+#### GitHub Actions HTML Report
+**Status:** [ ] Not started
+
+Update `.github/workflows/coverage.yml` to generate and publish HTML reports to `gh-pages/coverage/report/`.
+
+**Deliverable:** HTML coverage report on GitHub Pages
+
+#### README Badge Update
+**Status:** [ ] Not started
+
+After reaching 99%, update README badge to link to HTML report:
+```markdown
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joelklabo/SwiftTOON/gh-pages/coverage/coverage-badge.json&cacheSeconds=600)](https://joelklabo.github.io/SwiftTOON/coverage/report/)
+```
+
+**Deliverable:** Updated README badge
+
+---
+
+### Success Metrics
+
+- [ ] TOONCore: ≥99% line, ≥97% branch
+- [ ] TOONCodable: ≥99% line, ≥97% branch
+- [ ] All uncovered lines documented in `coverage-exceptions.md`
+- [ ] CI enforces 99%/97% thresholds
+- [ ] HTML report published to gh-pages
+- [ ] Coverage badge shows 99%+
+
+### Timeline
+
+| Phase | Duration | Deliverable |
+|-------|----------|-------------|
+| 1. Analysis | 1-2 days | coverage-gaps.md + HTML reports |
+| 2. Tests (A-E) | 5-7 days | 5 batches of test commits |
+| 3. Ratcheting | Continuous | CI threshold at 99%/97% |
+| 4. Documentation | 1 day | coverage-exceptions.md |
+| **Total** | **7-10 days** | **99%+ coverage** |
 
 ## Stage 11 – Performance Optimization to ±10% Target
 
