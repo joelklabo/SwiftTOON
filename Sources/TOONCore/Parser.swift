@@ -431,7 +431,22 @@ public struct Parser {
             return .object(JSONObject())
         }
 
+        if let simple = try parseSimpleScalarValue() {
+            return simple
+        }
+
         return try parseValue()
+    }
+
+    private mutating func parseSimpleScalarValue() throws -> JSONValue? {
+        guard let token = peekToken() else { return nil }
+        switch token.kind {
+        case .identifier, .number, .stringLiteral:
+            advance()
+            return try interpretSingleToken(token)
+        default:
+            return nil
+        }
     }
 
     private mutating func readRowValues(delimiter: ArrayDelimiter) throws -> [JSONValue] {

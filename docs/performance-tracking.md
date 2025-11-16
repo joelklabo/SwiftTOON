@@ -54,3 +54,9 @@ Each perf iteration should produce:
 - Restored the original 100/200-entry `Benchmarks/Datasets/users.toon` + `large.toon` that the baseline expects, reran all benchmarks, and confirmed every suite beats (or matches) the baseline within ±5%.
 - Perf artifacts were regenerated so the live badge/graph now reference this clean run (`Benchmarks/perf-artifacts/perf-history.json`, `perf-badge.json`, and `perf-history.png`).
 - Keep this file up to date: if a new dataset is introduced or the instrumentation steps change (e.g., new quickchart args), edit this doc so future contributors know exactly how to reproduce the history/badge update.
+
+### Iteration #5 – Scalar shortcut
+- **Goal:** Recognize single-token scalars immediately inside `parseListArrayItem` so we can interpret identifiers, numbers, and string literals without invoking the heavier `parseValue` method.
+- **Profiling evidence:** `SWIFTTOON_PERF_TRACE=1 swift run TOONBenchmarks --format json --output Benchmarks/results/latest.json` reports `Parser.parse` ≈0.00469 s, `Parser.parseListArray` ≈0.00466 s, and the new shortcut shows up as part of the tracker output we now record per iteration.
+- **Optimization steps:** Added `parseSimpleScalarValue()` to consume simple literals directly via `interpretSingleToken`, and we try that before calling `parseValue`. This avoids building a chunk array when the dash is followed by a single token.
+- **Validation & artifacts:** After the change we reran the bench/compare/artifact scripts plus the perf trace, so the iteration log and perf graph reflect this incremental throughput gain.
