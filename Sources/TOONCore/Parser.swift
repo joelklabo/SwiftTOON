@@ -525,15 +525,17 @@ public struct Parser {
         }
         let start = max(0, min(sourceBytes.count, first.range.lowerBound))
         let resolvedEnd = endIndex ?? tokens.last?.range.upperBound ?? start
-        let end = max(start, min(sourceBytes.count, resolvedEnd))
-        let slice = sourceBytes[start..<end]
-        var string = String(decoding: slice, as: UTF8.self)
-        if string.hasSuffix("\n") {
-            string.removeLast()
-            if string.hasSuffix("\r") {
-                string.removeLast()
+        var end = max(start, min(sourceBytes.count, resolvedEnd))
+        while end > start {
+            let byte = sourceBytes[end - 1]
+            if byte == 0x0A || byte == 0x0D {
+                end -= 1
+                continue
             }
+            break
         }
+        let slice = sourceBytes[start..<end]
+        let string = String(decoding: slice, as: UTF8.self)
         return .string(string)
     }
 
