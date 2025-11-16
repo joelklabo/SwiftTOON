@@ -404,13 +404,13 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 
 | Module | Baseline | Current | Target | Remaining |
 |--------|----------|---------|--------|-----------|
-| **Overall** | 89.7% | 91.21% | 99% | 7.79% |
+| **Overall** | 89.7% | 91.50% | 99% | 7.50% |
 | **Parser.swift** | 83.3% | ~88%* | 99% | ~11% |
 | **JSONValueDecoder.swift** | 75.5% | ~85%* | 99% | ~14% |
 | **String+TOONUtils.swift** | 0% | 100%✅ | 100% | 0% |
 | **PerformanceSignpost.swift** | 50% | 95%+✅ | 99% | <4% |
 | **Lexer.swift** | 89.7% | 95.70%✅ | 99% | 3.3% |
-| **JSONValueEncoder.swift** | 89.7% | 89.7% | 99% | 9.3% |
+| **JSONValueEncoder.swift** | 89.7% | 98.35%✅ | 99% | 0.65% |
 | **ToonCodable.swift** | 79.5% | 79.5% | 99% | 19.5% |
 | **CLI main.swift** | 80.1% | 80.1% | 95% | 14.9% |
 
@@ -422,11 +422,12 @@ Repeat this cycle so every MB/s gain becomes a commit that the performance graph
 - ✅ String+TOONUtils: 0% → 100% (25 tests)
 - ✅ PerformanceSignpost: 50% → 95%+ (9 tests)
 - ✅ Lexer.swift: 89.7% → 95.70% (28 error path tests)
+- ✅ JSONValueEncoder.swift: 89.7% → 98.35% (17 comprehensive tests)
 
 **Next Priorities:**
-1. **JSONValueEncoder.swift** (89.7% → 95%): Container encoding, super encoder, all Swift types  
-2. **ToonCodable.swift** (79.5% → 90%): Encoder/decoder initialization, options, error paths
-3. **Parser.swift** (88% → 95%): Remaining edge cases
+1. **ToonCodable.swift** (79.5% → 90%): Encoder/decoder initialization, options, error paths
+2. **Parser.swift** (88% → 95%): Remaining edge cases
+3. **Final push to 99%**: Remaining gaps in all modules
 
 See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-line recommendations.
 
@@ -434,9 +435,9 @@ See `coverage-analysis/gaps-report.md` for detailed gap analysis with line-by-li
 
 ### 📋 Quick Start for Partner Agents
 
-**Current State (2025-11-16 18:52 UTC):**
-- ✅ Lexer.swift error paths: 89.7% → 95.70% (28 tests READY TO COMMIT)
-- 🎯 Next: JSONValueEncoder.swift coverage or ToonCodable.swift
+**Current State (2025-11-16 19:09 UTC):**
+- ✅ JSONValueEncoder.swift: 89.7% → 98.35% (17 tests READY TO COMMIT)
+- 🎯 Next: ToonCodable.swift (79.5% → 90%) or final push to 99%
 
 **Test & Coverage Workflow:**
 ```bash
@@ -488,16 +489,20 @@ gh run watch
    - ✅ Error message localization tests
    - **Created:** `Tests/TOONCoreTests/LexerErrorPathsTests.swift` (28 tests)
 
+#### ✅ DONE - JSONValueEncoder.swift (89.7% → 98.35%)
+   - ✅ All Swift integer types (Int8/16/32/64, UInt variants) in objects and arrays
+   - ✅ Nested keyed/unkeyed containers (object in array, array in object)
+   - ✅ Super encoder paths (superEncoder, superEncoder(forKey:), in arrays)
+   - ✅ Single value container for all types
+   - ✅ Empty objects and arrays
+   - ✅ Deeply nested and mixed structures
+   - ✅ UserInfo propagation and coding path tracking
+   - ✅ Error case (invalidValue when no output)
+   - **Created:** `Tests/TOONCodableTests/JSONValueEncoderCoverageTests.swift` (17 tests)
+
 #### 🔄 TODO - Priority 2: Moderate Gaps (85-95%)
 
 **Target:** Bring all modules above 95% before final push to 99%
-
-2. **JSONValueEncoder.swift** (89.7% → 95%) - 25 lines missing
-   - All Swift integer types (Int8/16/32/64, UInt variants)
-   - Nested container encoding
-   - Super encoder paths
-   - Empty containers
-   - **Create:** `Tests/TOONCodableTests/JSONValueEncoderErrorTests.swift`
 
 3. **ToonCodable.swift** (79.5% → 90%) - 23 lines missing
    - Encoder/decoder initialization edge cases
