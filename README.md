@@ -184,12 +184,12 @@ Coverage, spec parity, and perf guardrails all surface as shields at the top of 
 
 ## Releases
 
-- **Unreleased** – DocC tutorials, spec-alignment artifacts, and main packaging plans; pinned to TOON spec v2.0 (`docs/spec-version.md`). Details live in [`CHANGELOG.md`](CHANGELOG.md) and will be expanded when the first Swift release ships.
-- **Release readiness** – Run `Scripts/check-spec-alignment.swift`, refresh `docs/spec-alignment.md`, update `CHANGELOG.md`, and follow the checklist in [`docs/plan.md#release-checklist`](docs/plan.md#release-checklist) so the DocC/perf/coverage gates and `gh release create` invocation stay synchronized.
-- **Release playbook** – See [`docs/release-checklist.md`](docs/release-checklist.md) plus the more detailed [`docs/plan.md#release-plan-checklist`](docs/plan.md#release-plan-checklist) for the final release ridge (coverage/DocC/bench executions, spec doc refresh, changelog + README updates, `gh release create`). Run `Scripts/release-checklist.sh` when you’re ready to execute Stage 7 so the commands/artifacts stay reproducible.
-- **Release prep summary** – Stage 7/perf/coverage gates now run via the scripted checklist, benchmarks publish against `Benchmarks/baseline_reference.json`, and `Benchmarks/perf-artifacts/*.json`/`perf-history.png` keep the badge current. Document the tutorials in `docs/DocC/GettingStarted.md`, `TabularArrays.md`, and `SchemaPriming.md`, link them to `CHANGELOG.md`, rerun `Scripts/release-checklist.sh`, and publish via `gh release create` + `gh-commit-watch -w perf|coverage` when you’re ready to tag.
+- **v0.1.2** (2025-11-16) – Stage 9 complete: DocC tutorials (Getting Started, Tabular Arrays, Schema Priming), spec alignment artifacts (v2.0.0), refactored scalar formatting utilities, and all 167 tests passing. Performance: lexer +19.9%, parser -9.3%, decoder -17.3% (all within ±20% tolerance). See [`CHANGELOG.md`](CHANGELOG.md) for details.
+- **v0.1.1** (2025-11-15) – Stage 8 performance instrumentation: parser signposts, buffer reuse, benchmark pipeline with history graph/badge, and performance tracking playbook documented.
+- **v0.1.0** (2025-11-15) – Initial release: Stage 6 benchmarks + perf artifacts, Stage 5 CLI coverage, release checklist and artifact scripts ready.
+- **Release playbook** – See [`docs/release-checklist.md`](docs/release-checklist.md) plus [`docs/plan.md#release-plan-checklist`](docs/plan.md#release-plan-checklist) for the release workflow. Run `Scripts/release-checklist.sh` to verify all gates pass before publishing.
 
-> Once the release workflow (e.g., `gh release create`) is ready, rerun the checklist in `docs/plan.md#release-checklist` so every documentation/perf/coverage step remains reproducible.
+> Spec alignment: All releases pin to TOON spec v2.0.0 (commit `3d6c593`). See [`docs/spec-version.md`](docs/spec-version.md) and [`docs/spec-alignment.md`](docs/spec-alignment.md) for clause coverage.
 
 ---
 

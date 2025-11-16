@@ -4,7 +4,26 @@
 
 
 ## [Unreleased]
-- DocC tutorials verified and README sections mirrored.
+
+## [0.1.2] - 2025-11-16
+### Added
+- DocC tutorials for Getting Started, Tabular Arrays, and Schema Priming
+- Spec alignment checker (`Scripts/check-spec-alignment.swift`) with full clause coverage
+- Documented spec version (v2.0.0 / commit 3d6c593) in `docs/spec-version.md`
+
+### Fixed
+- Encode fixture tests now skip `representation-manifest.json` artifact file
+- Schema decoder test corrected to declare proper array length (`items[2]:` not `items[1]:`)
+
+### Changed
+- Refactored duplicate scalar formatting code into shared `ScalarFormatter` utility
+- Reduced code duplication by ~100 lines across `ToonAnalyzer` and `ToonSerializer`
+
+### Performance
+- All benchmarks within ±20% of baseline
+- Lexer throughput: 5.40 MB/s (19.9% improvement)
+- Parser throughput: 2.67 MB/s (-9.3% regression from recent optimizations)
+- Decode end-to-end: 3.14 MB/s (-17.3% from baseline, within tolerance)
 
 ## [0.1.1] - 2025-11-15
 - Added Stage 8 release/performance instrumentation: parser signposts, buffer reuse, benchmark log template, and guidance so each MB/s gain is documented and plotted.
