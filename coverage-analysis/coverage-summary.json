@@ -1,0 +1,18 @@
+{
+  "functions" : {
+    "count" : 1388,
+    "covered" : 1208,
+    "percent" : 87.03170028818444
+  },
+  "generatedAt" : "2025-11-16T16:57:28Z",
+  "lines" : {
+    "count" : 7877,
+    "covered" : 7063,
+    "percent" : 89.66611654183065
+  },
+  "regions" : {
+    "count" : 3599,
+    "covered" : 2978,
+    "percent" : 82.74520700194499
+  }
+}
