@@ -255,6 +255,32 @@ Track detailed steps in [`docs/plan.md`](docs/plan.md).
 
 ---
 
+## Documentation
+
+Comprehensive documentation is organized in the [`docs/`](docs/) directory:
+
+### Core Planning
+- **[Implementation Plan](docs/plans/plan.md)** - Master TDD roadmap (Stages 0-11)
+- **[Coverage Strategy](docs/plans/coverage-strategy.md)** - Path to 99%+ test coverage
+- **[Coverage Gaps](docs/plans/coverage-gaps-2025-11-16.md)** - Current coverage analysis and action plan
+- **[Performance Tracking](docs/plans/performance-tracking.md)** - Benchmark history and optimization log
+
+### Reference
+- **[Agent Instructions](docs/reference/agents.md)** - Canonical AI workflow guide (for GitHub Copilot, Claude, etc.)
+- **[Spec Version](docs/reference/spec-version.md)** - TOON spec tracking
+- **[Release Checklist](docs/reference/release-checklist.md)** - Release process steps
+
+### Historical
+- **[Sessions](docs/sessions/)** - Development session summaries and progress tracking
+- **[Releases](docs/releases/)** - Release preparation notes and summaries
+
+### Tutorials
+- **[DocC Tutorials](docs/DocC/)** - Getting Started, Tabular Arrays, Schema Priming
+
+See [`docs/README.md`](docs/README.md) for the complete documentation structure.
+
+---
+
 ## Contributing
 
 1. Clone repo, install pnpm (Corepack) if you haven't already.
