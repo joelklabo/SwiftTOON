@@ -24,13 +24,18 @@
 ### Documentation Structure
 **All documentation lives in `docs/` with strict organization:**
 
+- **`docs/agents.md`** – **(THIS FILE)** Canonical AI agent instructions
+  - **Source of truth** for all agent contexts
+  - **Symlinked to:**
+    - `AGENTS.md` (root) → for general visibility
+    - `CLAUDE.md` (root) → for Claude-specific tools
+    - `.github/copilot-instructions.md` → for GitHub Copilot
+  - **Never edit the symlinks** - always edit `docs/agents.md`
+
 - **`docs/plans/`** – Active implementation plans (update frequently)
-  - `plan.md` – Master roadmap with all stages (0-11+), current status, checklists
-  - `performance-optimization.md` – Current Stage 11 performance work (detailed execution plan)
-  - `performance-tracking.md` – Historical perf metrics, baseline tracking, playbook
+  - `plan.md` – **Master roadmap** with all stages (0-11+), current status, detailed execution plans
 
 - **`docs/reference/`** – Stable reference documents (update rarely)
-  - `agents.md` – **(this file)** Canonical agent instructions for all AI tools
   - `contributing.md` – Contribution guidelines
   - `release-checklist.md` – Release process steps
   - `spec-alignment.md` – TOON spec compliance report
@@ -42,7 +47,7 @@
 - **`docs/sessions/`** – Historical session logs (archive after completion)
   - Date-stamped session summaries (YYYY-MM-DD format)
   - Benchmark results and optimization attempts
-  - Never delete - provides context for decisions
+  - **Never delete** - provides context for decisions
 
 - **`docs/releases/`** – Release summaries (one per version)
   - `vX.Y.Z-summary.md` format
@@ -50,20 +55,45 @@
 
 - **`docs/DocC/`** – DocC tutorials (GettingStarted, TabularArrays, SchemaPriming)
 
+### Temporary Files Directory
+- **`tmp/`** – **⚠️ CRITICAL: ALL TEMPORARY FILES GO HERE**
+  - **Purpose:** Profiling traces, benchmark logs, debug output, temporary scripts, working files
+  - **Git-ignored:** Never committed to repository
+  - **Why here:** Avoids system temp directory permission issues
+  - **Clean regularly:** Nothing here should be permanent
+  - **Common uses:**
+    - `.trace` files from Instruments profiling
+    - Benchmark working data (`tmp/results/`)
+    - Build logs and diagnostic output
+    - Temporary test files
+    - Debugging artifacts
+  - **Example commands:**
+    ```bash
+    # Profiling
+    instruments -t "Time Profiler" -D tmp/encode.trace ...
+    
+    # Benchmarks
+    swift run TOONBenchmarks --format json --output tmp/results.json
+    
+    # Cleanup when needed
+    rm -rf tmp/*
+    ```
+
 ### Other Critical Directories
-- `reference/` – Upstream `toon-format/toon` checkout. Never edit; only pull updates.
+- `reference/` – Upstream `toon-format/toon` checkout. **Never edit**; only pull updates
 - `reference/spec` – Spec fixtures synced via `Scripts/update-fixtures.swift`
-- **`tmp/`** – **CRITICAL: ALL TEMPORARY FILES GO HERE.** Profiling traces, logs, debug output, temporary scripts. Git-ignored. Never use system temp to avoid permissions issues. Clean periodically.
 - `README.md` – Public project page; keep badges accurate with CI
+- `CHANGELOG.md` – Release history (Keep a Changelog format)
 - `.github/workflows/` – CI pipelines (ci.yml, coverage.yml, performance-benchmarks.yml)
 
 ### Documentation Rules
-1. **Plans folder** = active work, change frequently, stay current
-2. **Reference folder** = stable info, change rarely, comprehensive
-3. **Sessions folder** = historical archive, never delete, date-stamped
-4. **All filenames** = lowercase-with-hyphens (e.g., `performance-tracking.md`)
-5. **No markdown in project root** except README.md and CHANGELOG.md
-6. **Root symlinks** (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md) → `docs/reference/agents.md`
+1. **`docs/agents.md`** = canonical source, symlinked to root (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md)
+2. **Plans folder** = active work, update frequently, single source of truth (`plan.md`)
+3. **Reference folder** = stable info, update rarely, comprehensive
+4. **Sessions folder** = historical archive, **never delete**, date-stamped (YYYY-MM-DD format)
+5. **All filenames** = lowercase-with-hyphens (e.g., `spec-alignment.md`)
+6. **No markdown in project root** except README.md and CHANGELOG.md (others are symlinks)
+7. **Temporary files** = `tmp/` directory only, never use system temp
 
 ---
 
