@@ -12,3 +12,4 @@ DerivedData/
 .netrc
 .gemini/
 /coverage-analysis/
+.temp/
