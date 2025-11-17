@@ -1,48 +1,102 @@
 [
   {
-    "dataset": "large.toon",
-    "iterations": 10,
-    "metric": "throughput",
-    "status": "success",
-    "suite": "lexer_micro",
-    "unit": "MB/s",
-    "value": 4.5035
+    "dataset" : "large.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "lexer_micro",
+    "unit" : "MB\/s",
+    "value" : 26.825036017288298
   },
   {
-    "dataset": "large.toon",
-    "iterations": 10,
-    "metric": "throughput",
-    "status": "success",
-    "suite": "parser_micro",
-    "unit": "MB/s",
-    "value": 2.94
+    "dataset" : "large.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "parser_micro",
+    "unit" : "MB\/s",
+    "value" : 5.831894871652096
   },
   {
-    "dataset": "users.toon",
-    "iterations": 10,
-    "metric": "throughput",
-    "status": "success",
-    "suite": "decode_end_to_end",
-    "unit": "MB/s",
-    "value": 3.796
+    "dataset" : "users.toon",
+    "iterations" : 10,
+    "metric" : "throughput",
+    "status" : "success",
+    "suite" : "decode_end_to_end",
+    "unit" : "MB\/s",
+    "value" : 9.970943256147358
   },
   {
-    "dataset": "users.toon",
-    "iterations": 10,
-    "metric": "objects_per_second",
-    "status": "success",
-    "suite": "decode_objects_per_second",
-    "unit": "obj/s",
-    "value": 414.6
+    "dataset" : "users.toon",
+    "iterations" : 10,
+    "metric" : "objects_per_second",
+    "status" : "success",
+    "suite" : "decode_objects_per_second",
+    "unit" : "obj\/s",
+    "value" : 1235.180964160556
   },
   {
-    "dataset": "orders.json",
-    "iterations": 0,
-    "metric": "status",
-    "note": "Pending CLI encode/decode support",
-    "status": "skipped",
-    "suite": "cli_round_trip",
-    "unit": "-",
-    "value": 0
+    "dataset" : "orders.json",
+    "iterations" : 0,
+    "metric" : "status",
+    "note" : "Pending CLI encode\/decode support",
+    "status" : "skipped",
+    "suite" : "cli_round_trip",
+    "unit" : "-",
+    "value" : 0
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.parseObject",
+    "unit" : "s",
+    "value" : 1.8881331602337936e-05
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.buildValue",
+    "unit" : "s",
+    "value" : 6.397813558578491e-08
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.parseArrayValue",
+    "unit" : "s",
+    "value" : 2.215703725219666e-06
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.parseListArray",
+    "unit" : "s",
+    "value" : 0.001303573449452718
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.readRowValues",
+    "unit" : "s",
+    "value" : 5.778968334197998e-07
+  },
+  {
+    "dataset" : "phase",
+    "iterations" : 1,
+    "metric" : "duration",
+    "status" : "success",
+    "suite" : "Parser.parse",
+    "unit" : "s",
+    "value" : 0.001307829221089681
   }
 ]
