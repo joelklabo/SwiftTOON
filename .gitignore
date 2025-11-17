@@ -13,3 +13,4 @@ DerivedData/
 .gemini/
 /coverage-analysis/
 .temp/
+/tmp/

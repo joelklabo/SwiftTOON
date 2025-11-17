@@ -20,6 +20,7 @@
 - `reference/spec` – Spec repository clone providing canonical fixtures; synced via `Scripts/update-fixtures.swift`.
 - `README.md` – Public marketing page; badges must stay accurate with active CI workflows.
 - `.github/workflows/ci.yml` – Swift test + coverage pipeline; keep it green before merging anything.
+- **`tmp/`** – **CRITICAL: ALL TEMPORARY FILES GO HERE.** Profiling traces, benchmark working data, logs, debug output, temporary scripts. This directory is git-ignored. Never use system temp directories to avoid permission issues. Clean periodically.
 
 Future targets (to be created during implementation) include `Sources/TOONCore`, `Sources/TOONCodable`, `Sources/TOONCLI`, and `Sources/TOONBenchmarks`, plus matching `Tests/` trees with fixtures mirrored from `reference/`.
 

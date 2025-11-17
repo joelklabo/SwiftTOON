@@ -65,15 +65,15 @@ Instead of guessing, examine how the reference implementation achieves 16 MB/s:
 
 ```bash
 # Create long-running workload
-cat > .temp/profile_workload.sh << 'EOF'
+cat > tmp/profile_workload.sh << 'EOF'
 for i in {1..1000}; do
   .build/release/toon-swift encode < Benchmarks/Datasets/users_10k.json > /dev/null
 done
 EOF
 
 # Profile with Instruments
-instruments -t "Time Profiler" -D .temp/encode.trace .temp/profile_workload.sh
-# Open .temp/encode.trace in Instruments.app
+instruments -t "Time Profiler" -D tmp/encode.trace tmp/profile_workload.sh
+# Open tmp/encode.trace in Instruments.app
 ```
 
 ### Micro-optimization Ideas (AFTER architectural fix)
