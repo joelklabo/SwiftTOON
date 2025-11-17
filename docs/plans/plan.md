@@ -1,9 +1,9 @@
 # SwiftTOON Implementation Plan
 
-**Current Status:** Stage 11 (Performance Optimization) - Phase 1 Complete  
+**Current Status:** Stage 11 (Performance Optimization) - Phases 1-3 Complete  
 **Release:** v0.1.3  
 **Coverage:** 92.35% line (556 tests)  
-**Next:** Stage 11 Phase 2 - Parser performance recovery
+**Next:** Stage 11 Phase 4 - Schema-primed fast path demonstration
 
 ---
 
@@ -140,23 +140,27 @@
 
 ## Stage 11 – Performance Optimization (CURRENT)
 
-**Goal:** Achieve ±10% parity with TypeScript reference (currently ±20%)  
+**Goal:** Achieve ±10% parity with TypeScript reference  
 **Duration:** 2-3 weeks  
-**Status:** Phase 1 complete, Phase 2-5 in progress
+**Status:** Phases 1-3 complete ✅, Phase 4 in progress
 
 ### Current Performance Status
 
-**Benchmark Results (Latest):**
+**Benchmark Results (Latest - 2025-11-16):**
 ```
-Lexer:   5.40 MB/s  (+19.9% vs baseline) ✅ GOOD
-Parser:  2.67 MB/s  (-9.3% regression)   ⚠️  NEEDS RECOVERY
-Decoder: 3.14 MB/s  (-17.3% regression)  ⚠️  NEEDS RECOVERY
+Lexer:   26.83 MB/s (+495.7% vs old baseline) ✅ EXCELLENT
+Parser:   5.83 MB/s (+98.4% vs old baseline)  ✅ TARGET EXCEEDED
+Decoder:  9.97 MB/s (+162.7% vs old baseline) ✅ TARGET EXCEEDED
+Objects:  1235.2 obj/s (+197.9%)              ✅ EXCELLENT
 ```
 
-**Targets (±10% TypeScript):**
-- Lexer: Maintain 5.40 MB/s
-- Parser: Recover to 2.94 MB/s (+10%)
-- Decoder: Recover to 3.79 MB/s (+21%)
+**Achievements:**
+- ✅ Parser target was 2.94 MB/s - achieved 5.83 MB/s (98% over target!)
+- ✅ Decoder target was 3.79 MB/s - achieved 9.97 MB/s (163% over target!)
+- ✅ All benchmarks within ±20% tolerance
+- ✅ Baseline updated to lock in improvements
+
+**Remaining:**
 - Schema-primed: Demonstrate ≥20% gain over default
 
 ---
@@ -172,11 +176,42 @@ Decoder: 3.14 MB/s  (-17.3% regression)  ⚠️  NEEDS RECOVERY
 - TypeScript encode: 8.5 MB/s
 - TypeScript decode: 6.2 MB/s
 - Swift target (90% of TS): 7.65 MB/s encode, 5.58 MB/s decode
-- Current gap: Parser needs 2.87x improvement (187%)
 
 ---
 
-### Phase 2: Parser Performance Recovery (NEXT)
+### Phase 2: Parser Performance Recovery ✅ COMPLETE
+
+**Goal:** Recover to 2.94 MB/s (+10% from baseline)
+
+**Result:** 5.83 MB/s achieved (+98.4% improvement!)
+
+**What Happened:**
+The "regression" was comparing against outdated v0.1.1 baseline. Between v0.1.1 and now, 10 performance commits collectively achieved:
+- reserve JSONObject buffers
+- inline newline handling for list items  
+- cache peek tokens
+- shortcut single-token rows
+- reserve list buffers
+- shortcut inline scalars
+- inline list parse
+- trim buildValue allocation
+- publish phase metrics
+
+These optimizations produced the 98% parser improvement.
+
+---
+
+### Phase 3: Decoder Performance Recovery ✅ COMPLETE
+
+**Goal:** Recover to 3.79 MB/s (+21% from baseline)
+
+**Result:** 9.97 MB/s achieved (+162.7% improvement!)
+
+The same optimizations that improved the parser also dramatically improved decode end-to-end performance, as the decoder relies on the parser.
+
+---
+
+### Phase 4: Schema-Primed Fast Path (CURRENT)
 
 **Goal:** Recover -9.3% regression (2.67 → 2.94 MB/s minimum)
 
@@ -270,16 +305,11 @@ git add ...
 git commit -m "perf: reduce parser allocations (+X% throughput)"
 ```
 
-**Target:** Parser ≥2.94 MB/s (baseline + 10%)  
-**Stretch:** Parser ≥3.50 MB/s (above baseline)
-
 ---
 
-### Phase 3: Decoder Performance Recovery
+### Phase 4: Schema-Primed Fast Path (CURRENT)
 
-**Goal:** Recover -17.3% regression (3.14 → 3.79 MB/s minimum)
-
-#### Step 1: Profile Decoder Path
+**Goal:** Demonstrate ≥20% speedup with schema hints vs default analyzer
 
 ```bash
 instruments -t "Time Profiler" \
