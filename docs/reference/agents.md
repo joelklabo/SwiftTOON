@@ -14,15 +14,56 @@
 
 ## Repository Layout Essentials
 
-- `docs/plan.md` – Living roadmap outlining every stage; reference it before writing code/tests.
-- `docs/reference/agents.md` – (this file) canonical instructions for Codex, Cursor, ClaudeMD, Copilot, Quad, etc.
-- `reference/` – Upstream `toon-format/toon` checkout for fixtures, differential tests, and performance baselines. Never edit upstream sources except to pull updates.
-- `reference/spec` – Spec repository clone providing canonical fixtures; synced via `Scripts/update-fixtures.swift`.
-- `README.md` – Public marketing page; badges must stay accurate with active CI workflows.
-- `.github/workflows/ci.yml` – Swift test + coverage pipeline; keep it green before merging anything.
-- **`tmp/`** – **CRITICAL: ALL TEMPORARY FILES GO HERE.** Profiling traces, benchmark working data, logs, debug output, temporary scripts. This directory is git-ignored. Never use system temp directories to avoid permission issues. Clean periodically.
+### Source Code
+- `Sources/TOONCore` – Zero-dependency lexer, parser, serializer, error taxonomy
+- `Sources/TOONCodable` – Swift Codable integration, ToonEncoder/ToonDecoder, schema priming
+- `Sources/TOONCLI` – CLI tool (`toon-swift`) for encode/decode/validate/stats
+- `Sources/TOONBenchmarks` – Performance benchmarks and profiling harness
+- `Tests/` – Matching test targets with comprehensive coverage (≥99% line / ≥97% branch)
 
-Future targets (to be created during implementation) include `Sources/TOONCore`, `Sources/TOONCodable`, `Sources/TOONCLI`, and `Sources/TOONBenchmarks`, plus matching `Tests/` trees with fixtures mirrored from `reference/`.
+### Documentation Structure
+**All documentation lives in `docs/` with strict organization:**
+
+- **`docs/plans/`** – Active implementation plans (update frequently)
+  - `plan.md` – Master roadmap with all stages (0-11+), current status, checklists
+  - `performance-optimization.md` – Current Stage 11 performance work (detailed execution plan)
+  - `performance-tracking.md` – Historical perf metrics, baseline tracking, playbook
+
+- **`docs/reference/`** – Stable reference documents (update rarely)
+  - `agents.md` – **(this file)** Canonical agent instructions for all AI tools
+  - `contributing.md` – Contribution guidelines
+  - `release-checklist.md` – Release process steps
+  - `spec-alignment.md` – TOON spec compliance report
+  - `spec-version.md` – Tracked spec version
+  - `tutorials-checklist.md` – DocC tutorial status (all complete)
+  - `perf-visualization-options.md` – Performance dashboard design notes
+  - `remaining-work-summary.md` – High-level work summary (update after major milestones)
+
+- **`docs/sessions/`** – Historical session logs (archive after completion)
+  - Date-stamped session summaries (YYYY-MM-DD format)
+  - Benchmark results and optimization attempts
+  - Never delete - provides context for decisions
+
+- **`docs/releases/`** – Release summaries (one per version)
+  - `vX.Y.Z-summary.md` format
+  - Keep forever as historical record
+
+- **`docs/DocC/`** – DocC tutorials (GettingStarted, TabularArrays, SchemaPriming)
+
+### Other Critical Directories
+- `reference/` – Upstream `toon-format/toon` checkout. Never edit; only pull updates.
+- `reference/spec` – Spec fixtures synced via `Scripts/update-fixtures.swift`
+- **`tmp/`** – **CRITICAL: ALL TEMPORARY FILES GO HERE.** Profiling traces, logs, debug output, temporary scripts. Git-ignored. Never use system temp to avoid permissions issues. Clean periodically.
+- `README.md` – Public project page; keep badges accurate with CI
+- `.github/workflows/` – CI pipelines (ci.yml, coverage.yml, performance-benchmarks.yml)
+
+### Documentation Rules
+1. **Plans folder** = active work, change frequently, stay current
+2. **Reference folder** = stable info, change rarely, comprehensive
+3. **Sessions folder** = historical archive, never delete, date-stamped
+4. **All filenames** = lowercase-with-hyphens (e.g., `performance-tracking.md`)
+5. **No markdown in project root** except README.md and CHANGELOG.md
+6. **Root symlinks** (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md) → `docs/reference/agents.md`
 
 ---
 
